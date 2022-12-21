@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    ports:
+      - 22:22
+    depends_on:
+      - cockroach
+
+  cockroach:
+    image: cockroachdb/cockroach:latest
+    command: start-single-node --insecure
+    ports:
+      - 26257:26257
+      - 8080:8080
+    volumes:
+      - ./_cockroach-data:/cockroach/_cockroach-data

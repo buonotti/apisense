@@ -1,0 +1,28 @@
+version: 3
+
+tasks:
+  default:
+    desc: Default task, builds and runs the project
+    deps:
+      - run
+
+  build: go build -o release/odh-data-monitor main.go
+  run:
+    desc: Runs the project
+    deps:
+      - build
+    cmds:
+      - ./release/odh-data-monitor {{.CLI_ARGS}}
+
+  dev:
+    desc: Runs the project in dev mode
+    deps:
+      - build
+      - clean
+    cmds:
+      - ./release/odh-data-monitor {{.CLI_ARGS}}
+
+  clean:
+    desc: Cleans the project configs
+    cmds:
+      - rm -r {{.HOME}}/.config/odh-data-monitor
