@@ -16,3 +16,6 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# Database data
+_cockroach-data/

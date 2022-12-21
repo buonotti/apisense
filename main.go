@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"github.com/buonotti/odh-data-monitor/cmd"
 )
 
-func Main() {
-	fmt.Println("Hello, world!")
+func main() {
+	cmd.Execute()
 }
