@@ -1,10 +1,11 @@
 package tui
 
 import (
-	"fmt"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 func Run() error {
-	fmt.Println("Hello, world!")
-	return nil
+	p := tea.NewProgram(loadingModule(), tea.WithAltScreen())
+	err := p.Start()
+	return err
 }
