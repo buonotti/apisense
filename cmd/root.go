@@ -9,7 +9,7 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:     "odm",
+	Use:     "odh-data-monitor",
 	Short:   "odm is a tool for managing the OpenDataHub Data Monitor",
 	Long:    `odm is a tool for managing the OpenDataHub Data Monitor`, // TODO
 	Version: "0.0.1",
