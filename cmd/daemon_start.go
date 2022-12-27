@@ -12,7 +12,7 @@ var daemonStartCmd = &cobra.Command{
 	Short: "Start the daemon",
 	Long:  `Start the daemon`, // TODO
 	Run: func(cmd *cobra.Command, args []string) {
-		errors.HandleError(daemon.Run())
+		errors.HandleError(daemon.Start())
 	},
 }
 

@@ -10,7 +10,7 @@ import (
 	"github.com/buonotti/odh-data-monitor/log"
 )
 
-func Run() error {
+func run() error {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 
