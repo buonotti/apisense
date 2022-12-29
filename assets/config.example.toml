@@ -9,7 +9,7 @@ file = ""
 
 # Enable pretty log output. This will colorize the log output and print it in a readable format.
 # If set to false, the log output will be in JSON format.
-pretty = false
+pretty = true
 
 # Set to true to force color logging. Only has an effect if pretty is set to true.
 force-color = true

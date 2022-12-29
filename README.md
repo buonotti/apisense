@@ -2,7 +2,6 @@
 
 This repository contains the source code for the ODH Data Monitor.
 
-
 No Database
 Monitor ODH Apis
 runs 1 time a day
