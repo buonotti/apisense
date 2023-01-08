@@ -9,14 +9,14 @@ import (
 
 var FileName = "config"
 var Directory = configdir.LocalConfig("odh-data-monitor")
-var FullPath = filepath.FromSlash(Directory + "/" + FileName + ".toml")
+var FullPath = Directory + string(filepath.Separator) + FileName + ".toml"
 
 func Setup() error {
 	viper.SetConfigName(FileName)
 	viper.AddConfigPath(Directory)
 	err := viper.ReadInConfig()
 	if err != nil {
-		err = create()
+		err = createExampleConfig()
 		if err != nil {
 			return err
 		}

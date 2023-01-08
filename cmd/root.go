@@ -11,7 +11,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:     "odh-data-monitor",
 	Short:   "odm is a tool for managing the OpenDataHub Data Monitor",
-	Long:    `odm is a tool for managing the OpenDataHub Data Monitor`, // TODO
+	Long:    `odm is a tool for managing the OpenDataHub Data Monitor`, // TODO add more info
 	Version: "0.0.1",
 	Run: func(cmd *cobra.Command, args []string) {
 		cobra.CheckErr(cmd.Help())

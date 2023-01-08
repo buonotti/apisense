@@ -6,6 +6,7 @@ require (
 	github.com/76creates/stickers v0.0.0-20221227122814-b66e7226c01e
 	github.com/charmbracelet/bubbletea v0.21.0
 	github.com/charmbracelet/lipgloss v0.6.0
+	github.com/go-resty/resty/v2 v2.7.0
 	github.com/joomcode/errorx v1.1.0
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/sirupsen/logrus v1.9.0
@@ -25,6 +26,7 @@ require (
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.13.0 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
+	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
 )
 
 require (
@@ -36,7 +38,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/nightlyone/lockfile v1.0.0
 	github.com/pelletier/go-toml v1.9.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
+	github.com/pelletier/go-toml/v2 v2.0.5
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
