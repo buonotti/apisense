@@ -22,7 +22,7 @@ func (d daemon) run() error {
 	ctx, cancel := context.WithCancel(ctx)
 
 	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, sigint, sighup)
+	signal.Notify(signalChan, SIGINT, SIGHUP)
 
 	defer func() {
 		log.DaemonLogger.Info("Stopping daemon")
@@ -37,11 +37,11 @@ func (d daemon) run() error {
 			select {
 			case s := <-signalChan:
 				switch s {
-				case sighup:
+				case SIGHUP:
 					log.DaemonLogger.Info("Received SIGHUP, reloading configuration")
 					err := d.Pipeline.RefreshItems()
 					errors.HandleError(err)
-				case sigint:
+				case SIGINT:
 					log.DaemonLogger.Info("Received SIGINT, stopping daemon")
 					errors.HandleError(writeStatus(DOWN))
 					errors.HandleError(writePid(-1))

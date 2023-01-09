@@ -1,6 +1,0 @@
-services:
-  app:
-    build: .
-    ports:
-      - 22:22
-    depends_on:

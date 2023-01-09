@@ -5,6 +5,7 @@ import (
 )
 
 const (
-	sighup = windows.SIGHUP
-	sigint = windows.SIGINT
+	SIGHUP  = windows.SIGHUP
+	SIGINT  = windows.SIGINT
+	SIGTERM = windows.SIGTERM
 )

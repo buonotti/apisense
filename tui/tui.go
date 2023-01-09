@@ -19,7 +19,7 @@ var (
 
 type errMsg error
 
-type model struct {
+type Model struct {
 	help             help.Model
 	keymap           keymap
 	flexbox          *stickers.FlexBox
@@ -32,7 +32,7 @@ type model struct {
 	daemonModel      tea.Model
 }
 
-func tuiModule() model {
+func TuiModule() Model {
 	listMainMenu.SetShowFilter(false)
 	listMainMenu.SetShowTitle(false)
 	listMainMenu.SetShowPagination(false)
@@ -45,7 +45,7 @@ func tuiModule() model {
 	listConfigMenu.SetShowHelp(false)
 	listConfigMenu.SetShowStatusBar(false)
 
-	return model{
+	return Model{
 		keymap:           DefaultKeyMap,
 		help:             help.New(),
 		flexbox:          stickers.NewFlexBox(0, 0).SetStyle(styleContentCenter.Copy().BorderStyle(lipgloss.RoundedBorder())),
@@ -57,7 +57,7 @@ func tuiModule() model {
 	}
 }
 
-func (m model) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	m.daemonModel.Init()
 	watcher := NewFileWatcher()
 	watcher.AddFile(daemon.PidFile)
@@ -90,7 +90,7 @@ func (m model) Init() tea.Cmd {
 	return nil
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	//Cmds that force rerendering of given component
 	var cmdMainMenu tea.Cmd
 	var cmdConfigMenu tea.Cmd
@@ -166,7 +166,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
-func (m model) View() string {
+func (m Model) View() string {
 
 	if m.err != nil {
 		errors.HandleError(m.err)
