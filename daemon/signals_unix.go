@@ -5,6 +5,7 @@ import (
 )
 
 const (
-	sighup = unix.SIGHUP
-	sigint = unix.SIGINT
+	SIGHUP  = unix.SIGHUP
+	SIGINT  = unix.SIGINT
+	SIGTERM = unix.SIGTERM
 )

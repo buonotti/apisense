@@ -30,11 +30,22 @@ tasks:
     deps:
       - build
       - install
-      - clean
+      - clean-all
     cmds:
       - odh-data-monitor {{.CLI_ARGS}}
 
+  clean-all:
+    desc: Cleans the project
+    deps:
+      - clean
+      - clean-cfg
+
   clean:
+    desc: Cleans the project
+    cmds:
+      - go clean -i
+
+  clean-cfg:
     desc: Cleans the project configs
     cmds:
       - rm -r {{.HOME}}/.config/odh-data-monitor

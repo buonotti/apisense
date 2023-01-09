@@ -12,7 +12,7 @@ import (
 
 type errMsg error
 
-type model struct {
+type Model struct {
 	help             help.Model
 	keymap           keymap
 	flexbox          *stickers.FlexBox
@@ -25,7 +25,7 @@ type model struct {
 	daemonModel      daemonModel
 }
 
-func tuiModule() model {
+func TuiModule() Model {
 	listMainMenu.SetShowFilter(false)
 	listMainMenu.SetShowTitle(false)
 	listMainMenu.SetShowPagination(false)
@@ -38,7 +38,7 @@ func tuiModule() model {
 	listConfigMenu.SetShowHelp(false)
 	listConfigMenu.SetShowStatusBar(false)
 
-	return model{
+	return Model{
 		keymap:           DefaultKeyMap,
 		help:             help.New(),
 		flexbox:          stickers.NewFlexBox(0, 0).SetStyle(styleContentCenter.Copy().BorderStyle(lipgloss.RoundedBorder())),
@@ -50,7 +50,7 @@ func tuiModule() model {
 	}
 }
 
-func (m model) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	m.flexbox.AddRows([]*stickers.FlexBoxRow{
 		m.flexbox.NewRow().AddCells(
 			[]*stickers.FlexBoxCell{
@@ -71,7 +71,7 @@ func (m model) Init() tea.Cmd {
 	return nil
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	//Cmds that force rerendering of given menu
 	var cmdMainMenu tea.Cmd
@@ -138,7 +138,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
-func (m model) View() string {
+func (m Model) View() string {
 
 	//Render Title
 	title := figure.NewFigure("ODM - TUI", "", true)

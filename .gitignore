@@ -9,6 +9,8 @@
 *.dylib
 release/
 odh-data-monitor
+.ssh/
+.ssh/*
 
 # Test binary, built with `go test -c`
 *.test

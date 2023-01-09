@@ -46,7 +46,7 @@ func ReloadDaemon() error {
 	if err != nil {
 		return errors.CannotReloadDaemonError.Wrap(err, "Cannot find process")
 	}
-	err = process.Signal(sighup)
+	err = process.Signal(SIGHUP)
 	if err != nil {
 		return errors.CannotReloadDaemonError.Wrap(err, "Cannot send interrupt signal")
 	}
