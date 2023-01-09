@@ -22,7 +22,7 @@ func (d daemon) run() error {
 	ctx, cancel := context.WithCancel(ctx)
 
 	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, sigint, sighup)2
+	signal.Notify(signalChan, sigint, sighup)
 
 	defer func() {
 		log.DaemonLogger.Info("Stopping daemon")

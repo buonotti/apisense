@@ -13,6 +13,10 @@ var styleHelp = lipgloss.NewStyle().
 	Foreground(lipgloss.Color("#536878"))
 var stylePrimary = lipgloss.NewStyle().
 	Foreground(lipgloss.Color("#F38BA8"))
+var styleInfo = lipgloss.NewStyle().
+	Foreground(lipgloss.Color("#89b4fa"))
+var styleSuccess = lipgloss.NewStyle().
+	Foreground(lipgloss.Color("#a6e3a1"))
 var styleBold = lipgloss.NewStyle().Bold(true)
 
 // CENTER

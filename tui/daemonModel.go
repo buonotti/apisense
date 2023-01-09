@@ -14,10 +14,10 @@ type daemonModel struct {
 	ePid    errMsg
 }
 
-func daemonModule() daemonModel {
+func daemonModule() tea.Model {
 
-	s, se := daemon.Status()
 	p, pe := daemon.Pid()
+	s, se := daemon.Status()
 
 	return daemonModel{
 		status:  string(s),
@@ -27,27 +27,40 @@ func daemonModule() daemonModel {
 	}
 }
 
-func (s daemonModel) Init() tea.Cmd {
+func (d daemonModel) Init() tea.Cmd {
 	return nil
 }
 
-func (s daemonModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	return s, nil
+func (d daemonModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	p, pe := daemon.Pid()
+	s, se := daemon.Status()
+
+	d.pid = p
+	d.ePid = pe
+	d.status = string(s)
+	d.eStatus = se
+
+	return d, nil
 }
 
-func (s daemonModel) View() string {
+func (d daemonModel) View() string {
 	sPid := ""
 	sStatus := ""
-	if s.ePid == nil {
-		sPid = "pid:    " + stylePrimary.Render(fmt.Sprintf("%d", s.pid))
+	if d.ePid == nil {
+		sPid = "pid:    " + styleInfo.Render(fmt.Sprintf("%d", d.pid))
 	} else {
 		sPid = "pid:    " + stylePrimary.Render("unknown")
 	}
-	if s.eStatus == nil {
-		sStatus = "status: " + stylePrimary.Render(s.status)
+	if d.eStatus == nil {
+		if d.status == string(daemon.UP) {
+			sStatus = "status: " + styleSuccess.Render(d.status)
+		} else {
+			sStatus = "status: " + stylePrimary.Render(d.status)
+		}
+
 	} else {
 		sStatus = "status: " + stylePrimary.Render("unknown")
 	}
 
-	return sPid + "\n\n" + sStatus
+	return sPid + "\n\n" + sStatus + "\n\n"
 }

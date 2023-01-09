@@ -2,12 +2,19 @@ package tui
 
 import (
 	"github.com/76creates/stickers"
+	"github.com/buonotti/odh-data-monitor/daemon"
+	"github.com/buonotti/odh-data-monitor/errors"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/common-nighthawk/go-figure"
+)
+
+var (
+	test   = 0
+	update = false
 )
 
 type errMsg error
@@ -22,7 +29,7 @@ type model struct {
 	listConfigMenu   list.Model
 	choiceMainMenu   string
 	choiceConfigMenu string
-	daemonModel      daemonModel
+	daemonModel      tea.Model
 }
 
 func tuiModule() model {
@@ -51,6 +58,18 @@ func tuiModule() model {
 }
 
 func (m model) Init() tea.Cmd {
+	m.daemonModel.Init()
+	watcher := NewFileWatcher()
+	watcher.AddFile(daemon.PidFile)
+
+	go watcher.Start()
+
+	go func() {
+		for {
+			update = <-watcher.Events
+			m.Update(nil)
+		}
+	}()
 	m.flexbox.AddRows([]*stickers.FlexBoxRow{
 		m.flexbox.NewRow().AddCells(
 			[]*stickers.FlexBoxCell{
@@ -72,12 +91,20 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-
-	//Cmds that force rerendering of given menu
+	//Cmds that force rerendering of given component
 	var cmdMainMenu tea.Cmd
 	var cmdConfigMenu tea.Cmd
+	var cmdDaemonModal tea.Cmd
 	m.listMainMenu, cmdMainMenu = m.listMainMenu.Update(msg)
 	m.listConfigMenu, cmdConfigMenu = m.listConfigMenu.Update(msg)
+	m.daemonModel, cmdDaemonModal = m.daemonModel.Update(msg)
+
+	if update {
+		m.daemonModel.Update(msg)
+		update = false
+		test++
+		return m, tea.Batch(cmdMainMenu, cmdConfigMenu, cmdDaemonModal)
+	}
 
 	switch msg := msg.(type) {
 
@@ -92,11 +119,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keymap.up):
 			m.listMainMenu.CursorUp()
 			m.listConfigMenu.CursorUp()
-			return m, tea.Batch(cmdMainMenu, cmdConfigMenu)
+			return m, tea.Batch(cmdMainMenu, cmdConfigMenu, cmdDaemonModal)
 		case key.Matches(msg, m.keymap.up):
 			m.listMainMenu.CursorDown()
 			m.listConfigMenu.CursorDown()
-			return m, tea.Batch(cmdMainMenu, cmdConfigMenu)
+			return m, tea.Batch(cmdMainMenu, cmdConfigMenu, cmdDaemonModal)
 		case key.Matches(msg, m.keymap.choose):
 			i, okMainMenu := m.listMainMenu.SelectedItem().(item)
 			j, okConfigMenu := m.listConfigMenu.SelectedItem().(item)
@@ -106,7 +133,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else if okConfigMenu && m.choiceConfigMenu == "" {
 				m.choiceConfigMenu = j.title
 			}
-			return m, tea.Batch(cmdMainMenu, cmdConfigMenu)
+			return m, tea.Batch(cmdMainMenu, cmdConfigMenu, cmdDaemonModal)
 		case key.Matches(msg, m.keymap.back):
 			if m.choiceMainMenu != "" && m.choiceConfigMenu != "" {
 				m.choiceConfigMenu = ""
@@ -115,7 +142,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.choiceMainMenu = ""
 				m.listMainMenu.ResetSelected()
 			}
-			return m, tea.Batch(cmdMainMenu, cmdConfigMenu)
+			return m, tea.Batch(cmdMainMenu, cmdConfigMenu, cmdDaemonModal)
 		default:
 			return m, nil
 		}
@@ -134,11 +161,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	default:
+		errors.HandleError(errors.UnknownError.New("FUCKKK MY LIFEEE"))
 		return m, tea.Batch(cmdMainMenu, cmdConfigMenu)
 	}
 }
 
 func (m model) View() string {
+
+	if m.err != nil {
+		errors.HandleError(m.err)
+	}
 
 	//Render Title
 	title := figure.NewFigure("ODM - TUI", "", true)
