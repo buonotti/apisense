@@ -47,8 +47,7 @@ func (i item) FilterValue() string { return i.title }
 
 // Main menu
 var itemsMainMenu = []list.Item{
-	item{title: "Start", desc: "Start a new daemon"},
-	item{title: "State", desc: "Get information on active daemon"},
+	item{title: "Daemon", desc: "Control daemon activity"},
 	item{title: "Report", desc: "Get currently available report"},
 	item{title: "Config", desc: "Edit daemon / TUI config"},
 }

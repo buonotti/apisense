@@ -22,6 +22,7 @@ type model struct {
 	listConfigMenu   list.Model
 	choiceMainMenu   string
 	choiceConfigMenu string
+	daemonModel      daemonModel
 }
 
 func tuiModule() model {
@@ -45,6 +46,7 @@ func tuiModule() model {
 		listConfigMenu:   listConfigMenu,
 		choiceMainMenu:   "",
 		choiceConfigMenu: "",
+		daemonModel:      daemonModule(),
 	}
 }
 
@@ -146,14 +148,10 @@ func (m model) View() string {
 
 	//Act based one main menu changes
 	switch m.choiceMainMenu {
-	case "Start":
-		//Render start option
-		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(5))
-		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.choiceMainMenu))
-	case "State":
+	case "Daemon":
 		//Render state option
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(5))
-		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.choiceMainMenu))
+		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.daemonModel.View()))
 	case "Report":
 		//Render report option
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(5))

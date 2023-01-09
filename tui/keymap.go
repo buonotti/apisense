@@ -60,8 +60,8 @@ var DefaultKeyMap = keymap{
 		key.WithHelp(styleHotkey.Render("↲"), styleHelp.Render("choose")),
 	),
 	back: key.NewBinding(
-		key.WithKeys("b"),
-		key.WithHelp(styleHotkey.Render("b"), styleHelp.Render("back")),
+		key.WithKeys("backspace"),
+		key.WithHelp(styleHotkey.Render("↩"), styleHelp.Render("back")),
 	),
 	format: key.NewBinding(
 		key.WithKeys(""),
