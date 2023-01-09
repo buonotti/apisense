@@ -1,5 +1,10 @@
 package validation
 
+import (
+	"net/url"
+	"time"
+)
+
 type Validator interface {
 	Name() string
 	Validate(item Item) error
@@ -18,15 +23,19 @@ type Pipeline struct {
 	Validators    []Validator
 }
 
-type Result struct {
-	EndpointName     string
-	ValidatorResults []ValidatorResult
+type ValidatedEndpoint struct {
+	EndpointName string
+	Results      []Result
 }
 
-type ValidatorResult struct {
+type Result struct {
+	Url              string
+	ValidatorsOutput []ValidatorOutput
+}
+
+type ValidatorOutput struct {
 	Validator string
-	Url       string
-	Error     error
+	Error     string
 }
 
 func loadItems(definition EndpointDefinition) ([]Item, error) {
@@ -78,26 +87,42 @@ func NewPipeline() (Pipeline, error) {
 	return pipeline, nil
 }
 
-func (p Pipeline) Validate() []Result {
-	var results []Result
+func (p Pipeline) Validate() Report {
+	results := make([]ValidatedEndpoint, 0)
 	for endpoint, items := range p.EndpointItems {
-		var errors []ValidatorResult
+		validatorResults := make([]Result, 0)
 		for _, item := range items {
+			validatorOutputs := make([]ValidatorOutput, 0)
 			for _, validator := range p.Validators {
 				err := validator.Validate(item)
-				errors = append(errors, ValidatorResult{
-					Validator: validator.Name(),
-					Url:       item.Endpoint,
-					Error:     err,
-				})
+				if err != nil {
+					validatorOutputs = append(validatorOutputs, ValidatorOutput{
+						Validator: validator.Name(),
+						Error:     err.Error(),
+					})
+					break
+				} else {
+					validatorOutputs = append(validatorOutputs, ValidatorOutput{
+						Validator: validator.Name(),
+						Error:     "",
+					})
+				}
 			}
+			unescapedUrl, _ := url.PathUnescape(item.Endpoint)
+			validatorResults = append(validatorResults, Result{
+				Url:              unescapedUrl,
+				ValidatorsOutput: validatorOutputs,
+			})
 		}
-		results = append(results, Result{
-			EndpointName:     endpoint,
-			ValidatorResults: errors,
+		results = append(results, ValidatedEndpoint{
+			EndpointName: endpoint,
+			Results:      validatorResults,
 		})
 	}
-	return results
+	return Report{
+		Time:    time.Now(),
+		Results: results,
+	}
 }
 
 func (p Pipeline) AddValidator(validator Validator) {

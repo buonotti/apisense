@@ -8,6 +8,9 @@ interval = "@daily"
 # Set the definition directory. This is the directory where the api definitions are stored.
 definitions-dir = "/home/aurelio/.config/odh-data-monitor/definitions.d"
 
+# Set the report output directory. This is the directory where the reports are stored.
+reports-dir = "/home/aurelio/.config/odh-data-monitor/reports"
+
 [daemon.log]
 # Set the log level. Valid values are: debug, info, warn, error, fatal, panic
 level = "info"

@@ -2,8 +2,10 @@ package daemon
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"time"
 
 	"github.com/buonotti/odh-data-monitor/errors"
@@ -23,6 +25,7 @@ func (d daemon) run() error {
 	signal.Notify(signalChan, SIGINT, SIGHUP)
 
 	defer func() {
+		log.DaemonLogger.Info("Stopping daemon")
 		errors.HandleError(writeStatus(DOWN))
 		errors.HandleError(writePid(-1))
 		signal.Stop(signalChan)
@@ -35,9 +38,11 @@ func (d daemon) run() error {
 			case s := <-signalChan:
 				switch s {
 				case SIGHUP:
+					log.DaemonLogger.Info("Received SIGHUP, reloading configuration")
 					err := d.Pipeline.RefreshItems()
 					errors.HandleError(err)
 				case SIGINT:
+					log.DaemonLogger.Info("Received SIGINT, stopping daemon")
 					errors.HandleError(writeStatus(DOWN))
 					errors.HandleError(writePid(-1))
 					cancel()
@@ -81,17 +86,33 @@ func (d daemon) work(ctx context.Context) error {
 				return err
 			}
 			result := d.Pipeline.Validate()
-			for _, item := range result {
-				for _, set := range item.ValidatorResults {
-					log.DaemonLogger.Infof("Validation result for validator '%s' on endpoint %s (%s)", set.Validator, item.EndpointName, set.Url)
-					if set.Error != nil {
-						log.DaemonLogger.Errorf("Error: %s", set.Error)
-					} else {
-						log.DaemonLogger.Infof("Nothing to report")
-					}
+			d.LogResults(result)
+			reportData, err := json.Marshal(result)
+			if err != nil {
+				return errors.CannotSerializeItemError.Wrap(err, "Cannot serialize report")
+			}
+			reportPath := validation.ReportLocation() + string(filepath.Separator) + time.Now().Format("02-01-2006@15:04") + ".report.json"
+			err = os.WriteFile(reportPath, reportData, 0644)
+			if err != nil {
+				return errors.CannotWriteFileError.Wrap(err, "Cannot write report to file")
+			}
+			log.DaemonLogger.Infof("Generated report (%s)", reportPath)
+			time.Sleep(1 * time.Minute)
+		}
+	}
+}
+
+func (d daemon) LogResults(report validation.Report) {
+	for _, validatedEndpoint := range report.Results {
+		for _, result := range validatedEndpoint.Results {
+			for _, validatorResult := range result.ValidatorsOutput {
+				log.DaemonLogger.Infof("Validation result for validator '%s' on endpoint %s (%s)", validatorResult.Validator, validatedEndpoint.EndpointName, result.Url)
+				if validatorResult.Error != "" {
+					log.DaemonLogger.Errorf("Error: %s", validatorResult.Error)
+				} else {
+					log.DaemonLogger.Infof("Nothing to report")
 				}
 			}
-			time.Sleep(1 * time.Minute)
 		}
 	}
 }

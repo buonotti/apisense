@@ -2,6 +2,7 @@ package validation
 
 import (
 	"os"
+	"time"
 )
 
 type EndpointParameter interface {
@@ -20,7 +21,7 @@ type ConstantEndpointParameter struct {
 	value string
 }
 
-func (p ConstantEndpointParameter) Value(index int) any {
+func (p ConstantEndpointParameter) Value(int) any {
 	return p.value
 }
 
@@ -28,4 +29,8 @@ type VariableMap map[string]any
 
 func (m VariableMap) Env(key string) string {
 	return os.Getenv(key)
+}
+
+func (m VariableMap) Now(format string) string {
+	return time.Now().Format(format)
 }
