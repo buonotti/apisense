@@ -38,6 +38,12 @@ func createDirectories() error {
 			return errors.CannotCreateDirectoryError.Wrap(err, "Cannot create definitions directory")
 		}
 	}
+	if _, err := os.Stat(validation.ReportLocation()); os.IsNotExist(err) {
+		err := os.Mkdir(validation.ReportLocation(), 0755)
+		if err != nil {
+			return errors.CannotCreateDirectoryError.Wrap(err, "Cannot create reports directory")
+		}
+	}
 	return nil
 }
 

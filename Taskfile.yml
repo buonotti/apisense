@@ -11,20 +11,28 @@ tasks:
     cmds:
       - go-bindata -o assets.go assets/
       - go build -o release/odh-data-monitor
+
+  install:
+    desc: Installs the project to $GOPATH
+    cmds:
+      - go install
+
   run:
     desc: Runs the project
     deps:
       - build
+      - install
     cmds:
-      - ./release/odh-data-monitor {{.CLI_ARGS}}
+      - odh-data-monitor {{.CLI_ARGS}}
 
   dev:
     desc: Runs the project in dev mode
     deps:
       - build
+      - install
       - clean
     cmds:
-      - ./release/odh-data-monitor {{.CLI_ARGS}}
+      - odh-data-monitor {{.CLI_ARGS}}
 
   clean:
     desc: Cleans the project configs

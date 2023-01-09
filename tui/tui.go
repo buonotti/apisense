@@ -101,10 +101,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			i, okMainMenu := m.listMainMenu.SelectedItem().(item)
 			j, okConfigMenu := m.listConfigMenu.SelectedItem().(item)
 			if okMainMenu && m.choiceMainMenu == "" {
-				m.choiceMainMenu = string(i.title)
+				m.choiceMainMenu = i.title
 				m.listConfigMenu.ResetSelected()
 			} else if okConfigMenu && m.choiceConfigMenu == "" {
-				m.choiceConfigMenu = string(j.title)
+				m.choiceConfigMenu = j.title
 			}
 			return m, tea.Batch(cmdMainMenu, cmdConfigMenu)
 		case key.Matches(msg, m.keymap.back):

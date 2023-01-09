@@ -1,6 +1,9 @@
 package daemon
 
 import (
+	"os"
+	"os/exec"
+
 	"github.com/nightlyone/lockfile"
 
 	"github.com/buonotti/odh-data-monitor/errors"
@@ -9,7 +12,12 @@ import (
 	"github.com/buonotti/odh-data-monitor/validation/validators"
 )
 
-func Start() error {
+func Start(background bool) error {
+	if background {
+		cmd := exec.Command("odh-data-monitor", "daemon", "start")
+		cmd.Stdout = os.Stdout
+		return cmd.Start()
+	}
 	lock, err := Lockfile()
 	if err != nil {
 		return errors.CannotReadLockFileError.Wrap(err, "Cannot create lock file")
