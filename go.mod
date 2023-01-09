@@ -3,7 +3,7 @@ module github.com/buonotti/odh-data-monitor
 go 1.19
 
 require (
-	github.com/76creates/stickers v0.0.0-20221227122814-b66e7226c01e
+	github.com/76creates/stickers v0.0.0-20221228130522-99e8eca7151c
 	github.com/charmbracelet/bubbletea v0.21.0
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/joomcode/errorx v1.1.0
@@ -15,7 +15,9 @@ require (
 )
 
 require (
+	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52 v1.2.1 // indirect
+	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be // indirect
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
@@ -25,6 +27,7 @@ require (
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.13.0 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
+	github.com/sahilm/fuzzy v0.1.0 // indirect
 )
 
 require (

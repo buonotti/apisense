@@ -4,30 +4,33 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 )
 
-type KeyMap struct {
-	help  key.Binding
-	quit  key.Binding
-	test  key.Binding
-	test1 key.Binding
-	test2 key.Binding
-	test3 key.Binding
+type keymap struct {
+	help   key.Binding
+	quit   key.Binding
+	up     key.Binding
+	down   key.Binding
+	left   key.Binding
+	right  key.Binding
+	choose key.Binding
+	format key.Binding
+	back   key.Binding
 }
 
-func (k KeyMap) ShortHelp() []key.Binding {
+func (k keymap) ShortHelp() []key.Binding {
 	return []key.Binding{
 		k.help,
 		k.quit,
 	}
 }
 
-func (k KeyMap) FullHelp() [][]key.Binding {
+func (k keymap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.help, k.quit},
-		{k.test, k.test1, k.test2, k.test3},
+		{k.help, k.choose, k.up, k.format},
+		{k.quit, k.back, k.down, k.format},
 	}
 }
 
-var DefaultKeyMap = KeyMap{
+var DefaultKeyMap = keymap{
 	help: key.NewBinding(
 		key.WithKeys("?"),
 		key.WithHelp(styleHotkey.Render("?"), styleHelp.Render("help")),
@@ -36,20 +39,32 @@ var DefaultKeyMap = KeyMap{
 		key.WithKeys("q", "ctrl+c"),
 		key.WithHelp(styleHotkey.Render("q"), styleHelp.Render("quit")),
 	),
-	test: key.NewBinding(
-		key.WithKeys("t"),
+	up: key.NewBinding(
+		key.WithKeys("k", "up"),
 		key.WithHelp(styleHotkey.Render("↑|k"), styleHelp.Render("up")),
 	),
-	test1: key.NewBinding(
-		key.WithKeys("t"),
+	down: key.NewBinding(
+		key.WithKeys("j", "down"),
 		key.WithHelp(styleHotkey.Render("↓|j"), styleHelp.Render("down")),
 	),
-	test2: key.NewBinding(
-		key.WithKeys("t"),
+	left: key.NewBinding(
+		key.WithKeys("h", "left"),
 		key.WithHelp(styleHotkey.Render("←|h"), styleHelp.Render("left")),
 	),
-	test3: key.NewBinding(
-		key.WithKeys("t"),
+	right: key.NewBinding(
+		key.WithKeys("l", "right"),
 		key.WithHelp(styleHotkey.Render("→|l"), styleHelp.Render("right")),
+	),
+	choose: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp(styleHotkey.Render("↲"), styleHelp.Render("choose")),
+	),
+	back: key.NewBinding(
+		key.WithKeys("b"),
+		key.WithHelp(styleHotkey.Render("b"), styleHelp.Render("back")),
+	),
+	format: key.NewBinding(
+		key.WithKeys(""),
+		key.WithHelp(styleHotkey.Render(""), styleHelp.Render("")),
 	),
 }
