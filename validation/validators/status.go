@@ -25,7 +25,7 @@ func (v statusValidator) Name() string {
 	return "status"
 }
 
-func (v statusValidator) Validate(item validation.Item) error {
+func (v statusValidator) Validate(item validation.PipelineItem) error {
 	if item.Code != v.OkStatus {
 		return errors.ValidationError.New("validation failed for endpoint %s: expected status code 200, got %d", item.Endpoint, item.Code)
 	}

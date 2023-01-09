@@ -1,10 +1,13 @@
 # The name of the endpoint (used in the report)
 name = "Bluetooth"
 
-# The endpoint to call. Parameters can be interpolated with {{ .ParamName }} (Go template syntax)
-base-url = 'https://mobility.api.opendatahub.com/v{{ .Const }}/flat/BluetoothStation/Bluetooth%20Count%20record/2021-12-31T23:00:00.000Z/2022-12-21T23:00:00.000Z'
+# The endpoint to call. Variables can be interpolated with {{ .ParamName }} (Go template syntax)
+# There are also two builtin functions: Now and Env
+# Now is used with the following syntax: {{ .Now "<format>" }} you can find the format here: https://pkg.go.dev/time#Time.Format
+# Env is used with the following syntax: {{ .Env "<env_var_name>" }}
+base-url = 'https://mobility.api.opendatahub.com/v{{ .ApiVersion }}/flat/BluetoothStation/Bluetooth%20Count%20record/2021-12-31T23:00:00.000Z/2022-12-21T23:00:00.000Z'
 
-# The query parameters to pass to the endpoint. Parameters can be interpolated with {{ .ParamName }} (Go template syntax)
+# The query parameters to pass to the endpoint. Variables can be interpolated with {{ .ParamName }} (Go template syntax)
 [[query]]
 # The name of the query parameter
 name = "limit"
@@ -40,7 +43,7 @@ values = [
 ]
 
 [[variable]]
-name = "Const"
+name = "ApiVersion"
 constant = true
 values = [
     "2"
@@ -99,12 +102,3 @@ min = "none"
 max = "none"
 required = true
 fields = []
-
-#[[result.entry]]
-#type = "object"
-#[[result.entry.fields]]
-#name = "date"
-#type = "string"
-#[[result.entry.fields]]
-#name = "timezone_type"
-#type = "integer"

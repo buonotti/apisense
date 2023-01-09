@@ -8,9 +8,9 @@ import (
 
 var GetAsset func(string) ([]byte, error)
 
-func createExampleConfig() error {
+func create() error {
 	err := os.Mkdir(Directory, 0755)
-	if err != nil {
+	if err != nil && !os.IsExist(err) {
 		return errors.CannotCreateDirectoryError.Wrap(err, "Cannot create config directory")
 	}
 	data, err := GetAsset("assets/config.example.toml")

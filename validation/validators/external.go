@@ -24,7 +24,7 @@ func (v externalValidator) Name() string {
 	return "external." + v.Definition.Name
 }
 
-func (v externalValidator) Validate(item validation.Item) error {
+func (v externalValidator) Validate(item validation.PipelineItem) error {
 	jsonString, err := json.Marshal(item)
 	if err != nil {
 		return errors.CannotSerializeItemError.Wrap(err, "cannot serialize item: %s", err)

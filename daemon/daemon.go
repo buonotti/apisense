@@ -8,6 +8,9 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/robfig/cron/v3"
+	"github.com/spf13/viper"
+
 	"github.com/buonotti/odh-data-monitor/errors"
 	"github.com/buonotti/odh-data-monitor/log"
 	"github.com/buonotti/odh-data-monitor/validation"
@@ -18,6 +21,15 @@ type daemon struct {
 }
 
 func (d daemon) run() error {
+	err := writeStatus(UP)
+	if err != nil {
+		return err
+	}
+	err = writePid(os.Getpid())
+	if err != nil {
+		return err
+	}
+	log.DaemonLogger.Infof("Daemon started")
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 
@@ -55,9 +67,26 @@ func (d daemon) run() error {
 			}
 		}
 	}()
-	if err := d.work(ctx); err != nil {
-		return err
-	}
+	c := cron.New()
+	id, err := c.AddFunc(viper.GetString("daemon.interval"), func() {
+		err := d.Pipeline.RefreshItems()
+		errors.HandleError(err)
+		result := d.Pipeline.Validate()
+		d.LogResults(result)
+		reportData, err := json.Marshal(result)
+		if err != nil {
+			errors.HandleError(errors.CannotSerializeItemError.Wrap(err, "Cannot serialize report"))
+		}
+		reportPath := validation.ReportLocation() + string(filepath.Separator) + time.Now().Format("02-01-2006@15:04") + ".report.json"
+		err = os.WriteFile(reportPath, reportData, 0644)
+		if err != nil {
+			errors.HandleError(errors.CannotWriteFileError.Wrap(err, "Cannot write report to file"))
+		}
+		log.DaemonLogger.Infof("Generated report (%s)", reportPath)
+		time.Sleep(1 * time.Minute)
+	})
+	defer c.Remove(id)
+	c.Run()
 	return nil
 }
 

@@ -16,7 +16,7 @@ func Setup() error {
 	viper.AddConfigPath(Directory)
 	err := viper.ReadInConfig()
 	if err != nil {
-		err = createExampleConfig()
+		err = create()
 		if err != nil {
 			return err
 		}

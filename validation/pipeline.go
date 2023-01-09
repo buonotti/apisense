@@ -1,17 +1,16 @@
 package validation
 
 import (
-	"net/url"
 	"time"
 )
 
 type Validator interface {
 	Name() string
-	Validate(item Item) error
+	Validate(item PipelineItem) error
 }
 
-type Item struct {
-	ResultSchema
+type PipelineItem struct {
+	resultSchema
 	Data     map[string]any
 	Endpoint string
 	ParamMap map[string][]string
@@ -19,7 +18,7 @@ type Item struct {
 }
 
 type Pipeline struct {
-	EndpointItems map[string][]Item
+	EndpointItems map[string][]PipelineItem
 	Validators    []Validator
 }
 
@@ -38,8 +37,8 @@ type ValidatorOutput struct {
 	Error     string
 }
 
-func loadItems(definition EndpointDefinition) ([]Item, error) {
-	var items []Item
+func loadItems(definition endpointDefinition) ([]PipelineItem, error) {
+	var items []PipelineItem
 	requests, err := parseRequests(definition)
 	if err != nil {
 		return nil, err
@@ -49,8 +48,8 @@ func loadItems(definition EndpointDefinition) ([]Item, error) {
 		return nil, err
 	}
 	for _, response := range responses {
-		items = append(items, Item{
-			ResultSchema: definition.ResultSchema,
+		items = append(items, PipelineItem{
+			resultSchema: definition.ResultSchema,
 			Data:         response.RawData,
 			Endpoint:     response.Url,
 			Code:         response.StatusCode,
@@ -74,7 +73,7 @@ func NewPipeline() (Pipeline, error) {
 		return Pipeline{}, err
 	}
 	pipeline := Pipeline{
-		EndpointItems: make(map[string][]Item),
+		EndpointItems: make(map[string][]PipelineItem),
 		Validators:    make([]Validator, 0),
 	}
 	for _, definition := range definitions {
@@ -108,9 +107,8 @@ func (p Pipeline) Validate() Report {
 					})
 				}
 			}
-			unescapedUrl, _ := url.PathUnescape(item.Endpoint)
 			validatorResults = append(validatorResults, Result{
-				Url:              unescapedUrl,
+				Url:              item.Endpoint,
 				ValidatorsOutput: validatorOutputs,
 			})
 		}

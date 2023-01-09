@@ -3,6 +3,7 @@ package validation
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/pelletier/go-toml/v2"
 	"github.com/spf13/viper"
@@ -11,29 +12,33 @@ import (
 )
 
 func DefinitionsLocation() string {
-	return filepath.FromSlash(viper.GetString("daemon.definitions-dir"))
+	path := viper.GetString("daemon.definitions-dir")
+	if strings.Contains(path, "~") {
+		path = strings.Replace(path, "~", os.Getenv("HOME"), 1)
+	}
+	return filepath.FromSlash(path)
 }
 
-type EndpointDefinition struct {
+type endpointDefinition struct {
 	Name            string
 	BaseUrl         string           `toml:"base-url"`
-	QueryParameters []QueryParameter `toml:"query"`
+	QueryParameters []queryParameter `toml:"query"`
 	Method          string
 	Format          string
-	Variables       []VariableSchema `toml:"variable"`
-	ResultSchema    ResultSchema     `toml:"result"`
+	Variables       []variableSchema `toml:"variable"`
+	ResultSchema    resultSchema     `toml:"result"`
 }
 
-type QueryParameter struct {
+type queryParameter struct {
 	Name  string
 	Value string
 }
 
-type ResultSchema struct {
+type resultSchema struct {
 	Entries []SchemaEntry `toml:"entry"`
 }
 
-type VariableSchema struct {
+type variableSchema struct {
 	Name       string
 	IsConstant bool `toml:"constant"`
 	Values     []string
@@ -48,29 +53,29 @@ type SchemaEntry struct {
 	ChildEntries []SchemaEntry `toml:"fields"`
 }
 
-func parseDefinition(filename string) (EndpointDefinition, error) {
+func parseDefinition(filename string) (endpointDefinition, error) {
 	definitionContent, err := os.ReadFile(DefinitionsLocation() + string(filepath.Separator) + filename)
 	if err != nil {
-		return EndpointDefinition{}, errors.FileNotFound.Wrap(err, "Cannot read definition file")
+		return endpointDefinition{}, errors.FileNotFound.Wrap(err, "Cannot read definition file")
 	}
-	var definition EndpointDefinition
+	var definition endpointDefinition
 	err = toml.Unmarshal(definitionContent, &definition)
 	if err != nil {
-		return EndpointDefinition{}, errors.CannotParseDefinitionFile.Wrap(err, "Cannot parse definition file")
+		return endpointDefinition{}, errors.CannotParseDefinitionFile.Wrap(err, "Cannot parse definition file")
 	}
 	return definition, nil
 }
 
-func endpointDefinitions() ([]EndpointDefinition, error) {
+func endpointDefinitions() ([]endpointDefinition, error) {
 	definitionsFiles, err := os.ReadDir(DefinitionsLocation())
 	if err != nil {
-		return []EndpointDefinition{}, errors.FileNotFound.Wrap(err, "Cannot read definitions directory")
+		return []endpointDefinition{}, errors.FileNotFound.Wrap(err, "Cannot read definitions directory")
 	}
-	var definitions []EndpointDefinition
+	var definitions []endpointDefinition
 	for _, definitionFile := range definitionsFiles {
 		definition, err := parseDefinition(definitionFile.Name())
 		if err != nil {
-			return []EndpointDefinition{}, err
+			return []endpointDefinition{}, err
 		}
 		definitions = append(definitions, definition)
 	}

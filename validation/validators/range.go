@@ -18,7 +18,7 @@ func (v rangeValidator) Name() string {
 	return "range"
 }
 
-func (v rangeValidator) Validate(item validation.Item) error {
+func (v rangeValidator) Validate(item validation.PipelineItem) error {
 	return validateRange(item.Entries, item.Data)
 }
 

@@ -7,7 +7,6 @@
 *.dll
 *.so
 *.dylib
-release/
 odh-data-monitor
 .ssh/
 .ssh/*
@@ -20,6 +19,3 @@ odh-data-monitor
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-
-# Database data
-_cockroach-data/

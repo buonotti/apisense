@@ -9,13 +9,16 @@ import (
 
 var sshCmd = &cobra.Command{
 	Use:   "ssh",
-	Short: "Start the tui as an ssh service",
-	Long:  "Start the tui as an ssh service", // TODO add desc
+	Short: "Start the tui as an ssh service and the daemon",
+	Long:  "Start the tui as an ssh service and the daemon", // TODO add desc
 	Run: func(cmd *cobra.Command, args []string) {
-		errors.HandleError(ssh.Start())
+		noDaemon, err := cmd.Flags().GetBool("no-daemon")
+		errors.HandleError(err)
+		errors.HandleError(ssh.Start(!noDaemon))
 	},
 }
 
 func init() {
+	sshCmd.Flags().Bool("no-daemon", false, "Do not start the daemon")
 	rootCmd.AddCommand(sshCmd)
 }

@@ -16,7 +16,7 @@ func (v schemaValidator) Name() string {
 	return "schema"
 }
 
-func (v schemaValidator) Validate(item validation.Item) error {
+func (v schemaValidator) Validate(item validation.PipelineItem) error {
 	return validateSchema(item.Entries, item.Data)
 }
 
