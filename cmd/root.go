@@ -3,6 +3,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
+	cc "github.com/ivanpirog/coloredcobra"
+
 	"github.com/buonotti/odh-data-monitor/config"
 	"github.com/buonotti/odh-data-monitor/errors"
 	"github.com/buonotti/odh-data-monitor/log"
@@ -29,5 +31,14 @@ func Execute() {
 }
 
 func init() {
+	cc.Init(&cc.Config{
+		RootCmd:       rootCmd,
+		Headings:      cc.HiCyan + cc.Bold + cc.Underline,
+		Commands:      cc.HiYellow + cc.Bold,
+		Example:       cc.Italic,
+		ExecName:      cc.Bold,
+		Flags:         cc.Bold,
+		FlagsDataType: cc.Italic + cc.HiBlue,
+	})
 	rootCmd.SetVersionTemplate("{{.Version}}\n")
 }
