@@ -1,17 +1,19 @@
 package errors
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/joomcode/errorx"
+
+	"github.com/buonotti/odh-data-monitor/log"
 )
 
 var fatalTrait = errorx.RegisterTrait("fatal")
 
 func HandleError(err error) {
 	if err != nil {
-		fmt.Printf("Fatal error: %+v", err)
+		log.DefaultLogger.Error(err.Error())
+		// fmt.Printf("Fatal error: %+v", err)
 		os.Exit(1)
 	}
 }

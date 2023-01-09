@@ -10,9 +10,10 @@ import (
 var daemonStartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Start the daemon",
-	Long:  `Start the daemon`, // TODO
+	Long:  `Start the daemon`, // TODO add more info
 	Run: func(cmd *cobra.Command, args []string) {
-		errors.HandleError(daemon.Run())
+		errors.HandleError(daemon.Setup())
+		errors.HandleError(daemon.Start())
 	},
 }
 

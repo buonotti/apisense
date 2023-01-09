@@ -8,10 +8,10 @@ import (
 )
 
 func Setup() error {
-	doPrettyLog := viper.GetBool("log.pretty")
-	forceColorLog := viper.GetBool("log.force-color")
-	logLevel := viper.GetString("log.level")
-	logFileName := viper.GetString("log.file")
+	doPrettyLog := viper.GetBool("daemon.log.pretty")
+	forceColorLog := viper.GetBool("daemon.log.force-color")
+	logLevel := viper.GetString("daemon.log.level")
+	logFileName := viper.GetString("daemon.log.file")
 
 	if doPrettyLog {
 		logrus.SetFormatter(&logrus.TextFormatter{

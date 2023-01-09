@@ -1,0 +1,33 @@
+# This is the example configuration file for the ODH Data Monitor.
+
+### DAEMON CONFIGURATION ###
+[daemon]
+# Set the interval in seconds in which the daemon should run.
+interval = "@daily"
+
+# Set the definition directory. This is the directory where the api definitions are stored.
+definitions-dir = "/home/aurelio/.config/odh-data-monitor/definitions.d"
+
+[daemon.log]
+# Set the log level. Valid values are: debug, info, warn, error, fatal, panic
+level = "info"
+
+# Set the log file. Leave empty to log to stdout.
+file = ""
+
+# Enable pretty log output. This will colorize the log output and print it in a readable format.
+# If set to false, the log output will be in JSON format.
+pretty = true
+
+# Set to true to force color logging. Only has an effect if pretty is set to true.
+force-color = true
+
+[daemon.notification]
+# Set whether the daemon should send notifications.
+enabled = true
+
+# Set whether the daemon should send notifications only if the report contains errors.
+only-on-error = true
+
+# Set the email address to send notifications to.
+email = "me@example.com"

@@ -10,7 +10,7 @@ import (
 var tuiCmd = &cobra.Command{
 	Use:   "tui",
 	Short: "Start the TUI",
-	Long:  `Start the TUI`, // TODO
+	Long:  `Start the TUI`, // TODO add more info
 	Run: func(cmd *cobra.Command, args []string) {
 		errors.HandleError(tui.Run())
 	},

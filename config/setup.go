@@ -7,16 +7,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-var configName = "config"
-var configDir = configdir.LocalConfig("odh-data-monitor")
-var configPath = filepath.FromSlash(configDir + "/" + configName + ".toml")
+var FileName = "config"
+var Directory = configdir.LocalConfig("odh-data-monitor")
+var FullPath = Directory + string(filepath.Separator) + FileName + ".toml"
 
 func Setup() error {
-	viper.SetConfigName(configName)
-	viper.AddConfigPath(configDir)
+	viper.SetConfigName(FileName)
+	viper.AddConfigPath(Directory)
 	err := viper.ReadInConfig()
 	if err != nil {
-		err = create()
+		err = createExampleConfig()
 		if err != nil {
 			return err
 		}

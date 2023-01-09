@@ -6,7 +6,11 @@ tasks:
     deps:
       - run
 
-  build: go build -o release/odh-data-monitor main.go
+  build:
+    desc: Builds the project
+    cmds:
+      - go-bindata -o assets.go assets/
+      - go build -o release/odh-data-monitor
   run:
     desc: Runs the project
     deps:
