@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"github.com/buonotti/odh-data-monitor/errors"
 	"io"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -38,7 +39,8 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 		}
 	}
 
-	fmt.Fprint(w, fn(str))
+	_, err := fmt.Fprint(w, fn(str))
+	errors.HandleError(err)
 }
 
 func (i item) Title() string       { return i.title }
