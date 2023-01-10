@@ -7,6 +7,7 @@ import (
 	"github.com/buonotti/odh-data-monitor/errors"
 )
 
+// Stop stops the daemon. If there is no daemon running it return an *errors.DaemonNotRunningError.
 func Stop() error {
 	pid, err := Pid()
 	if err != nil {

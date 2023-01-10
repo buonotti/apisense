@@ -10,7 +10,8 @@ import (
 var daemonStartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Start the daemon",
-	Long:  `Start the daemon`, // TODO add more info
+	Long: `This command starts the daemon. If the --bg flag is provided the daemon is started as a background process. In any 
+case if there is already a daemon running the new one won't start.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		bg, err := cmd.Flags().GetBool("bg")
 		errors.HandleError(err)

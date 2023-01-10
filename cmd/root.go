@@ -11,10 +11,13 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:     "odh-data-monitor",
-	Short:   "odm is a tool for managing the OpenDataHub Data Monitor",
-	Long:    `odm is a tool for managing the OpenDataHub Data Monitor`, // TODO add more info
-	Version: "0.0.1",
+	Use:   "odh-data-monitor",
+	Short: "odh-data-monitor is a tool to monitor data from the Open Data Hub",
+	Long: `This program provides multiple ways to interface with the daemon that is monitoring the Open Data Hub apis.
+In the first place this CLI can be used to start the daemon itself. It also provides a TUI to manage the daemon and its configs
+in a more user friendly way. The program can also start an SSH-Server that serves the tui over SSH and automatically starts the
+daemon. For more info check each commands description.`,
+	Version: "1.0.0",
 	Run: func(cmd *cobra.Command, args []string) {
 		cobra.CheckErr(cmd.Help())
 	},

@@ -4,7 +4,11 @@ import (
 	"github.com/joomcode/errorx"
 )
 
+// SSHErrors is the namespace holding all SSH related errors
 var SSHErrors = errorx.NewNamespace("ssh")
-var CannotStartSSHServer = SSHErrors.NewType("cannot_start_ssh_server")
-var CannotStopSSHServer = SSHErrors.NewType("cannot_stop_ssh_server")
-var CannotCreateSSHServer = SSHErrors.NewType("cannot_create_ssh_server")
+
+// CannotCreateSSHServerError is returned when the function wish.NewServer fails to create a new ssh server
+var CannotCreateSSHServerError = SSHErrors.NewType("cannot_create_ssh_server")
+
+// CannotStopSSHServerError is returned when the ssh server fails to stop
+var CannotStopSSHServerError = SSHErrors.NewType("cannot_stop_ssh_server")

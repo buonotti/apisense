@@ -11,7 +11,7 @@ import (
 var daemonStopCmd = &cobra.Command{
 	Use:   "stop",
 	Short: "Stop the daemon",
-	Long:  `Stop the daemon`, // TODO add more info
+	Long:  `This command stops a running daemon. If there is no daemon running the command does nothing.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		errors.HandleError(daemon.Stop())
 		log.DefaultLogger.Info("Daemon stopped")

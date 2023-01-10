@@ -8,6 +8,9 @@ interval = "*/2 * * * *"
 # Set the definition directory. This is the directory where the api definitions are stored.
 definitions-dir = "~/.config/odh-data-monitor/definitions.d"
 
+# Definition files that start with this prefix are not included
+ignore-prefix = "_"
+
 # Set the report output directory. This is the directory where the reports are stored.
 reports-dir = "~/.config/odh-data-monitor/reports"
 

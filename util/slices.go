@@ -1,13 +1,16 @@
 package util
 
-func FindFirst[T any](s []T, f func(T) bool) T {
+// FindFirst return a reference to the first element of the slice that matches
+// the predicate. It returns nil if the slice is nil or empty or if no item
+// matches the predicate.
+func FindFirst[T any](s []T, f func(T) bool) *T {
 	if s == nil || len(s) == 0 {
-		panic("util: FindFirst called on nil or empty slice")
+		return nil
 	}
 	for _, v := range s {
 		if f(v) {
-			return v
+			return &v
 		}
 	}
-	panic("util: FindFirst called on slice with no matching element")
+	return nil
 }
