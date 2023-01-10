@@ -14,3 +14,16 @@ func FindFirst[T any](s []T, f func(T) bool) *T {
 	}
 	return nil
 }
+
+// Contains returns whether the given slice contains the given element
+func Contains[T comparable](s []T, v T) bool {
+	if s == nil || len(s) == 0 {
+		return false
+	}
+	for _, e := range s {
+		if e == v {
+			return true
+		}
+	}
+	return false
+}

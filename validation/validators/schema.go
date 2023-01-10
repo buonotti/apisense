@@ -93,3 +93,7 @@ func validateSchema(schemaEntries []validation.SchemaEntry, data map[string]any)
 	}
 	return nil
 }
+
+func (v schemaValidator) Fatal() bool {
+	return true
+}

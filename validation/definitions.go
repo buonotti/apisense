@@ -23,12 +23,13 @@ func DefinitionsLocation() string {
 // endpointDefinition is the definition of an endpoint to test with all its query
 // parameters, variables and its result schema
 type endpointDefinition struct {
-	Name            string           // Name is the name of the endpoint
-	BaseUrl         string           `toml:"base-url"` // BaseUrl is the base path of the endpoint
-	QueryParameters []queryParameter `toml:"query"`    // QueryParameters are all the query parameters that should be added to the call
-	Format          string           // Format is the response format of the
-	Variables       []variableSchema `toml:"variable"` // Variables are all the variables that should be interpolated in the base url and the query parameters
-	ResultSchema    resultSchema     `toml:"result"`   // ResultSchema describes how the response should look like
+	Name               string           // Name is the name of the endpoint
+	BaseUrl            string           `toml:"base-url"`            // BaseUrl is the base path of the endpoint
+	ExcludedValidators []string         `toml:"excluded-validators"` // ExcludedValidators is a list of validators that should not be used for this endpoint
+	QueryParameters    []queryParameter `toml:"query"`               // QueryParameters are all the query parameters that should be added to the call
+	Format             string           // Format is the response format of the
+	Variables          []variableSchema `toml:"variable"` // Variables are all the variables that should be interpolated in the base url and the query parameters
+	ResultSchema       resultSchema     `toml:"result"`   // ResultSchema describes how the response should look like
 }
 
 // queryParameter is a query parameter that should be added to the call

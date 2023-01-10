@@ -12,6 +12,7 @@ type ValidatorDefinition struct {
 	Path          string     // Path is the path to the executable
 	Args          []string   // Args are the arguments to pass to the executable
 	ReadFromStdin bool       // ReadFromStdin controls whether the validator expects the item to validate on stdin
+	Fatal         bool       // Fatal controls whether the validator is fatal or not that is if it fails the pipeline should stop
 	ExitCodes     []ExitCode // ExitCodes are the definitions of all possible exit codes
 }
 

@@ -68,3 +68,7 @@ func (v externalValidator) Validate(item validation.PipelineItem) error {
 	}
 	return nil
 }
+
+func (v externalValidator) Fatal() bool {
+	return v.Definition.Fatal
+}

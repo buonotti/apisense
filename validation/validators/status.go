@@ -36,3 +36,7 @@ func (v statusValidator) Validate(item validation.PipelineItem) error {
 	}
 	return nil
 }
+
+func (v statusValidator) Fatal() bool {
+	return true
+}

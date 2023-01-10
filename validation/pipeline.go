@@ -2,21 +2,25 @@ package validation
 
 import (
 	"time"
+
+	"github.com/buonotti/odh-data-monitor/log"
+	"github.com/buonotti/odh-data-monitor/util"
 )
 
 // Validator is an interface that all validators in the pipeline must implement
 type Validator interface {
 	Name() string                     // Name returns the name of the validator
 	Validate(item PipelineItem) error // Validate validates the given item and return nil on success or an error on failure
+	Fatal() bool                      // Fatal returns true if the validator is fatal and the pipeline should stop on failure
 }
 
 // PipelineItem represents an item in the validation pipeline
 type PipelineItem struct {
-	SchemaEntries []SchemaEntry       `toml:"entry"` // SchemaEntries are the schema definitions of every field in the items Data
-	Data          map[string]any      // Data is the raw response data mapped in a map
-	Url           string              // Url is the request url of the item
-	ParamMap      map[string][]string // ParamMap is the map of the request variables TODO: check if correct
-	Code          int                 // Code is the response code of the request
+	SchemaEntries      []SchemaEntry  // SchemaEntries are the schema definitions of every field in the items Data
+	Data               map[string]any // Data is the raw response data mapped in a map
+	Url                string         // Url is the request url of the item
+	Code               int            // Code is the response code of the request
+	ExcludedValidators []string       // ExcludedValidators is a list of validators that should be excluded from the validation
 }
 
 // Pipeline represents the validation pipeline
@@ -42,6 +46,7 @@ type Result struct {
 // ValidatorOutput is the output of a single validator
 type ValidatorOutput struct {
 	Validator string // Validator is the name of the validator
+	Status    string // Status is the status of the validator (success/fail/skipped)
 	Error     string // Error is the error message of the validator
 }
 
@@ -146,24 +151,34 @@ func (p Pipeline) validateSingleItem(item PipelineItem) []ValidatorOutput {
 
 	// send the item to each validator and append the result to the outputs
 	for _, validator := range p.Validators {
+
 		validatorOutput := ValidatorOutput{
 			Validator: validator.Name(),
+			Status:    "success",
 			Error:     "",
+		}
+
+		if util.Contains(item.ExcludedValidators, validator.Name()) {
+			log.DaemonLogger.Warnf("Validator %s is excluded for %s", validator.Name(), item.Url)
+			validatorOutput.Status = "skipped"
+			validatorOutputs = append(validatorOutputs, validatorOutput)
+			continue
 		}
 
 		err := validator.Validate(item)
 
 		// capture the error message
+		// if one of the validator fails, break the loop, because we don't want to
+		// validate everything else
 		if err != nil {
 			validatorOutput.Error = err.Error()
+			validatorOutputs = append(validatorOutputs, validatorOutput)
+			if validator.Fatal() {
+				break
+			}
 		}
+		
 		validatorOutputs = append(validatorOutputs, validatorOutput)
-
-		// if one of the validator fails, break the loop, because we don't want to
-		// validate everything else TODO: introduce fatal validators and validators where the pipeline can continue
-		if err != nil {
-			break
-		}
 	}
 	return validatorOutputs
 }
@@ -186,10 +201,11 @@ func loadItems(definition endpointDefinition) ([]PipelineItem, error) {
 	// create a pipeline item for each response and add it to the endpoint items collection
 	for _, response := range responses {
 		items = append(items, PipelineItem{
-			SchemaEntries: definition.ResultSchema.Entries,
-			Data:          response.RawData,
-			Url:           response.Url,
-			Code:          response.StatusCode,
+			SchemaEntries:      definition.ResultSchema.Entries,
+			Data:               response.RawData,
+			Url:                response.Url,
+			Code:               response.StatusCode,
+			ExcludedValidators: definition.ExcludedValidators,
 		})
 	}
 	return items, nil

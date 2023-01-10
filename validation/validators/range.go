@@ -92,3 +92,7 @@ func (v rangeValidator) Validate(item validation.PipelineItem) error {
 	}
 	return nil
 }
+
+func (v rangeValidator) Fatal() bool {
+	return true
+}
