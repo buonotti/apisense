@@ -2,9 +2,14 @@ package tui
 
 import (
 	"fmt"
+	"github.com/charmbracelet/lipgloss"
 
 	"github.com/buonotti/odh-data-monitor/daemon"
 	tea "github.com/charmbracelet/bubbletea"
+)
+
+var (
+	running bool
 )
 
 type daemonModel struct {
@@ -12,18 +17,21 @@ type daemonModel struct {
 	pid     int
 	eStatus errMsg
 	ePid    errMsg
+	keymap  keymap
 }
 
 func daemonModule() tea.Model {
 
 	p, pe := daemon.Pid()
 	s, se := daemon.Status()
+	running = s == daemon.UP
 
 	return daemonModel{
 		status:  string(s),
 		pid:     p,
 		eStatus: se,
 		ePid:    pe,
+		keymap:  DefaultKeyMap,
 	}
 }
 
@@ -32,8 +40,10 @@ func (d daemonModel) Init() tea.Cmd {
 }
 
 func (d daemonModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+
 	p, pe := daemon.Pid()
 	s, se := daemon.Status()
+	running = s == daemon.UP
 
 	d.pid = p
 	d.ePid = pe
@@ -62,5 +72,10 @@ func (d daemonModel) View() string {
 		sStatus = "status: " + stylePrimary.Render("unknown")
 	}
 
-	return sPid + "\n\n" + sStatus + "\n\n"
+	return lipgloss.NewStyle().
+		BorderStyle(lipgloss.RoundedBorder()).
+		PaddingTop(2).
+		PaddingLeft(4).
+		PaddingRight(4).
+		Render(sPid+"\n\n"+sStatus+"\n\n") + "\n"
 }

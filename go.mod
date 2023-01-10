@@ -13,6 +13,7 @@ require (
 	github.com/ivanpirog/coloredcobra v1.0.1
 	github.com/joomcode/errorx v1.1.0
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
+	github.com/robfig/cron/v3 v3.0.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.14.0
@@ -37,7 +38,6 @@ require (
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.13.0 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
-	github.com/robfig/cron/v3 v3.0.0 // indirect
 	github.com/sahilm/fuzzy v0.1.0 // indirect
 	golang.org/x/crypto v0.3.0 // indirect
 	golang.org/x/net v0.5.0 // indirect

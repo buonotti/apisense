@@ -7,14 +7,18 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/stopwatch"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/common-nighthawk/go-figure"
+	"time"
 )
 
 var (
-	test   = 0
-	update = false
+	fileUpdate         = false
+	choiceMainMenu     string
+	choiceConfigMenu   string
+	choiceDaemonButton string
 )
 
 type errMsg error
@@ -23,12 +27,12 @@ type Model struct {
 	help             help.Model
 	keymap           keymap
 	flexbox          *stickers.FlexBox
+	elapsedTrigger   stopwatch.Model
 	quitting         bool
 	err              error
 	listMainMenu     list.Model
 	listConfigMenu   list.Model
-	choiceMainMenu   string
-	choiceConfigMenu string
+	listDaemonButton list.Model
 	daemonModel      tea.Model
 }
 
@@ -45,31 +49,45 @@ func TuiModule() Model {
 	listConfigMenu.SetShowHelp(false)
 	listConfigMenu.SetShowStatusBar(false)
 
+	listDaemonButton.SetShowFilter(false)
+	listDaemonButton.SetShowTitle(false)
+	listDaemonButton.SetShowPagination(false)
+	listDaemonButton.SetShowHelp(false)
+	listDaemonButton.SetShowStatusBar(false)
+
 	return Model{
 		keymap:           DefaultKeyMap,
 		help:             help.New(),
 		flexbox:          stickers.NewFlexBox(0, 0).SetStyle(styleContentCenter.Copy().BorderStyle(lipgloss.RoundedBorder())),
 		listMainMenu:     listMainMenu,
 		listConfigMenu:   listConfigMenu,
-		choiceMainMenu:   "",
-		choiceConfigMenu: "",
+		listDaemonButton: listDaemonButton,
 		daemonModel:      daemonModule(),
+		elapsedTrigger:   stopwatch.NewWithInterval(time.Second),
 	}
 }
 
 func (m Model) Init() tea.Cmd {
 	m.daemonModel.Init()
 	watcher := NewFileWatcher()
-	watcher.AddFile(daemon.PidFile)
+	err := watcher.AddFile(daemon.PidFile)
+	if err != nil {
+		errors.HandleError(errors.WatcherError.Wrap(err, "Failed to add file to Watcher"))
+	}
 
-	go watcher.Start()
+	go func() {
+		err := watcher.Start()
+		if err != nil {
+			errors.HandleError(errors.WatcherError.Wrap(err, "Failed to start Watcher"))
+		}
+	}()
 
 	go func() {
 		for {
-			update = <-watcher.Events
-			m.Update(nil)
+			fileUpdate = <-watcher.Events
 		}
 	}()
+
 	m.flexbox.AddRows([]*stickers.FlexBoxRow{
 		m.flexbox.NewRow().AddCells(
 			[]*stickers.FlexBoxCell{
@@ -87,27 +105,21 @@ func (m Model) Init() tea.Cmd {
 			},
 		),
 	})
-	return nil
+	return m.elapsedTrigger.Start()
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	//Cmds that force rerendering of given component
+	//Cmds that force rendering of given component
 	var cmdMainMenu tea.Cmd
 	var cmdConfigMenu tea.Cmd
-	var cmdDaemonModal tea.Cmd
+	var cmdDaemonButton tea.Cmd
+	var cmdElapsedTrigger tea.Cmd
+	m.listDaemonButton, cmdDaemonButton = m.listDaemonButton.Update(msg)
 	m.listMainMenu, cmdMainMenu = m.listMainMenu.Update(msg)
 	m.listConfigMenu, cmdConfigMenu = m.listConfigMenu.Update(msg)
-	m.daemonModel, cmdDaemonModal = m.daemonModel.Update(msg)
-
-	if update {
-		m.daemonModel.Update(msg)
-		update = false
-		test++
-		return m, tea.Batch(cmdMainMenu, cmdConfigMenu, cmdDaemonModal)
-	}
+	m.elapsedTrigger, cmdElapsedTrigger = m.elapsedTrigger.Update(msg)
 
 	switch msg := msg.(type) {
-
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.keymap.quit):
@@ -116,33 +128,35 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keymap.help):
 			m.help.ShowAll = !m.help.ShowAll
 			return m, nil
-		case key.Matches(msg, m.keymap.up):
-			m.listMainMenu.CursorUp()
-			m.listConfigMenu.CursorUp()
-			return m, tea.Batch(cmdMainMenu, cmdConfigMenu, cmdDaemonModal)
-		case key.Matches(msg, m.keymap.up):
-			m.listMainMenu.CursorDown()
-			m.listConfigMenu.CursorDown()
-			return m, tea.Batch(cmdMainMenu, cmdConfigMenu, cmdDaemonModal)
 		case key.Matches(msg, m.keymap.choose):
 			i, okMainMenu := m.listMainMenu.SelectedItem().(item)
 			j, okConfigMenu := m.listConfigMenu.SelectedItem().(item)
-			if okMainMenu && m.choiceMainMenu == "" {
-				m.choiceMainMenu = i.title
+			k, okDaemonButton := m.listDaemonButton.SelectedItem().(option)
+			if okMainMenu && choiceMainMenu == "" {
+				choiceMainMenu = i.title
 				m.listConfigMenu.ResetSelected()
-			} else if okConfigMenu && m.choiceConfigMenu == "" {
-				m.choiceConfigMenu = j.title
+			} else {
+				if okConfigMenu && choiceConfigMenu == "" {
+					choiceConfigMenu = j.title
+				}
+				if okDaemonButton && choiceDaemonButton == "" {
+					choiceDaemonButton = k.option
+				}
 			}
-			return m, tea.Batch(cmdMainMenu, cmdConfigMenu, cmdDaemonModal)
+		case key.Matches(msg, m.keymap.up):
+			return m, tea.Batch(cmdMainMenu, cmdConfigMenu, cmdDaemonButton)
+		case key.Matches(msg, m.keymap.down):
+			return m, tea.Batch(cmdMainMenu, cmdConfigMenu, cmdDaemonButton)
 		case key.Matches(msg, m.keymap.back):
-			if m.choiceMainMenu != "" && m.choiceConfigMenu != "" {
-				m.choiceConfigMenu = ""
+			if choiceMainMenu != "" && choiceConfigMenu != "" {
+				choiceConfigMenu = ""
 				m.listConfigMenu.ResetSelected()
-			} else if m.choiceMainMenu != "" {
-				m.choiceMainMenu = ""
+			} else if choiceMainMenu != "" {
+				choiceMainMenu = ""
 				m.listMainMenu.ResetSelected()
 			}
-			return m, tea.Batch(cmdMainMenu, cmdConfigMenu, cmdDaemonModal)
+		case msg.Type == tea.KeyF5:
+			return m, nil
 		default:
 			return m, nil
 		}
@@ -159,46 +173,63 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case errMsg:
 		m.err = msg
 		return m, nil
-
-	default:
-		errors.HandleError(errors.UnknownError.New("FUCKKK MY LIFEEE"))
-		return m, tea.Batch(cmdMainMenu, cmdConfigMenu)
 	}
+
+	if fileUpdate {
+		fileUpdate = false
+		var cmdDaemonModal tea.Cmd
+		m.daemonModel, cmdDaemonModal = m.daemonModel.Update(msg)
+		return m, tea.Batch(cmdDaemonModal, cmdElapsedTrigger)
+	}
+	return m, cmdElapsedTrigger
+
 }
 
 func (m Model) View() string {
 
 	if m.err != nil {
-		errors.HandleError(m.err)
+		errors.HandleError(errors.UnknownError.Wrap(m.err, "Unknown error"))
 	}
 
 	//Render Title
 	title := figure.NewFigure("ODM - TUI", "", true)
 	m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(title.String()))
-	//For testing purposes
-	//m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(m.choiceMainMenu + " | " + m.choiceConfigMenu))
+	//m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(m.elapsedTrigger.View()))
 
 	//Act based one main menu changes
-	switch m.choiceMainMenu {
+	switch choiceMainMenu {
 	case "Daemon":
 		//Render state option
+		switch choiceDaemonButton {
+		case "Start daemon":
+			if !running {
+				err := daemon.Start(true)
+				errors.HandleError(err)
+			}
+		case "Stop daemon":
+			if running {
+				err := daemon.Stop()
+				errors.HandleError(err)
+			}
+		}
+		choiceDaemonButton = ""
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(5))
-		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.daemonModel.View()))
+		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.daemonModel.View() + docStyle.Render(m.listDaemonButton.View())))
 	case "Report":
 		//Render report option
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(5))
-		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.choiceMainMenu))
+		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(choiceMainMenu))
 	case "Config":
 		//Act based one config menu changes
-		switch m.choiceConfigMenu {
+		switch choiceConfigMenu {
 		case "Daemon":
 			//Render daemon option
 			m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(5))
-			m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.choiceConfigMenu))
+			m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(choiceConfigMenu))
 		case "TUI":
 			//Render tui option
 			m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(5))
-			m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.choiceConfigMenu))
+			m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(choiceConfigMenu))
 		default:
 			//Render config menu
 			m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(7))
@@ -215,9 +246,3 @@ func (m Model) View() string {
 	return m.flexbox.Render()
 
 }
-
-//Config von Tui bearbeiten
-//Config von Deamon bearbeiten
-//Report auslesen
-//Status von Deamon abfragen
-//Deamon starten??

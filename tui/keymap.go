@@ -64,7 +64,7 @@ var DefaultKeyMap = keymap{
 		key.WithHelp(styleHotkey.Render("↩"), styleHelp.Render("back")),
 	),
 	format: key.NewBinding(
-		key.WithKeys(""),
+		key.WithKeys("f5"),
 		key.WithHelp(styleHotkey.Render(""), styleHelp.Render("")),
 	),
 }
