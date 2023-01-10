@@ -3,10 +3,13 @@
 ### DAEMON CONFIGURATION ###
 [daemon]
 # Set the interval in seconds in which the daemon should run. The format is cron (https://www.wikipedia.org/wiki/Cron)
-interval = "*/2 * * * *"
+interval = "* * * * *"
 
 # Set the definition directory. This is the directory where the api definitions are stored.
 definitions-dir = "~/.config/odh-data-monitor/definitions.d"
+
+# Definition files that start with this prefix are not included
+ignore-prefix = "_"
 
 # Set the report output directory. This is the directory where the reports are stored.
 reports-dir = "~/.config/odh-data-monitor/reports"

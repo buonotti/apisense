@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/wish"
 )
 
+// WishMiddleware returns a custom logging middleware that uses log.SSHLogger instead of the wish default logger
 func WishMiddleware() wish.Middleware {
 	return func(sh ssh.Handler) ssh.Handler {
 		return func(s ssh.Session) {

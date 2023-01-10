@@ -7,6 +7,12 @@ name = "Bluetooth"
 # Env is used with the following syntax: {{ .Env "<env_var_name>" }}
 base-url = 'https://mobility.api.opendatahub.com/v{{ .ApiVersion }}/flat/BluetoothStation/Bluetooth%20Count%20record/2021-12-31T23:00:00.000Z/2022-12-21T23:00:00.000Z'
 
+# List of names of validators that should not be run. Keep in mind that external validators are named with external.<name>
+# to better symbolize that they are external
+excluded-validators = [
+    "range"
+]
+
 # The query parameters to pass to the endpoint. Variables can be interpolated with {{ .ParamName }} (Go template syntax)
 [[query]]
 # The name of the query parameter

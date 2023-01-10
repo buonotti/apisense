@@ -6,8 +6,10 @@ import (
 	"github.com/buonotti/odh-data-monitor/errors"
 )
 
+// GetAsset is a function that returns the content of an asset file identified by its name. It is used to pass down the asset loading function to the config package.
 var GetAsset func(string) ([]byte, error)
 
+// create creates the config directory in the user config directory and writes the default config file to it.
 func create() error {
 	err := os.Mkdir(Directory, 0755)
 	if err != nil && !os.IsExist(err) {
