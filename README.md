@@ -16,3 +16,7 @@ Monitor:
 Data here? (also with data/time cronjob format)
 Data range (min max)
 ML?
+
+## Todos
+change log lock dir to home/odm/...
+fuck windows

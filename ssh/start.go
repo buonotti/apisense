@@ -33,18 +33,7 @@ func port() int {
 }
 
 // Start starts the ssh server that listens on the predefined host and port.
-// It also starts the daemon if the startDaemon parameter is true.
-func Start(startDaemon bool) error {
-	// start the daemon. if not inform the user
-	if startDaemon {
-		err := daemon.Start(true)
-		if err != nil {
-			return err
-		}
-	} else {
-		log.SSHLogger.Warnf("Daemon not started by user")
-	}
-
+func Start() error {
 	// create the filesystem handler for scp and create the ssh server
 	fsHandler := scp.NewFileSystemHandler(validation.ReportLocation())
 	s, err := wish.NewServer(
@@ -83,15 +72,7 @@ func Start(startDaemon bool) error {
 	// create a context with a timeout of 5 seconds to stop the server
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	log.SSHLogger.Infof("SSH server stopped")
 
-	// stop the daemon first
-	if startDaemon {
-		err := daemon.Stop()
-		if err != nil {
-			return err
-		}
-	}
 	log.SSHLogger.Infof("Stopping SSH server")
 
 	// shutdown the server

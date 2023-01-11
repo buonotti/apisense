@@ -1,0 +1,14 @@
+info:
+  contact: {}
+paths:
+  /health:
+    get:
+      description: Get the health status of the API
+      operationId: health
+      responses:
+        "200":
+          description: OK
+      summary: Health check
+      tags:
+      - health
+swagger: "2.0"

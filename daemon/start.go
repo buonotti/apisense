@@ -15,24 +15,24 @@ import (
 // *errors.CannotLockFileError because the already running daemon has the lock on
 // the file. The background parameters controls whether the daemon should be run
 // in the foreground or not.
-func Start(background bool) error {
+func Start(background bool) (*exec.Cmd, error) {
 	// If the background flag is set start a new process which runs the daemon
 	// without the --bg flag which calls this function with background = false
 	if background {
 		cmd := exec.Command("odh-data-monitor", "daemon", "start")
-		return cmd.Start()
+		return cmd, cmd.Start()
 	}
 
 	// Get the lockfile and try to lock it. If the lock cannot be acquired return an error else
 	// defer a call to the unlock function
 	lock, err := lockfile()
 	if err != nil {
-		return errors.CannotReadLockFileError.Wrap(err, "Cannot create lock file")
+		return nil, errors.CannotReadLockFileError.Wrap(err, "Cannot create lock file")
 	}
 
 	err = lock.TryLock()
 	if err != nil {
-		return errors.CannotLockFileError.Wrap(err, "Cannot acquire lock file")
+		return nil, errors.CannotLockFileError.Wrap(err, "Cannot acquire lock file")
 	}
 
 	defer func(lock lf.Lockfile) {
@@ -53,19 +53,19 @@ func Start(background bool) error {
 
 	externalValidators, err := external.Parse()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	for _, externalValidator := range externalValidators {
 		pipeline.AddValidator(validators.NewExternalValidator(externalValidator))
 	}
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Create the daemon with the pipeline then run the daemon
 	d := daemon{
 		Pipeline: &pipeline,
 	}
-	return d.run()
+	return nil, d.run()
 }

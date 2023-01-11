@@ -10,6 +10,7 @@ import (
 
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/viper"
+	"golang.org/x/sys/unix"
 
 	"github.com/buonotti/odh-data-monitor/errors"
 	"github.com/buonotti/odh-data-monitor/log"
@@ -47,7 +48,7 @@ func (d daemon) run() error {
 
 	// create a channel to listen to signals and set the signals the daemon reacts to
 	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, SIGINT, SIGHUP)
+	signal.Notify(signalChan, unix.SIGINT, unix.SIGHUP, unix.SIGTERM)
 
 	// when the work function ends write the daemon status and pid to the control file and stop listening to signals
 	// and then cancel the context with the cancel function we got upon creating the context
@@ -76,12 +77,19 @@ func (d daemon) run() error {
 					errors.HandleError(writeStatus(DOWN))
 					errors.HandleError(writePid(-1))
 					cancel()
-					os.Exit(1)
+					os.Exit(0)
+				case SIGTERM:
+					log.DaemonLogger.Info("Received SIGTERM, stopping daemon")
+					errors.HandleError(writeStatus(DOWN))
+					errors.HandleError(writePid(-1))
+					cancel()
+					os.Exit(0)
 				}
 			case <-ctx.Done():
+				log.DaemonLogger.Infof("Context done, exiting signal handler")
 				errors.HandleError(writeStatus(DOWN))
 				errors.HandleError(writePid(-1))
-				os.Exit(1)
+				os.Exit(0)
 			}
 		}
 	}()

@@ -1,9 +1,10 @@
 package tui
 
 import (
+	"os/exec"
+	"time"
+
 	"github.com/76creates/stickers"
-	"github.com/buonotti/odh-data-monitor/daemon"
-	"github.com/buonotti/odh-data-monitor/errors"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -11,7 +12,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/common-nighthawk/go-figure"
-	"time"
+
+	"github.com/buonotti/odh-data-monitor/daemon"
+	"github.com/buonotti/odh-data-monitor/errors"
 )
 
 var (
@@ -34,6 +37,7 @@ type Model struct {
 	listConfigMenu   list.Model
 	listDaemonButton list.Model
 	daemonModel      tea.Model
+	daemonCmd        *exec.Cmd
 }
 
 func TuiModule() Model {
@@ -64,6 +68,7 @@ func TuiModule() Model {
 		listDaemonButton: listDaemonButton,
 		daemonModel:      daemonModule(),
 		elapsedTrigger:   stopwatch.NewWithInterval(time.Second),
+		daemonCmd:        nil,
 	}
 }
 
@@ -141,6 +146,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				if okDaemonButton && choiceDaemonButton == "" {
 					choiceDaemonButton = k.option
+					switch choiceDaemonButton {
+					case "Start daemon":
+						if !running {
+							daemonCmd, err := daemon.Start(true)
+							m.daemonCmd = daemonCmd
+							errors.HandleError(err)
+						}
+					case "Stop daemon":
+						if running {
+							err := daemon.Stop()
+							errors.HandleError(err)
+							if m.daemonCmd != nil {
+								err = m.daemonCmd.Wait()
+								errors.HandleError(err)
+								m.daemonCmd = nil
+							}
+						}
+					}
 				}
 			}
 		case key.Matches(msg, m.keymap.up):
@@ -200,18 +223,23 @@ func (m Model) View() string {
 	switch choiceMainMenu {
 	case "Daemon":
 		//Render state option
-		switch choiceDaemonButton {
-		case "Start daemon":
-			if !running {
-				err := daemon.Start(true)
-				errors.HandleError(err)
-			}
-		case "Stop daemon":
-			if running {
-				err := daemon.Stop()
-				errors.HandleError(err)
-			}
-		}
+		//switch choiceDaemonButton {
+		//case "Start daemon":
+		//	if !running {
+		//		daemonCmd, err := daemon.Start(true)
+		//		m.daemonCmd = daemonCmd
+		//		errors.HandleError(err)
+		//	}
+		//case "Stop daemon":
+		//	if running {
+		//		err := daemon.Stop()
+		//		errors.HandleError(err)
+		//		if m.daemonCmd != nil {
+		//			err = m.daemonCmd.Process.Kill()
+		//			errors.HandleError(err)
+		//		}
+		//	}
+		//}
 		choiceDaemonButton = ""
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(5))
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.daemonModel.View() + docStyle.Render(m.listDaemonButton.View())))

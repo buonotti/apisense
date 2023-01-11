@@ -16,7 +16,8 @@ case if there is already a daemon running the new one won't start.`,
 		bg, err := cmd.Flags().GetBool("bg")
 		errors.HandleError(err)
 		errors.HandleError(daemon.Setup())
-		errors.HandleError(daemon.Start(bg))
+		_, err = daemon.Start(bg)
+		errors.HandleError(err)
 	},
 }
 

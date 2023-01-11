@@ -12,3 +12,6 @@ var DefaultLogger = logrus.WithFields(logrus.Fields{"system": "default"})
 
 // SSHLogger is used by the ssh server to log messages and is also used in log.WishMiddleware
 var SSHLogger = logrus.WithFields(logrus.Fields{"system": "ssh"})
+
+// ApiLogger is used to log all api related messages
+var ApiLogger = logrus.WithFields(logrus.Fields{"system": "api"})
