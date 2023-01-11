@@ -1,20 +1,11 @@
 package tui
 
 import (
-	"encoding/json"
-	"github.com/buonotti/odh-data-monitor/errors"
+	"fmt"
 	"github.com/buonotti/odh-data-monitor/validation"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"os"
-)
-
-var (
-	columns = []table.Column{
-		{Title: "Id", Width: 3},
-		{Title: "Report", Width: 15},
-	}
 )
 
 type reportModel struct {
@@ -26,8 +17,8 @@ type reportModel struct {
 func ReportModel() tea.Model {
 
 	t := table.New(
-		table.WithColumns(columns),
-		table.WithRows(getReports()),
+		table.WithColumns(getReportColumns()),
+		table.WithRows(nil),
 		table.WithFocused(true),
 		table.WithHeight(7),
 	)
@@ -84,21 +75,18 @@ func (r reportModel) View() string {
 	return r.selected
 }
 
-func getReports() []table.Row {
-	files, err := os.ReadDir(validation.ReportLocation())
-	errors.HandleError(err)
-
-	//reports := make([]table.Row, 0)
-	//reports = append(reports, table.Row{fmt.Sprintf("%v", i), file.Name()})
-	for _, file := range files {
-		if !file.IsDir() {
-			content, err := os.ReadFile(file.Name())
-			errors.HandleError(err)
-			var report validation.Report
-			err = json.Unmarshal(content, &report)
-			errors.HandleError(err)
-
-		}
+func getReportRows(reports []validation.Report) []table.Row {
+	rows := make([]table.Row, 0)
+	for i, report := range reports {
+		rows = append(rows, table.Row{fmt.Sprintf("%v", i), report.Id, fmt.Sprintf("%v", report.Time)})
 	}
 	return nil
+}
+
+func getReportColumns() []table.Column {
+	return []table.Column{
+		{Title: "", Width: 3},
+		{Title: "Id", Width: 3},
+		{Title: "Timestamp", Width: 7},
+	}
 }
