@@ -3,6 +3,8 @@ package validation
 import (
 	"time"
 
+	"github.com/speps/go-hashids/v2"
+
 	"github.com/buonotti/odh-data-monitor/log"
 	"github.com/buonotti/odh-data-monitor/util"
 )
@@ -123,9 +125,17 @@ func (p Pipeline) Validate() Report {
 		})
 	}
 
+	t := time.Now()
+	hd := hashids.NewData()
+	hd.Salt = "odh-data-monitor"
+	hd.MinLength = 5
+	h, _ := hashids.NewWithData(hd)
+	id, _ := h.Encode([]int{int(t.Unix())})
+
 	// return the report with the current timestamp
 	return Report{
-		Time:    time.Now(),
+		Id:      id,
+		Time:    t,
 		Results: results,
 	}
 }
@@ -177,7 +187,7 @@ func (p Pipeline) validateSingleItem(item PipelineItem) []ValidatorOutput {
 				break
 			}
 		}
-		
+
 		validatorOutputs = append(validatorOutputs, validatorOutput)
 	}
 	return validatorOutputs
@@ -185,6 +195,8 @@ func (p Pipeline) validateSingleItem(item PipelineItem) []ValidatorOutput {
 
 // loadItems parses the definition files and populates the Pipeline.EndpointItems collection
 func loadItems(definition endpointDefinition) ([]PipelineItem, error) {
+	log.DaemonLogger.Infof("Loading pipeline items for %s", definition.Name)
+
 	// parse the definition file to generate the requests
 	var items []PipelineItem
 	requests, err := parseRequests(definition)

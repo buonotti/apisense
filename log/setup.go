@@ -18,8 +18,9 @@ func Setup() error {
 	// set logger type
 	if doPrettyLog {
 		logrus.SetFormatter(&logrus.TextFormatter{
-			ForceColors:  forceColorLog,
-			PadLevelText: true,
+			ForceColors:   forceColorLog,
+			DisableColors: logFileName != "",
+			PadLevelText:  true,
 		})
 	} else {
 		logrus.SetFormatter(&logrus.JSONFormatter{})
@@ -35,7 +36,7 @@ func Setup() error {
 
 	// set the log output
 	if logFileName != "" {
-		logFile, err := os.Open(logFileName)
+		logFile, err := os.OpenFile(logFileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 		if err != nil {
 			return err
 		}

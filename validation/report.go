@@ -20,6 +20,7 @@ func ReportLocation() string {
 
 // Report is a report of a test run
 type Report struct {
+	Id      string
 	Time    time.Time           // Time is the timestamp of the report
 	Results []ValidatedEndpoint // Results is a collection of ValidatedEndpoint holding the validation results
 }

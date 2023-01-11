@@ -1,0 +1,23 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/health": {
+            "get": {
+                "description": "Get the health status of the API",
+                "tags": [
+                    "health"
+                ],
+                "summary": "Health check",
+                "operationId": "health",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    }
+}

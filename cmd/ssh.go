@@ -13,13 +13,10 @@ var sshCmd = &cobra.Command{
 	Long: `This command starts an ssh server that serves the tui over SSH. It also enables scp to download the reports from the server.
 This command automatically starts the daemon. This behaviour can be disabled by supplying the --no-daemon flag.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		noDaemon, err := cmd.Flags().GetBool("no-daemon")
-		errors.HandleError(err)
-		errors.HandleError(ssh.Start(!noDaemon))
+		errors.HandleError(ssh.Start())
 	},
 }
 
 func init() {
-	sshCmd.Flags().Bool("no-daemon", false, "Do not start the daemon")
 	rootCmd.AddCommand(sshCmd)
 }
