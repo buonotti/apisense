@@ -35,8 +35,8 @@ func Start() error {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api := router.Group("/api")
-	api.GET("/reports", cache.CacheByRequestPath(store, 5*time.Minute), controllers.AllReports)
-	api.GET("/reports/:id", cache.CacheByRequestPath(store, 5*time.Minute), controllers.Report)
+	api.GET("/reports", cache.CacheByRequestPath(store, 1*time.Minute), controllers.AllReports)
+	api.GET("/reports/:id", cache.CacheByRequestPath(store, 1*time.Minute), controllers.Report)
 
 	srv := &http.Server{
 		Addr:    ":8080",

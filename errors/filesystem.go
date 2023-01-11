@@ -16,11 +16,8 @@ var CannotParseDefinitionFileError = FileSystemErrors.NewType("cannot_parse_defi
 // CannotWriteFileError is returned when a functions fails to read a file
 var CannotWriteFileError = FileSystemErrors.NewType("cannot_write_file")
 
-// CannotReadStatusError is returned when the file containing the daemon status cannot be read
-var CannotReadStatusError = FileSystemErrors.NewType("cannot_read_status")
-
-// CannotReadPidError is returned when the file containing the daemon pid cannot be read
-var CannotReadPidError = FileSystemErrors.NewType("cannot_read_pid")
+// CannotReadFileError is returned when a functions fails to read a file
+var CannotReadFileError = FileSystemErrors.NewType("cannot_read_file")
 
 // CannotReadLockFileError is returned when the lock file cannot be read or does not exist
 var CannotReadLockFileError = FileSystemErrors.NewType("cannot_read_lock_file")

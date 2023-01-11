@@ -21,7 +21,7 @@ func NewStatusValidatorC(code int) validation.Validator {
 
 // statusValidator is a validator that checks if the item has the return code matching some given code
 type statusValidator struct {
-	OkStatus int // OkStatus is the status code that is allowed to get returned. All other codes will result in a failure
+	OkStatus int // OkStatus is the status code that is allowed to get returned. Reports other codes will result in a failure
 }
 
 // Name returns the name of the validator: status

@@ -182,6 +182,7 @@ func (p Pipeline) validateSingleItem(item PipelineItem) []ValidatorOutput {
 		// validate everything else
 		if err != nil {
 			validatorOutput.Error = err.Error()
+			validatorOutput.Status = "fail"
 			validatorOutputs = append(validatorOutputs, validatorOutput)
 			if validator.Fatal() {
 				break

@@ -18,3 +18,6 @@ var ExternalValidatorParseError = ValidationErrors.NewType("external_validator_p
 
 // VariableValueLengthMismatchError is returned when the number of values in the variables is not equal across all the variables
 var VariableValueLengthMismatchError = ValidationErrors.NewType("variable_value_length_mismatch")
+
+// CannotUnmarshalReportFileError is returned when a report file cannot be deserialized
+var CannotUnmarshalReportFileError = ValidationErrors.NewType("cannot_unmarshal_report_file")
