@@ -2,12 +2,14 @@ package tui
 
 import (
 	"encoding/json"
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/validation"
+	"os"
+
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"os"
+
+	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/odh-data-monitor/validation"
 )
 
 var (

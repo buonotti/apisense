@@ -28,7 +28,7 @@ const (
 func Status() (State, error) {
 	statusString, err := os.ReadFile(StatusFile)
 	if err != nil {
-		return DOWN, errors.CannotReadStatusError.Wrap(err, "Cannot read status file")
+		return DOWN, errors.CannotReadFileError.Wrap(err, "Cannot read status file")
 	}
 	return State(statusString), nil
 }
@@ -38,7 +38,7 @@ func Status() (State, error) {
 func Pid() (int, error) {
 	pidString, err := os.ReadFile(PidFile)
 	if err != nil {
-		return 0, errors.CannotReadPidError.Wrap(err, "Cannot read pid file")
+		return 0, errors.CannotReadFileError.Wrap(err, "Cannot read pid file")
 	}
 	pid, err := strconv.Atoi(string(pidString))
 	return pid, nil
