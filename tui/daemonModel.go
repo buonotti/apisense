@@ -20,7 +20,7 @@ type daemonModel struct {
 	keymap  keymap
 }
 
-func daemonModule() tea.Model {
+func DaemonModel() tea.Model {
 
 	p, pe := daemon.Pid()
 	s, se := daemon.Status()

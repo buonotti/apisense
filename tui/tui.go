@@ -34,6 +34,7 @@ type Model struct {
 	listConfigMenu   list.Model
 	listDaemonButton list.Model
 	daemonModel      tea.Model
+	reportModel      tea.Model
 }
 
 func TuiModule() Model {
@@ -62,13 +63,15 @@ func TuiModule() Model {
 		listMainMenu:     listMainMenu,
 		listConfigMenu:   listConfigMenu,
 		listDaemonButton: listDaemonButton,
-		daemonModel:      daemonModule(),
+		daemonModel:      DaemonModel(),
+		reportModel:      ReportModel(),
 		elapsedTrigger:   stopwatch.NewWithInterval(time.Second),
 	}
 }
 
 func (m Model) Init() tea.Cmd {
 	m.daemonModel.Init()
+	m.reportModel.Init()
 	watcher := NewFileWatcher()
 	err := watcher.AddFile(daemon.PidFile)
 	if err != nil {
@@ -113,8 +116,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmdMainMenu tea.Cmd
 	var cmdConfigMenu tea.Cmd
 	var cmdDaemonButton tea.Cmd
+	var cmdReportModel tea.Cmd
 	var cmdElapsedTrigger tea.Cmd
 	m.listDaemonButton, cmdDaemonButton = m.listDaemonButton.Update(msg)
+	m.reportModel, cmdReportModel = m.reportModel.Update(msg)
 	m.listMainMenu, cmdMainMenu = m.listMainMenu.Update(msg)
 	m.listConfigMenu, cmdConfigMenu = m.listConfigMenu.Update(msg)
 	m.elapsedTrigger, cmdElapsedTrigger = m.elapsedTrigger.Update(msg)
@@ -181,6 +186,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.daemonModel, cmdDaemonModal = m.daemonModel.Update(msg)
 		return m, tea.Batch(cmdDaemonModal, cmdElapsedTrigger)
 	}
+	if choiceMainMenu == "Report" {
+		return m, tea.Batch(cmdElapsedTrigger, cmdReportModel)
+	}
 	return m, cmdElapsedTrigger
 
 }
@@ -194,7 +202,7 @@ func (m Model) View() string {
 	//Render Title
 	title := figure.NewFigure("ODM - TUI", "", true)
 	m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(title.String()))
-	//m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(m.elapsedTrigger.View()))
+	//m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(choiceMainMenu + " " + choiceConfigMenu))
 
 	//Act based one main menu changes
 	switch choiceMainMenu {
@@ -218,7 +226,7 @@ func (m Model) View() string {
 	case "Report":
 		//Render report option
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(5))
-		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(choiceMainMenu))
+		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.reportModel.View()))
 	case "Config":
 		//Act based one config menu changes
 		switch choiceConfigMenu {
