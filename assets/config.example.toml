@@ -22,8 +22,8 @@ reports-dir = "~/odh-data-monitor/reports"
 level = "info"
 
 # Set the log file. Leave empty to log to stdout.
-#file = "/home/aurelio/.config/odh-data-monitor/odh-data-monitor.log"
-file = ""
+file = "~/odh-data-monitor/odh-data-monitor.log"
+#file = ""
 
 # Enable pretty log output. This will colorize the log output and print it in a readable format.
 # If set to false, the log output will be in JSON format.
