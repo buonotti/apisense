@@ -17,6 +17,9 @@ type response struct {
 }
 
 func (xmlConverter) Convert(reports ...validation.Report) ([]byte, error) {
-	d, err := xml.Marshal(response{reports})
-	return d, err
+	if len(reports) == 1 {
+		return xml.Marshal(reports[0])
+	} else {
+		return xml.Marshal(response{reports})
+	}
 }
