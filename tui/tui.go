@@ -15,11 +15,7 @@ import (
 	"github.com/charmbracelet/bubbles/stopwatch"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/common-nighthawk/go-figure"
 	"github.com/spf13/viper"
-
-	"github.com/buonotti/odh-data-monitor/daemon"
-	"github.com/buonotti/odh-data-monitor/errors"
 )
 
 var (

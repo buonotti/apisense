@@ -94,7 +94,7 @@ func assetsEnvExample() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "assets/.env.example", size: 66, mode: os.FileMode(420), modTime: time.Unix(1673517048, 0)}
+	info := bindataFileInfo{name: "assets/.env.example", size: 66, mode: os.FileMode(420), modTime: time.Unix(1673524127, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -114,7 +114,7 @@ func assetsBluetoothDefinitionToml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "assets/bluetooth.definition.toml", size: 2710, mode: os.FileMode(420), modTime: time.Unix(1673360661, 0)}
+	info := bindataFileInfo{name: "assets/bluetooth.definition.toml", size: 2710, mode: os.FileMode(420), modTime: time.Unix(1673361945, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -134,7 +134,7 @@ func assetsConfigExampleToml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "assets/config.example.toml", size: 2035, mode: os.FileMode(420), modTime: time.Unix(1673520101, 0)}
+	info := bindataFileInfo{name: "assets/config.example.toml", size: 2035, mode: os.FileMode(420), modTime: time.Unix(1673524127, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
