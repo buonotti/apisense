@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ulule/limiter/v3"
-	mgin "github.com/ulule/limiter/v3/drivers/middleware/gin"
+	gmw "github.com/ulule/limiter/v3/drivers/middleware/gin"
 	"github.com/ulule/limiter/v3/drivers/store/memory"
 )
 
@@ -16,5 +16,5 @@ func Limiter() gin.HandlerFunc {
 	}
 	limiterStore := memory.NewStore()
 	instance := limiter.New(limiterStore, rate)
-	return mgin.NewMiddleware(instance)
+	return gmw.NewMiddleware(instance)
 }

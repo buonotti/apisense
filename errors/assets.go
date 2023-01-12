@@ -8,4 +8,4 @@ import (
 var AssetErrors = errorx.NewNamespace("asset")
 
 // CannotLoadAssetError is returned when asset loading fails
-var CannotLoadAssetError = AssetErrors.NewType("cannot_load_asset")
+var CannotLoadAssetError = AssetErrors.NewType("cannot_load_asset", fatalTrait)

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/buonotti/odh-data-monitor/api"
 	"github.com/buonotti/odh-data-monitor/daemon"
@@ -15,7 +16,7 @@ var serveCmd = &cobra.Command{
 	Long:  `This command starts all the services needed to serve the app. It starts the daemon, the ssh server and the tui.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		go func() {
-			cmd, err := daemon.Start(true)
+			cmd, err := daemon.Start(true, viper.GetBool("daemon.validate-on-startup"))
 			defer func() {
 				if cmd != nil {
 					errors.HandleError(cmd.Wait())

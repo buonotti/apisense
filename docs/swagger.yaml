@@ -1,7 +1,7 @@
 info:
   contact: {}
 paths:
-  /health:
+  /api/health:
     get:
       description: Get the health status of the API
       operationId: health
@@ -11,4 +11,21 @@ paths:
       summary: Health check
       tags:
       - health
+  /api/reports:
+    get:
+      description: Gets a list of all reports that can be filtered with a query
+      operationId: all-reports
+      parameters:
+      - description: field.op.value
+        in: query
+        name: where
+        type: string
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+      summary: Get all the reports
+      tags:
+      - reports
 swagger: "2.0"

@@ -11,7 +11,7 @@ import (
 
 // Directory is the path of the directory containing the daemon control files
 func Directory() string {
-	return config.Directory + string(filepath.Separator) + "daemon"
+	return os.Getenv("HOME") + "/odh-data-monitor/daemon"
 }
 
 // Setup creates the daemon directory and writes the default files to it.
@@ -33,6 +33,13 @@ func Setup() error {
 // If any of the directories exist it does nothing.
 // If there is an error while creating the directories it returns an *errors.CannotCreateDirectoryError.
 func createDirectories() error {
+	if _, err := os.Stat(os.Getenv("HOME") + "/odh-data-monitor"); os.IsNotExist(err) {
+		err = os.Mkdir(os.Getenv("HOME")+"/odh-data-monitor", os.ModePerm)
+		if err != nil {
+			return errors.CannotCreateDirectoryError.Wrap(err, "Cannot create odh-data-monitor directory")
+		}
+	}
+
 	if _, err := os.Stat(Directory()); os.IsNotExist(err) {
 		if err = os.Mkdir(Directory(), 0755); err != nil {
 			return errors.CannotCreateDirectoryError.Wrap(err, "Cannot create daemon directory")

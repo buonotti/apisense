@@ -15,6 +15,11 @@ import (
 	"github.com/charmbracelet/bubbles/stopwatch"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/common-nighthawk/go-figure"
+	"github.com/spf13/viper"
+
+	"github.com/buonotti/odh-data-monitor/daemon"
+	"github.com/buonotti/odh-data-monitor/errors"
 )
 
 var (
@@ -156,7 +161,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					switch choiceDaemonButton {
 					case "Start daemon":
 						if !running {
-							daemonCmd, err := daemon.Start(true)
+							daemonCmd, err := daemon.Start(true, viper.GetBool("daemon.validate-on-startup"))
 							m.daemonCmd = daemonCmd
 							errors.HandleError(err)
 						}

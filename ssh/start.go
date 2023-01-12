@@ -14,8 +14,8 @@ import (
 	bm "github.com/charmbracelet/wish/bubbletea"
 	"github.com/charmbracelet/wish/scp"
 	"github.com/spf13/viper"
+	"golang.org/x/sys/unix"
 
-	"github.com/buonotti/odh-data-monitor/daemon"
 	"github.com/buonotti/odh-data-monitor/errors"
 	"github.com/buonotti/odh-data-monitor/log"
 	"github.com/buonotti/odh-data-monitor/tui"
@@ -55,7 +55,7 @@ func Start() error {
 
 	// make the ssh server listen to signals
 	done := make(chan os.Signal, 1)
-	signal.Notify(done, daemon.SIGINT, daemon.SIGTERM)
+	signal.Notify(done, unix.SIGINT, unix.SIGTERM)
 
 	// start the server in its own goroutine
 	go func() {
@@ -77,7 +77,7 @@ func Start() error {
 
 	// shutdown the server
 	if err := s.Shutdown(ctx); err != nil {
-		err = errors.CannotStopSSHServerError.Wrap(err, "Cannot stop SSH server")
+		err = errors.CannotStopSSHServerError.Wrap(err, "Cannot stop ssh server")
 	}
 	return nil
 }

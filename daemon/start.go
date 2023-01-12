@@ -15,7 +15,7 @@ import (
 // *errors.CannotLockFileError because the already running daemon has the lock on
 // the file. The background parameters controls whether the daemon should be run
 // in the foreground or not.
-func Start(background bool) (*exec.Cmd, error) {
+func Start(background bool, runOnStart bool) (*exec.Cmd, error) {
 	// If the background flag is set start a new process which runs the daemon
 	// without the --bg flag which calls this function with background = false
 	if background {
@@ -67,5 +67,5 @@ func Start(background bool) (*exec.Cmd, error) {
 	d := daemon{
 		Pipeline: &pipeline,
 	}
-	return nil, d.run()
+	return nil, d.run(runOnStart)
 }

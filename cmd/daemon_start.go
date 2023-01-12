@@ -13,15 +13,18 @@ var daemonStartCmd = &cobra.Command{
 	Long: `This command starts the daemon. If the --bg flag is provided the daemon is started as a background process. In any 
 case if there is already a daemon running the new one won't start.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		bg, err := cmd.Flags().GetBool("bg")
-		errors.HandleError(err)
+		bg, err := cmd.Flags().GetBool("background")
+		errors.HandleError(errors.SafeWrap(errors.CannotGetFlagValueError, err, "Cannot get value of flag: background"))
+		force, err := cmd.Flags().GetBool("force")
+		errors.HandleError(errors.SafeWrap(errors.CannotGetFlagValueError, err, "Cannot get value of flag: force"))
 		errors.HandleError(daemon.Setup())
-		_, err = daemon.Start(bg)
+		_, err = daemon.Start(bg, force)
 		errors.HandleError(err)
 	},
 }
 
 func init() {
-	daemonStartCmd.Flags().Bool("bg", false, "Run the daemon in the background")
+	daemonStartCmd.Flags().BoolP("force", "f", false, "Force validation upon startup")
+	daemonStartCmd.Flags().Bool("background", false, "Run the daemon in the background")
 	daemonCmd.AddCommand(daemonStartCmd)
 }
