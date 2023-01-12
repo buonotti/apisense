@@ -2,23 +2,35 @@ package tui
 
 import (
 	"fmt"
+	"github.com/buonotti/odh-data-monitor/errors"
 	"github.com/buonotti/odh-data-monitor/validation"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"strconv"
+)
+
+var (
+	validatedEndpointRows []table.Row
+	selectedReport        validation.Report
 )
 
 type reportModel struct {
-	keymap   keymap
-	table    table.Model
-	selected string
+	keymap                  keymap
+	table                   table.Model
+	validationEndpointModel tea.Model
 }
 
 func ReportModel() tea.Model {
 
+	r, err := validation.Reports()
+	errors.HandleError(err)
+	reports = r
+
 	t := table.New(
 		table.WithColumns(getReportColumns()),
-		table.WithRows(nil),
+		table.WithRows(getReportRows(reports)),
 		table.WithFocused(true),
 		table.WithHeight(7),
 	)
@@ -31,9 +43,9 @@ func ReportModel() tea.Model {
 	t.SetStyles(s)
 
 	return reportModel{
-		keymap:   DefaultKeyMap,
-		table:    t,
-		selected: "",
+		keymap:                  DefaultKeyMap,
+		table:                   t,
+		validationEndpointModel: ValidationEndpointModel(),
 	}
 }
 
@@ -42,51 +54,70 @@ func (r reportModel) Init() tea.Cmd {
 }
 
 func (r reportModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	r.selected = ""
 	var cmd tea.Cmd
-	if choiceMainMenu == "Report" {
-		r.table.Focus()
+	var cmdModel tea.Cmd
+	if choiceReportModel != "" {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
-			switch msg.String() {
-			case "esc":
-				if r.table.Focused() {
-					r.table.Blur()
-				} else {
-					r.table.Focus()
+			switch {
+			case key.Matches(msg, r.keymap.back):
+				if choiceReportModel == "reportModel" {
+					choiceReportModel = ""
+					choiceMainMenu = ""
 				}
-			case "q", "ctrl+c":
+			case key.Matches(msg, r.keymap.quit):
 				return r, tea.Quit
-			case "enter":
-				r.selected = r.table.SelectedRow()[1]
+			case key.Matches(msg, r.keymap.choose):
+				i, err := strconv.Atoi(r.table.SelectedRow()[0])
+				errors.HandleError(err)
+				rep, err := getSelectedReport(reports, i)
+				errors.HandleError(err)
+				selectedReport = rep
+				validatedEndpointRows = getValidatedEndpointRows(selectedReport)
+				if choiceReportModel != "reportModel" {
+					r.validationEndpointModel, cmdModel = r.validationEndpointModel.Update(msg)
+					r.table, cmd = r.table.Update(msg)
+					return r, tea.Batch(cmd, cmdModel)
+				}
+				choiceReportModel = "validatedEndpointModel"
+				r.table, cmd = r.table.Update(msg)
+				return r, cmd
 			}
 		}
-	} else {
-		r.table.Blur()
+		r.validationEndpointModel, cmdModel = r.validationEndpointModel.Update(msg)
+		r.table, cmd = r.table.Update(msg)
+		return r, tea.Batch(cmd, cmdModel)
 	}
-	r.table, cmd = r.table.Update(msg)
-	return r, cmd
+	return r, nil
+
 }
 
 func (r reportModel) View() string {
-	if r.selected == "" {
-		return lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder()).Render(r.table.View() + "\n")
+	if choiceReportModel != "reportModel" {
+		return styleContentCenter.Copy().MarginLeft(1).MarginRight(1).BorderStyle(lipgloss.RoundedBorder()).Render(r.validationEndpointModel.View() + "\n")
 	}
-	return r.selected
+	return styleContentCenter.Copy().MarginLeft(1).MarginRight(1).BorderStyle(lipgloss.RoundedBorder()).Render(r.table.View() + "\n")
 }
 
 func getReportRows(reports []validation.Report) []table.Row {
 	rows := make([]table.Row, 0)
 	for i, report := range reports {
-		rows = append(rows, table.Row{fmt.Sprintf("%v", i), report.Id, fmt.Sprintf("%v", report.Time)})
+		rows = append(rows, table.Row{fmt.Sprintf("%v", i), report.Id, fmt.Sprintf("%v", report.Time.Format("2006-01-02 15:04:05"))})
 	}
-	return nil
+	return rows
 }
 
 func getReportColumns() []table.Column {
 	return []table.Column{
 		{Title: "", Width: 3},
-		{Title: "Id", Width: 3},
-		{Title: "Timestamp", Width: 7},
+		{Title: "Id", Width: 10},
+		{Title: "Timestamp", Width: 62},
 	}
+}
+
+func getSelectedReport(reports []validation.Report, index int) (validation.Report, error) {
+	if index > len(reports) || index < 0 {
+		return validation.Report{}, errors.ModelError.New("Index out of range")
+	}
+	return reports[index], nil
 }

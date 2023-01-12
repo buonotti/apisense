@@ -1,20 +1,20 @@
 package tui
 
 import (
+	"github.com/buonotti/odh-data-monitor/validation"
+	"github.com/common-nighthawk/go-figure"
 	"os/exec"
 	"time"
 
 	"github.com/76creates/stickers"
+	"github.com/buonotti/odh-data-monitor/daemon"
+	"github.com/buonotti/odh-data-monitor/errors"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/stopwatch"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/common-nighthawk/go-figure"
-
-	"github.com/buonotti/odh-data-monitor/daemon"
-	"github.com/buonotti/odh-data-monitor/errors"
 )
 
 var (
@@ -22,6 +22,8 @@ var (
 	choiceMainMenu     string
 	choiceConfigMenu   string
 	choiceDaemonButton string
+	choiceReportModel  string
+	reports            []validation.Report
 )
 
 type errMsg error
@@ -99,7 +101,7 @@ func (m Model) Init() tea.Cmd {
 	m.flexbox.AddRows([]*stickers.FlexBoxRow{
 		m.flexbox.NewRow().AddCells(
 			[]*stickers.FlexBoxCell{
-				stickers.NewFlexBoxCell(1, 3).SetStyle(styleContentCenter.Copy().MarginLeft(1).MarginRight(1).BorderStyle(lipgloss.RoundedBorder())),
+				stickers.NewFlexBoxCell(1, 3).SetStyle(styleContentCenter.Copy().MarginLeft(1).MarginRight(1).MarginTop(3)),
 			},
 		),
 		m.flexbox.NewRow().AddCells(
@@ -176,12 +178,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keymap.down):
 			return m, tea.Batch(cmdMainMenu, cmdConfigMenu, cmdDaemonButton)
 		case key.Matches(msg, m.keymap.back):
-			if choiceMainMenu != "" && choiceConfigMenu != "" {
-				choiceConfigMenu = ""
-				m.listConfigMenu.ResetSelected()
-			} else if choiceMainMenu != "" {
-				choiceMainMenu = ""
-				m.listMainMenu.ResetSelected()
+			if choiceMainMenu != "Report" {
+				if choiceMainMenu != "" && choiceConfigMenu != "" {
+					choiceConfigMenu = ""
+					m.listConfigMenu.ResetSelected()
+				} else if choiceMainMenu != "" {
+					choiceMainMenu = ""
+					m.listMainMenu.ResetSelected()
+				}
 			}
 		case msg.Type == tea.KeyF5:
 			return m, nil
@@ -210,6 +214,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(cmdDaemonModal, cmdElapsedTrigger)
 	}
 	if choiceMainMenu == "Report" {
+		if choiceReportModel == "" {
+			r, err := validation.Reports()
+			errors.HandleError(err)
+			reports = r
+			choiceReportModel = "reportModel"
+		}
 		return m, tea.Batch(cmdElapsedTrigger, cmdReportModel)
 	}
 	return m, cmdElapsedTrigger
@@ -225,35 +235,17 @@ func (m Model) View() string {
 	//Render Title
 	title := figure.NewFigure("ODM - TUI", "", true)
 	m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(title.String()))
-	//m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(choiceMainMenu + " " + choiceConfigMenu))
+	//m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(fmt.Sprintf("%v", choiceReportModel)))
 
 	//Act based one main menu changes
 	switch choiceMainMenu {
 	case "Daemon":
-		//Render state option
-		//switch choiceDaemonButton {
-		//case "Start daemon":
-		//	if !running {
-		//		daemonCmd, err := daemon.Start(true)
-		//		m.daemonCmd = daemonCmd
-		//		errors.HandleError(err)
-		//	}
-		//case "Stop daemon":
-		//	if running {
-		//		err := daemon.Stop()
-		//		errors.HandleError(err)
-		//		if m.daemonCmd != nil {
-		//			err = m.daemonCmd.Process.Kill()
-		//			errors.HandleError(err)
-		//		}
-		//	}
-		//}
 		choiceDaemonButton = ""
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(5))
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.daemonModel.View() + docStyle.Render(m.listDaemonButton.View())))
 	case "Report":
 		//Render report option
-		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(5))
+		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5))
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.reportModel.View()))
 	case "Config":
 		//Act based one config menu changes

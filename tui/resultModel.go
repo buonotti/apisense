@@ -2,22 +2,35 @@ package tui
 
 import (
 	"fmt"
+	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/odh-data-monitor/util"
 	"github.com/buonotti/odh-data-monitor/validation"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"net/url"
+	"sort"
+	"strconv"
+	"strings"
+)
+
+var (
+	selectedResult            validation.Result
+	validatorOutputRows       []table.Row
+	updateValidatorOutputRows = false
 )
 
 type resultModel struct {
-	keymap   keymap
-	table    table.Model
-	selected string
+	keymap               keymap
+	table                table.Model
+	validatorOutputModel tea.Model
 }
 
 func ResultModel() tea.Model {
 
 	t := table.New(
-		table.WithColumns(getReportColumns()),
+		table.WithColumns(getResultColumns()),
 		table.WithRows(nil),
 		table.WithFocused(true),
 		table.WithHeight(7),
@@ -31,9 +44,9 @@ func ResultModel() tea.Model {
 	t.SetStyles(s)
 
 	return resultModel{
-		keymap:   DefaultKeyMap,
-		table:    t,
-		selected: "",
+		keymap:               DefaultKeyMap,
+		table:                t,
+		validatorOutputModel: ValidatorOutputModel(),
 	}
 }
 
@@ -42,20 +55,100 @@ func (r resultModel) Init() tea.Cmd {
 }
 
 func (r resultModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	var cmdModel tea.Cmd
+	if choiceReportModel != "validatedEndpointModel" {
+		if updateResultRows {
+			t := table.New(
+				table.WithColumns(getResultColumns()),
+				table.WithRows(resultRows),
+				table.WithFocused(true),
+				table.WithHeight(7),
+			)
+			s := table.DefaultStyles()
+			s.Selected = s.Selected.
+				Foreground(lipgloss.Color("#F38BA8")).
+				Background(lipgloss.Color("#1e1e2e")).
+				Bold(false)
+			t.SetStyles(s)
+			r.table = t
+			updateResultRows = false
+		}
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch {
+			case key.Matches(msg, r.keymap.back):
+				if choiceReportModel == "resultModel" {
+					choiceReportModel = "validatedEndpointModel"
+				}
+			case key.Matches(msg, r.keymap.quit):
+				return r, tea.Quit
+			case key.Matches(msg, r.keymap.choose):
+				i, err := strconv.Atoi(r.table.SelectedRow()[0])
+				errors.HandleError(err)
+				res, err := getSelectedResult(selectedValidatedEndpoint, i)
+				errors.HandleError(err)
+				selectedResult = res
+				validatorOutputRows = getValidatorOutputRows(selectedResult.ValidatorsOutput)
+				if choiceReportModel != "resultModel" {
+					r.validatorOutputModel, cmdModel = r.validatorOutputModel.Update(msg)
+					r.table, cmd = r.table.Update(msg)
+					return r, tea.Batch(cmd, cmdModel)
+				}
+				choiceReportModel = "validatorOutputModel"
+				updateValidatorOutputRows = true
+				r.table, cmd = r.table.Update(msg)
+				return r, tea.Batch(cmd, cmdModel)
+			}
+		}
+		r.validatorOutputModel, cmdModel = r.validatorOutputModel.Update(msg)
+		r.table, cmd = r.table.Update(msg)
+		return r, tea.Batch(cmd, cmdModel)
+	}
 	return r, nil
 }
 
 func (r resultModel) View() string {
-	if r.selected == "" {
-		return lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder()).Render(r.table.View() + "\n")
+	if choiceReportModel != "resultModel" {
+		return lipgloss.NewStyle().Render(r.validatorOutputModel.View() + "\n")
 	}
-	return r.selected
+	return lipgloss.NewStyle().Render(r.table.View() + "\n")
 }
 
 func getResultRows(results []validation.Result) []table.Row {
 	rows := make([]table.Row, 0)
-	for i, result := range results {
-		rows = append(rows, table.Row{fmt.Sprintf("%v", i), result.Url})
+	queries := make([][]string, 0)
+	queriesToRender := make([]string, 0)
+	for _, result := range results {
+		u, err := url.Parse(result.Url)
+		errors.HandleError(err)
+		query := make([]string, 0)
+		for value := range u.Query() {
+			query = append(query, value+"="+u.Query().Get(value))
+			sort.Strings(query)
+		}
+		queries = append(queries, query)
+	}
+	rQueries := util.Transpose(queries)
+	for _, query := range rQueries {
+		for i, result := range query {
+			if i > 0 {
+				if strings.Split(query[i-1], "=")[1] != strings.Split(result, "=")[1] {
+					queriesToRender = append(queriesToRender, strings.Split(result, "=")[0])
+					break
+				}
+			}
+		}
+	}
+
+	for i, result := range queries {
+		s := ""
+		for _, query := range result {
+			if util.Contains(queriesToRender, strings.Split(query, "=")[0]) {
+				s += query + ", "
+			}
+		}
+		rows = append(rows, table.Row{fmt.Sprintf("%v", i), s})
 	}
 	return rows
 }
@@ -63,6 +156,13 @@ func getResultRows(results []validation.Result) []table.Row {
 func getResultColumns() []table.Column {
 	return []table.Column{
 		{Title: "", Width: 3},
-		{Title: "Url", Width: 7},
+		{Title: "Url", Width: 73},
 	}
+}
+
+func getSelectedResult(validatedEndpoint validation.ValidatedEndpoint, index int) (validation.Result, error) {
+	if index > len(validatedEndpoint.Results) || index < 0 {
+		return validation.Result{}, errors.ModelError.New("Index out of range")
+	}
+	return validatedEndpoint.Results[index], nil
 }
