@@ -6,7 +6,7 @@ ARG BRANCH
 # update system and install required software
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install git curl tar supervisor -y
+RUN apt-get install git curl tar supervisor zsh -y
 
 # set workdir
 WORKDIR /
@@ -34,8 +34,9 @@ COPY docker/api.supervisor.conf /etc/supervisor/conf.d/api.supervisor.conf
 
 COPY docker/startup.sh /startup.sh
 
-RUN odh-data-monitor completion bash > /odm-bash-comp.bash
-RUN echo "source /odm-bash-comp.bash" >> /root/.bashrc
+RUN odh-data-monitor completion zsh > /_odh-data-monitor
+RUN chmod +x /_odh-data-monitor
+RUN echo "source /_odh-data-monitor" >> /root/.zshrc
 
 # expose ssh and api port
 EXPOSE 23232
