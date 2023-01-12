@@ -2,7 +2,6 @@ package daemon
 
 import (
 	"context"
-	"encoding/json"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -12,6 +11,7 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/sys/unix"
 
+	"github.com/buonotti/odh-data-monitor/conversion"
 	"github.com/buonotti/odh-data-monitor/errors"
 	"github.com/buonotti/odh-data-monitor/log"
 	"github.com/buonotti/odh-data-monitor/validation"
@@ -69,16 +69,16 @@ func (d daemon) run() error {
 			select {
 			case s := <-signalChan:
 				switch s {
-				case SIGHUP:
+				case unix.SIGHUP:
 					log.DaemonLogger.Info("Received SIGHUP, reloading configuration")
 					errors.HandleError(d.Pipeline.RefreshItems())
-				case SIGINT:
+				case unix.SIGINT:
 					log.DaemonLogger.Info("Received SIGINT, stopping daemon")
 					errors.HandleError(writeStatus(DOWN))
 					errors.HandleError(writePid(-1))
 					cancel()
 					os.Exit(0)
-				case SIGTERM:
+				case unix.SIGTERM:
 					log.DaemonLogger.Info("Received SIGTERM, stopping daemon")
 					errors.HandleError(writeStatus(DOWN))
 					errors.HandleError(writePid(-1))
@@ -93,6 +93,11 @@ func (d daemon) run() error {
 			}
 		}
 	}()
+
+	if viper.GetBool("daemon.validate-on-startup") {
+		log.DaemonLogger.Info("Running work function on start")
+		d.work()()
+	}
 
 	// create a new cron scheduler that runs the work function in the preferred interval.
 	// The interval is read from the configuration file
@@ -118,12 +123,12 @@ func (d daemon) work() func() {
 		d.logResults(result)
 
 		// serialize the results to json and write them to the report file with the current timestamp as name
-		reportData, err := json.Marshal(result)
+		reportData, err := conversion.Json().Convert(result)
 		if err != nil {
 			errors.HandleError(errors.CannotSerializeItemError.Wrap(err, "Cannot serialize report"))
 		}
 
-		reportPath := validation.ReportLocation() + string(filepath.Separator) + time.Now().Format("02-01-2006@15:04") + ".report.json"
+		reportPath := validation.ReportLocation() + string(filepath.Separator) + time.Now().Format("02-01-2006T15:04:05.000Z") + ".report.json"
 		err = os.WriteFile(reportPath, reportData, 0644)
 		if err != nil {
 			errors.HandleError(errors.CannotWriteFileError.Wrap(err, "Cannot write report to file"))

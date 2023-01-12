@@ -135,7 +135,7 @@ func (p Pipeline) Validate() Report {
 	// return the report with the current timestamp
 	return Report{
 		Id:      id,
-		Time:    t,
+		Time:    ReportTime(t),
 		Results: results,
 	}
 }

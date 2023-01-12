@@ -1,15 +1,203 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
+	"reflect"
+	"strings"
+	"time"
 
+	"github.com/gin-gonic/gin"
+	"github.com/goccy/go-json"
+	"github.com/tidwall/gjson"
+
+	"github.com/buonotti/odh-data-monitor/errors"
 	"github.com/buonotti/odh-data-monitor/util"
 	"github.com/buonotti/odh-data-monitor/validation"
 )
 
+var operators = map[string]comparer{
+	".eq.":        eqComparer{},
+	".ne.":        neComparer{},
+	".gt.":        gtComparer{},
+	".gte.":       gteComparer{},
+	".lt.":        ltComparer{},
+	".lte.":       lteComparer{},
+	".contains.":  containsComparer{},
+	".ncontains.": ncontainsComparer{},
+}
+
+type comparer interface {
+	compare(a any, b any) bool
+}
+
+type eqComparer struct{}
+
+func (eqComparer) compare(a any, b any) bool {
+	if reflect.TypeOf(a) != reflect.TypeOf(b) && reflect.TypeOf(a) != reflect.TypeOf([]any{}) {
+		return false
+	}
+	switch a.(type) {
+	case []any:
+		return util.Any(a.([]any), func(item any) bool {
+			return eqComparer{}.compare(item, b)
+		})
+	default:
+		return a == b
+	}
+}
+
+type neComparer struct{}
+
+func (neComparer) compare(a any, b any) bool {
+	if reflect.TypeOf(a) != reflect.TypeOf(b) && reflect.TypeOf(a) != reflect.TypeOf([]any{}) {
+		return true
+	}
+
+	switch a.(type) {
+	case []any:
+		return util.All(a.([]any), func(item any) bool {
+			return neComparer{}.compare(item, b)
+		})
+	default:
+		return a != b
+	}
+}
+
+type gtComparer struct{}
+
+func (gtComparer) compare(a any, b any) bool {
+	if reflect.TypeOf(a) != reflect.TypeOf(b) && reflect.TypeOf(a) != reflect.TypeOf([]any{}) {
+		return false
+	}
+	switch a.(type) {
+	case string:
+		return a.(string) > b.(string)
+	case float64:
+		return a.(float64) > b.(float64)
+	case time.Time:
+		return a.(time.Time).After(b.(time.Time)) || a.(time.Time).Equal(b.(time.Time))
+	case []any:
+		return util.Any(a.([]any), func(item any) bool {
+			return gtComparer{}.compare(item, b)
+		})
+	}
+	return false
+}
+
+type gteComparer struct{}
+
+func (gteComparer) compare(a any, b any) bool {
+	if reflect.TypeOf(a) != reflect.TypeOf(b) && reflect.TypeOf(a) != reflect.TypeOf([]any{}) {
+		return false
+	}
+	switch a.(type) {
+	case string:
+		return a.(string) >= b.(string)
+	case float64:
+		return a.(float64) >= b.(float64)
+	case time.Time:
+		return a.(time.Time).After(b.(time.Time)) || a.(time.Time).Equal(b.(time.Time))
+	case []any:
+		return util.Any(a.([]any), func(item any) bool {
+			return gteComparer{}.compare(item, b)
+		})
+	}
+	return false
+}
+
+type ltComparer struct{}
+
+func (ltComparer) compare(a any, b any) bool {
+	if reflect.TypeOf(a) != reflect.TypeOf(b) && reflect.TypeOf(a) != reflect.TypeOf([]any{}) {
+		return false
+	}
+	switch a.(type) {
+	case string:
+		return a.(string) < b.(string)
+	case float64:
+		return a.(float64) < b.(float64)
+	case time.Time:
+		return a.(time.Time).After(b.(time.Time)) || a.(time.Time).Equal(b.(time.Time))
+	case []any:
+		return util.Any(a.([]any), func(item any) bool {
+			return ltComparer{}.compare(item, b)
+		})
+	}
+	return false
+}
+
+type lteComparer struct{}
+
+func (lteComparer) compare(a any, b any) bool {
+	if reflect.TypeOf(a) != reflect.TypeOf(b) && reflect.TypeOf(a) != reflect.TypeOf([]any{}) {
+		return false
+	}
+	switch a.(type) {
+	case string:
+		return a.(string) <= b.(string)
+	case float64:
+		return a.(float64) <= b.(float64)
+	case time.Time:
+		return a.(time.Time).Before(b.(time.Time)) || a.(time.Time).Equal(b.(time.Time))
+	case []any:
+		return util.Any(a.([]any), func(item any) bool {
+			return lteComparer{}.compare(item, b)
+		})
+	}
+	return false
+}
+
+type containsComparer struct{}
+
+func (containsComparer) compare(a any, b any) bool {
+	if reflect.TypeOf(a) != reflect.TypeOf([]any{}) {
+		return false
+	}
+	arr, _ := a.([]any)
+	if len(arr) == 0 {
+		return false
+	}
+	subArr, ok := arr[0].([]any)
+	if ok {
+		return util.Any(subArr, func(item any) bool {
+			return containsComparer{}.compare(item, b)
+		})
+	} else {
+		strArr, ok := arr[0].(string)
+		if ok {
+			return strings.Contains(strArr, b.(string))
+		} else {
+			return false
+		}
+	}
+}
+
+type ncontainsComparer struct{}
+
+func (ncontainsComparer) compare(a any, b any) bool {
+	if reflect.TypeOf(a) != reflect.TypeOf([]any{}) {
+		return false
+	}
+	return !util.Contains(a.([]string), b.(string))
+}
+
+// @BasePath /api
+
+// AllReports godoc
+// @Summary Get all the reports
+// @Description Gets a list of all reports that can be filtered with a query
+// @ID all-reports
+// @Tags reports
+// @Param where query string false "field.op.value"
+// @Success 200
+// @Failure 500
+// @Router /api/reports [get]
 func AllReports(c *gin.Context) {
 	allReports, err := validation.Reports()
-	allReports = filterReports(c, allReports)
+	if err != nil {
+		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
+		return
+	}
+	allReports, err = filterReports(c, allReports)
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
 		return
@@ -17,8 +205,49 @@ func AllReports(c *gin.Context) {
 	c.JSON(200, allReports)
 }
 
-func filterReports(c *gin.Context, reports []validation.Report) []validation.Report {
-	return reports // TODO
+func filterReports(c *gin.Context, reports []validation.Report) ([]validation.Report, error) {
+	whereClause := c.Query("where")
+	if whereClause == "" {
+		return reports, nil
+	}
+
+	whereClause = strings.ReplaceAll(whereClause, "$", "#")
+
+	if !util.Any(util.Keys(operators), func(operator string) bool { return strings.Contains(whereClause, operator) }) {
+		return nil, errors.InvalidWhereClauseError.New("invalid where clause. where clause does not contain any valid operator")
+	}
+
+	reports, err := validation.Reports()
+	if err != nil {
+		return nil, err
+	}
+
+	filterPredicate := buildFilterPredicate(whereClause)
+	return util.Where(reports, filterPredicate), nil
+}
+
+func buildFilterPredicate(whereClause string) func(validation.Report) bool {
+
+	op := util.FindFirst(util.Keys(operators), func(op string) bool { return strings.Contains(whereClause, op) })
+	if op == nil {
+		return nil
+	}
+
+	comp := operators[*op]
+
+	key := strings.Split(whereClause, *op)[0]
+	value := strings.Split(whereClause, *op)[1]
+	return func(report validation.Report) bool {
+		jsonString, err := json.Marshal(report)
+		errors.HandleError(err)
+		data := gjson.GetBytes(jsonString, key)
+		if strings.Contains(strings.ToLower(key), "time") {
+			t, err := time.Parse("2006-01-02T15:04:05.000Z", value)
+			errors.HandleError(err)
+			return comp.compare(data.Time(), t)
+		}
+		return comp.compare(data.Value(), value)
+	}
 }
 
 func Report(c *gin.Context) {

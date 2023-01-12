@@ -5,14 +5,17 @@
 # Set the interval in seconds in which the daemon should run. The format is cron (https://www.wikipedia.org/wiki/Cron)
 interval = "* * * * *"
 
+# Sets whether the daemon should run a validation run upon startup
+validate-on-startup = true
+
 # Set the definition directory. This is the directory where the api definitions are stored.
-definitions-dir = "~/.config/odh-data-monitor/definitions.d"
+definitions-dir = "~/odh-data-monitor/definitions.d"
 
 # Definition files that start with this prefix are not included
 ignore-prefix = "_"
 
 # Set the report output directory. This is the directory where the reports are stored.
-reports-dir = "~/.config/odh-data-monitor/reports"
+reports-dir = "~/odh-data-monitor/reports"
 
 [daemon.log]
 # Set the log level. Valid values are: debug, info, warn, error, fatal, panic

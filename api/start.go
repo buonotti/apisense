@@ -5,10 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"time"
 
-	cache "github.com/chenyahui/gin-cache"
-	"github.com/chenyahui/gin-cache/persist"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -24,19 +21,19 @@ func Start() error {
 	docs.SwaggerInfo.BasePath = "/api"
 	gin.SetMode(gin.ReleaseMode)
 
-	store := persist.NewMemoryStore(2 * time.Minute)
+	// store := persist.NewMemoryStore(2 * time.Minute)
 
 	router := gin.New()
 	router.Use(middleware.CORS())
 	router.Use(log.GinLogger())
 	router.Use(gin.Recovery())
 	router.Use(middleware.Limiter())
-	router.GET("/health", controllers.GetHealth)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api := router.Group("/api")
-	api.GET("/reports", cache.CacheByRequestPath(store, 1*time.Minute), controllers.AllReports)
-	api.GET("/reports/:id", cache.CacheByRequestPath(store, 1*time.Minute), controllers.Report)
+	api.GET("/health", controllers.GetHealth)
+	api.GET("/reports" /*cache.CacheByRequestPath(store, 1*time.Minute),*/, controllers.AllReports)
+	api.GET("/reports/:id" /*cache.CacheByRequestPath(store, 1*time.Minute),*/, controllers.Report)
 
 	srv := &http.Server{
 		Addr:    ":8080",

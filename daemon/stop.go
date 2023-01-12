@@ -4,6 +4,8 @@ import (
 	"os"
 	"strconv"
 
+	"golang.org/x/sys/unix"
+
 	"github.com/buonotti/odh-data-monitor/errors"
 )
 
@@ -20,7 +22,7 @@ func Stop() error {
 		if err != nil {
 			return errors.CannotGetProcessInfoError.Wrap(err, "Cannot get process info for pid "+strconv.Itoa(pid))
 		}
-		err = proc.Signal(SIGINT)
+		err = proc.Signal(unix.SIGINT)
 		if err != nil {
 			return errors.CannotSendSignalError.Wrap(err, "Cannot send signal SIGINT to process "+strconv.Itoa(pid))
 		}

@@ -15,3 +15,17 @@ func NewF(t *errorx.Type, format string, args ...interface{}) *errorx.Error {
 func WrapF(t *errorx.Type, err error, format string, args ...interface{}) *errorx.Error {
 	return t.Wrap(err, fmt.Sprintf(format, args...))
 }
+
+func SafeWrap(t *errorx.Type, err error, message string, args ...interface{}) *errorx.Error {
+	if err != nil {
+		return t.Wrap(err, message, args...)
+	}
+	return nil
+}
+
+func SafeWrapF(t *errorx.Type, err error, format string, args ...interface{}) *errorx.Error {
+	if err != nil {
+		return WrapF(t, err, format, args...)
+	}
+	return nil
+}

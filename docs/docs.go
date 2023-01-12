@@ -16,7 +16,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/health": {
+        "/api/health": {
             "get": {
                 "description": "Get the health status of the API",
                 "tags": [
@@ -27,6 +27,32 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/reports": {
+            "get": {
+                "description": "Gets a list of all reports that can be filtered with a query",
+                "tags": [
+                    "reports"
+                ],
+                "summary": "Get all the reports",
+                "operationId": "all-reports",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "field.op.value",
+                        "name": "where",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
                     }
                 }
             }

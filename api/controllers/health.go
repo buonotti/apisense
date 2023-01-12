@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @BasePath /api/v1
+// @BasePath /api
 
 // GetHealth godoc
 // @Summary Health check
@@ -12,7 +12,7 @@ import (
 // @ID health
 // @Tags health
 // @Success 200
-// @Router /health [get]
+// @Router /api/health [get]
 func GetHealth(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "ok"})
 }
