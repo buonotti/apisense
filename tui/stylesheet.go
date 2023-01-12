@@ -25,8 +25,8 @@ var styleContentCenter = lipgloss.NewStyle().
 
 // LEFT
 var styleContentLeft = lipgloss.NewStyle().
-	Align(lipgloss.Center)
+	Align(lipgloss.Left)
 
 // RIGHT
 var styleContentRight = lipgloss.NewStyle().
-	Align(lipgloss.Center)
+	Align(lipgloss.Right)

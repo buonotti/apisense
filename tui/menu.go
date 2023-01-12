@@ -50,7 +50,7 @@ func (i item) FilterValue() string { return i.title }
 // Main menu
 var itemsMainMenu = []list.Item{
 	item{title: "Daemon", desc: "Control daemon activity"},
-	item{title: "Report", desc: "Get currently available report"},
+	item{title: "Report", desc: "Look into available reports"},
 	item{title: "Config", desc: "Edit daemon / TUI config"},
 }
 var listMainMenu = list.New(itemsMainMenu, itemDelegate{}, defaultWidth, defaultListHeight)
