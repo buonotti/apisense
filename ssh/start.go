@@ -77,7 +77,7 @@ func Start() error {
 
 	// shutdown the server
 	if err := s.Shutdown(ctx); err != nil {
-		err = errors.CannotStopSSHServerError.Wrap(err, "Cannot stop SSH server")
+		err = errors.CannotStopSSHServerError.Wrap(err, "Cannot stop ssh server")
 	}
 	return nil
 }

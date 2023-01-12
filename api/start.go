@@ -5,14 +5,17 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"golang.org/x/sys/unix"
 
 	"github.com/buonotti/odh-data-monitor/api/controllers"
 	"github.com/buonotti/odh-data-monitor/api/middleware"
 	"github.com/buonotti/odh-data-monitor/docs"
+	"github.com/buonotti/odh-data-monitor/errors"
 	"github.com/buonotti/odh-data-monitor/log"
 )
 
@@ -40,23 +43,26 @@ func Start() error {
 		Handler: router,
 	}
 
-	done := make(chan struct{})
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, unix.SIGINT, unix.SIGTERM)
+
 	go func() {
-		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, os.Interrupt)
-		<-sigint
-		if err := srv.Shutdown(context.Background()); err != nil {
-			panic(err) // TODO
+		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			errors.HandleError(err)
 		}
-		log.ApiLogger.Info("shut down server")
-		close(done)
 	}()
 
-	log.ApiLogger.Info("server listening")
-	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-		return err
-	}
+	log.ApiLogger.Info("Api service started")
 
 	<-done
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	log.ApiLogger.Info("Stopping api service")
+
+	if err := srv.Shutdown(ctx); err != nil {
+		err = errors.CannotStopApiServiceError.Wrap(err, "Cannot stop api service")
+	}
 	return nil
 }
