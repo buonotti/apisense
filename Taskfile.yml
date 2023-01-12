@@ -59,3 +59,4 @@ tasks:
     desc: Cleans the project configs
     cmds:
       - rm -r {{.HOME}}/.config/odh-data-monitor
+      - rm -r {{.HOME}}/odh-data-monitor
