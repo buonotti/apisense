@@ -1,3 +1,3 @@
 #!/bin/sh
-odh-data-monitor d start
-/usr/bin/supervisord -n &
+odh-data-monitor daemon start --background
+/usr/bin/supervisord -n

@@ -20,9 +20,12 @@ RUN git clone -b $BRANCH https://github.com/buonotti/odh-data-monitor
 WORKDIR /odh-data-monitor
 
 # build the project install it and add it to path
+ENV PATH="$PATH:/root/go/bin"
+RUN /usr/local/go/bin/go get -u github.com/go-bindata/go-bindata/...
+RUN /usr/local/go/bin/go install github.com/go-bindata/go-bindata/...
+RUN go-bindata -o assets.go assets/
 RUN /usr/local/go/bin/go build
 RUN /usr/local/go/bin/go install
-ENV PATH="$PATH:/root/go/bin"
 
 # create app directories
 RUN mkdir -p /root/.config/odh-data-monitor
@@ -34,14 +37,11 @@ COPY docker/api.supervisor.conf /etc/supervisor/conf.d/api.supervisor.conf
 
 COPY docker/startup.sh /startup.sh
 
-RUN mkdir /comp
-RUN odh-data-monitor completion zsh > /comp/_odh-data-monitor
-RUN chmod +x /comp/_odh-data-monitor
-ENV FPATH="$FPATH:/comp"
-
 # expose ssh and api port
 EXPOSE 23232
 EXPOSE 8080
+
+WORKDIR /root
 
 # start supervisord
 ENTRYPOINT ["sh", "/startup.sh"]

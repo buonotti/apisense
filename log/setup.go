@@ -2,6 +2,7 @@ package log
 
 import (
 	"os"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -36,7 +37,11 @@ func Setup() error {
 
 	// set the log output
 	if logFileName != "" {
-		logFile, err := os.OpenFile(logFileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		path := logFileName
+		if strings.Contains(path, "~") {
+			path = strings.Replace(path, "~", os.Getenv("HOME"), 1)
+		}
+		logFile, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 		if err != nil {
 			return err
 		}
