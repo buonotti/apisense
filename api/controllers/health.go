@@ -4,8 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @BasePath /api
-
 // GetHealth godoc
 // @Summary Health check
 // @Description Get the health status of the API

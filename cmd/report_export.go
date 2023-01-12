@@ -39,21 +39,17 @@ var reportExportCmd = &cobra.Command{
 			if report != nil {
 				errors.HandleError(errors.NewF(errors.UnknownReportError, "Unknown report: %s", arg))
 			}
-			switch format {
-			case "json":
-				str, err := conversion.Json().Convert(*report)
-				errors.HandleError(err)
-				fmt.Println(string(str))
-			case "csv":
-				str, err := conversion.Csv().Convert(*report)
-				errors.HandleError(err)
-				fmt.Println(string(str))
-			default:
+
+			converter := conversion.Get(format)
+			if converter == nil {
 				errors.HandleError(errors.NewF(errors.UnknownExportFormatError, "Unknown format: %s", format))
 			}
+
+			str, err := converter.Convert(*report)
+			errors.HandleError(err)
+			fmt.Println(string(str))
 		}
 	},
-	Args:              cobra.MinimumNArgs(1),
 	ValidArgsFunction: validReportsFunc(),
 }
 
@@ -61,7 +57,7 @@ func init() {
 	reportExportCmd.Flags().StringP("format", "f", "", "Specify the export format")
 	reportExportCmd.Flags().Bool("all", false, "Export all reports")
 	err := reportExportCmd.RegisterFlagCompletionFunc("format", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return []string{"json", "csv"}, cobra.ShellCompDirectiveNoFileComp
+		return conversion.Converters(), cobra.ShellCompDirectiveNoFileComp
 	})
 	errors.HandleError(errors.SafeWrap(errors.CannotRegisterCompletionFunction, err, "Cannot register completion function for reports"))
 	errors.HandleError(reportExportCmd.MarkFlagRequired("format"))

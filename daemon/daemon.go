@@ -27,7 +27,7 @@ type daemon struct {
 // function in the preferred interval. It also starts a goroutine to listen to
 // incoming signals and stop the daemon when a SIGINT is received, and it reloads
 // the configuration when a SIGHUP is received.
-func (d daemon) run() error {
+func (d daemon) run(runOnStart bool) error {
 	// write the daemon status to the control file
 	err := writeStatus(UP)
 	if err != nil {
@@ -94,7 +94,7 @@ func (d daemon) run() error {
 		}
 	}()
 
-	if viper.GetBool("daemon.validate-on-startup") {
+	if runOnStart {
 		log.DaemonLogger.Info("Running work function on start")
 		d.work()()
 	}

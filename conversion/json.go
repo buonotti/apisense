@@ -12,7 +12,7 @@ func Json() Converter {
 
 type jsonConverter struct{}
 
-func (jsonConverter) Convert(report validation.Report) ([]byte, error) {
-	d, err := json.Marshal(report)
+func (jsonConverter) Convert(reports ...validation.Report) ([]byte, error) {
+	d, err := json.Marshal(reports)
 	return d, err
 }

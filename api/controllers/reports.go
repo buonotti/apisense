@@ -9,6 +9,7 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/tidwall/gjson"
 
+	"github.com/buonotti/odh-data-monitor/conversion"
 	"github.com/buonotti/odh-data-monitor/errors"
 	"github.com/buonotti/odh-data-monitor/util"
 	"github.com/buonotti/odh-data-monitor/validation"
@@ -180,14 +181,13 @@ func (ncontainsComparer) compare(a any, b any) bool {
 	return !util.Contains(a.([]string), b.(string))
 }
 
-// @BasePath /api
-
 // AllReports godoc
 // @Summary Get all the reports
 // @Description Gets a list of all reports that can be filtered with a query
 // @ID all-reports
 // @Tags reports
 // @Param where query string false "field.op.value"
+// @Param format query string false "json"
 // @Success 200
 // @Failure 500
 // @Router /api/reports [get]
@@ -202,7 +202,7 @@ func AllReports(c *gin.Context) {
 		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
 		return
 	}
-	c.JSON(200, allReports)
+	writeFormattedReport(c, allReports...)
 }
 
 func filterReports(c *gin.Context, reports []validation.Report) ([]validation.Report, error) {
@@ -250,6 +250,19 @@ func buildFilterPredicate(whereClause string) func(validation.Report) bool {
 	}
 }
 
+// @BasePath /api
+
+// Report godoc
+// @Summary Get one report
+// @Description Gets a single report identified by his id
+// @ID report
+// @Tags reports
+// @Param format query string false "json"
+// @Param id path string true "qNg8rJX"
+// @Success 200
+// @Failure 404
+// @Failure 500
+// @Router /api/reports/:id [get]
 func Report(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -268,5 +281,24 @@ func Report(c *gin.Context) {
 		c.AbortWithStatusJSON(404, gin.H{"message": "report not found"})
 		return
 	}
-	c.JSON(200, report)
+	writeFormattedReport(c, *report)
+}
+
+func writeFormattedReport(c *gin.Context, reports ...validation.Report) {
+	body := strings.Builder{}
+	format := c.Query("format")
+	if format == "" {
+		format = "json"
+	}
+	formatter := conversion.Get(format)
+	if formatter == nil {
+		c.AbortWithStatusJSON(500, gin.H{"message": "Unknown format: " + format})
+		return
+	}
+	d, err := formatter.Convert(reports...)
+	if err != nil {
+		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
+	}
+	body.Write(d)
+	c.Data(200, "application/"+format, []byte(body.String()))
 }

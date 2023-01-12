@@ -6,7 +6,7 @@
 interval = "* * * * *"
 
 # Sets whether the daemon should run a validation run upon startup
-validate-on-startup = true
+validate-on-startup = false
 
 # Set the definition directory. This is the directory where the api definitions are stored.
 definitions-dir = "~/odh-data-monitor/definitions.d"

@@ -9,3 +9,4 @@ var CannotRegisterCompletionFunction = CliErrors.NewType("cannot_register_comp_f
 var CannotGetFlagValueError = CliErrors.NewType("cannot_get_flag_value", fatalTrait)
 var UnknownReportError = CliErrors.NewType("unknown_report", fatalTrait)
 var UnknownExportFormatError = CliErrors.NewType("unknown_report", fatalTrait)
+var CannotReadInConfigError = CliErrors.NewType("cannot_read_in_config", fatalTrait)

@@ -2,8 +2,8 @@ package conversion
 
 import (
 	"fmt"
+	"strings"
 
-	"github.com/buonotti/odh-data-monitor/util"
 	"github.com/buonotti/odh-data-monitor/validation"
 )
 
@@ -13,24 +13,38 @@ func Csv() Converter {
 
 type csvConverter struct{}
 
-func (csvConverter) Convert(report validation.Report) ([]byte, error) {
-	lines := make([]string, 1)
-	header := "date;endpoint;url;validator;status;error"
-	lines[0] = header
-	for _, validatedEndpoint := range report.Results {
-		for _, endpointResult := range validatedEndpoint.Results {
-			for _, validatorOutput := range endpointResult.ValidatorsOutput {
-				line := fmt.Sprintf("%s;%s;%s;%s;%s;%s",
-					report.Time.String(),
-					validatedEndpoint.EndpointName,
-					endpointResult.Url,
-					validatorOutput.Validator,
-					validatorOutput.Status,
-					validatorOutput.Error,
-				)
-				lines = append(lines, line)
+func (c csvConverter) ConvertMany(reports []validation.Report) ([]byte, error) {
+	lines := strings.Builder{}
+	for _, r := range reports {
+		d, err := c.Convert(r)
+		if err != nil {
+			return nil, err
+		}
+		lines.Write(d)
+		lines.Write([]byte("\n"))
+	}
+	return []byte(lines.String()), nil
+}
+
+func (csvConverter) Convert(reports ...validation.Report) ([]byte, error) {
+	lines := strings.Builder{}
+	for _, report := range reports {
+		for _, validatedEndpoint := range report.Results {
+			for _, endpointResult := range validatedEndpoint.Results {
+				for _, validatorOutput := range endpointResult.ValidatorsOutput {
+					line := fmt.Sprintf("%s;%s;%s;%s;%s;%s\n",
+						report.Time.String(),
+						validatedEndpoint.EndpointName,
+						endpointResult.Url,
+						validatorOutput.Validator,
+						validatorOutput.Status,
+						validatorOutput.Error,
+					)
+					lines.Write([]byte(line))
+				}
 			}
 		}
+
 	}
-	return []byte(util.Join(lines, "\n")), nil
+	return []byte(lines.String()), nil
 }

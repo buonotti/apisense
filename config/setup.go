@@ -1,10 +1,13 @@
 package config
 
 import (
+	"os"
 	"path/filepath"
 
 	"github.com/kirsle/configdir"
 	"github.com/spf13/viper"
+
+	"github.com/buonotti/odh-data-monitor/errors"
 )
 
 // FileName is the name of the config file without extension
@@ -28,7 +31,20 @@ func Setup() error {
 		}
 		err = viper.ReadInConfig()
 		if err != nil {
+			return errors.CannotReadInConfigError.Wrap(err, "Cannot read in main config")
+		}
+	}
+
+	viper.SetConfigFile(os.Getenv("HOME") + "/odh-data-monitor/.env")
+	err = viper.MergeInConfig()
+	if err != nil {
+		err = createEnv()
+		if err != nil {
 			return err
+		}
+		err = viper.MergeInConfig()
+		if err != nil {
+			return errors.CannotReadInConfigError.Wrap(err, "Cannot read in .env file")
 		}
 	}
 	return nil

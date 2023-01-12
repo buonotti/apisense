@@ -25,3 +25,15 @@ func create() error {
 	}
 	return nil
 }
+
+func createEnv() error {
+	data, err := GetAsset("assets/.env.example")
+	if err != nil {
+		return errors.CannotLoadAssetError.Wrap(err, "Cannot load .env example asset")
+	}
+	err = os.WriteFile(os.Getenv("HOME")+"/odh-data-monitor/.env", data, os.ModePerm)
+	if err != nil {
+		return errors.CannotWriteFileError.Wrap(err, "Cannot write .env file")
+	}
+	return nil
+}

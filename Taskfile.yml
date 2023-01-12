@@ -41,8 +41,8 @@ tasks:
     deps:
       - build
     cmds:
-      - docker build -t odh-data-monitor .
-      - docker run -it --rm -p 23232:23232 --name odh-data-monitor odh-data-monitor
+      - docker build --build-arg BRANCH=dev -t odh-data-monitor .
+      - docker run -it --rm -p 23232:23232 -p 8080:8080 --name odh-data-monitor odh-data-monitor
 
   clean-all:
     desc: Cleans the project

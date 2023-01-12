@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/joomcode/errorx"
@@ -24,6 +25,7 @@ func HandleError(err error) {
 
 func handleErrorxError(err *errorx.Error) {
 	if err != nil && err.Unwrap() != nil {
+		fmt.Printf("%+v", err) // TODO
 		if err.HasTrait(fatalTrait) {
 			log.DefaultLogger.Error(err.Error())
 			os.Exit(1)
@@ -34,7 +36,6 @@ func handleErrorxError(err *errorx.Error) {
 }
 
 func handleError(err error) {
-	log.DefaultLogger.Warnf("Handling a standard go error. %v", err)
 	if err != nil {
 		log.DefaultLogger.Error(err.Error())
 		os.Exit(1)
