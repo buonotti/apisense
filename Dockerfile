@@ -34,9 +34,10 @@ COPY docker/api.supervisor.conf /etc/supervisor/conf.d/api.supervisor.conf
 
 COPY docker/startup.sh /startup.sh
 
-RUN odh-data-monitor completion zsh > /_odh-data-monitor
-RUN chmod +x /_odh-data-monitor
-RUN echo "source /_odh-data-monitor" >> /root/.zshrc
+RUN mkdir /comp
+RUN odh-data-monitor completion zsh > /comp/_odh-data-monitor
+RUN chmod +x /comp/_odh-data-monitor
+ENV FPATH="$FPATH:/comp"
 
 # expose ssh and api port
 EXPOSE 23232
