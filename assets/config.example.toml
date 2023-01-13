@@ -8,14 +8,8 @@ interval = "* * * * *"
 # Sets whether the daemon should run a validation run upon startup
 validate-on-startup = false
 
-# Set the definition directory. This is the directory where the api definitions are stored.
-definitions-dir = "~/odh-data-monitor/definitions.d"
-
 # Definition files that start with this prefix are not included
 ignore-prefix = "_"
-
-# Set the report output directory. This is the directory where the reports are stored.
-reports-dir = "~/odh-data-monitor/reports"
 
 [daemon.log]
 # Set the log level. Valid values are: debug, info, warn, error, fatal, panic

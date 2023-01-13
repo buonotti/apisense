@@ -6,7 +6,7 @@ import (
 	cc "github.com/ivanpirog/coloredcobra"
 
 	"github.com/buonotti/odh-data-monitor/config"
-	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/odh-data-monitor/fs"
 	"github.com/buonotti/odh-data-monitor/log"
 )
 
@@ -22,8 +22,9 @@ daemon. For more info check each commands description.`,
 		cobra.CheckErr(cmd.Help())
 	},
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		errors.HandleError(config.Setup())
-		errors.HandleError(log.Setup())
+		cobra.CheckErr(fs.Setup())
+		cobra.CheckErr(config.Setup())
+		cobra.CheckErr(log.Setup())
 	},
 }
 

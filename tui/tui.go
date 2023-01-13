@@ -1,14 +1,16 @@
 package tui
 
 import (
-	"github.com/buonotti/odh-data-monitor/validation"
-	"github.com/common-nighthawk/go-figure"
 	"os/exec"
 	"time"
 
-	"github.com/76creates/stickers"
+	"github.com/common-nighthawk/go-figure"
+
 	"github.com/buonotti/odh-data-monitor/daemon"
 	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/odh-data-monitor/validation"
+
+	"github.com/76creates/stickers"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"

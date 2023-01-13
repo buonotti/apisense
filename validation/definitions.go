@@ -13,11 +13,7 @@ import (
 
 // DefinitionsLocation returns the location of the definitions directory
 func DefinitionsLocation() string {
-	path := viper.GetString("daemon.definitions-dir")
-	if strings.Contains(path, "~") {
-		path = strings.Replace(path, "~", os.Getenv("HOME"), 1)
-	}
-	return filepath.FromSlash(path)
+	return os.Getenv("HOME") + "/odh-data-monitor/definitions"
 }
 
 // endpointDefinition is the definition of an endpoint to test with all its query
