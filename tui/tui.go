@@ -21,7 +21,6 @@ import (
 var (
 	fileUpdate         = false
 	choiceMainMenu     string
-	choiceConfigMenu   string
 	choiceDaemonButton string
 	choiceReportModel  string
 	reports            []validation.Report
@@ -37,11 +36,11 @@ type Model struct {
 	quitting         bool
 	err              error
 	listMainMenu     list.Model
-	listConfigMenu   list.Model
 	listDaemonButton list.Model
 	daemonModel      tea.Model
-	daemonCmd        *exec.Cmd
 	reportModel      tea.Model
+	configModel      tea.Model
+	daemonCmd        *exec.Cmd
 }
 
 func TuiModule() Model {
@@ -68,7 +67,6 @@ func TuiModule() Model {
 		help:             help.New(),
 		flexbox:          stickers.NewFlexBox(0, 0).SetStyle(styleContentCenter.Copy().BorderStyle(lipgloss.RoundedBorder())),
 		listMainMenu:     listMainMenu,
-		listConfigMenu:   listConfigMenu,
 		listDaemonButton: listDaemonButton,
 		daemonModel:      DaemonModel(),
 		reportModel:      ReportModel(),
@@ -80,6 +78,7 @@ func TuiModule() Model {
 func (m Model) Init() tea.Cmd {
 	m.daemonModel.Init()
 	m.reportModel.Init()
+	m.configModel.Init()
 	watcher := NewFileWatcher()
 	err := watcher.AddFile(daemon.PidFile)
 	if err != nil {
@@ -122,15 +121,15 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	//Cmds that force rendering of given component
 	var cmdMainMenu tea.Cmd
-	var cmdConfigMenu tea.Cmd
 	var cmdDaemonButton tea.Cmd
 	var cmdReportModel tea.Cmd
 	var cmdElapsedTrigger tea.Cmd
+	var cmdConfigModel tea.Cmd
 	m.listDaemonButton, cmdDaemonButton = m.listDaemonButton.Update(msg)
 	m.reportModel, cmdReportModel = m.reportModel.Update(msg)
 	m.listMainMenu, cmdMainMenu = m.listMainMenu.Update(msg)
-	m.listConfigMenu, cmdConfigMenu = m.listConfigMenu.Update(msg)
 	m.elapsedTrigger, cmdElapsedTrigger = m.elapsedTrigger.Update(msg)
+	m.configModel, cmdConfigModel = m.configModel.Update(msg)
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -143,17 +142,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		case key.Matches(msg, m.keymap.choose):
 			i, okMainMenu := m.listMainMenu.SelectedItem().(item)
-			j, okConfigMenu := m.listConfigMenu.SelectedItem().(item)
-			k, okDaemonButton := m.listDaemonButton.SelectedItem().(option)
+			j, okDaemonButton := m.listDaemonButton.SelectedItem().(option)
 			if okMainMenu && choiceMainMenu == "" {
 				choiceMainMenu = i.title
-				m.listConfigMenu.ResetSelected()
 			} else {
-				if okConfigMenu && choiceConfigMenu == "" {
-					choiceConfigMenu = j.title
-				}
-				if okDaemonButton && choiceDaemonButton == "" {
-					choiceDaemonButton = k.option
+				if okDaemonButton && choiceDaemonButton == "" && choiceMainMenu == "Daemon" {
+					choiceDaemonButton = j.option
 					switch choiceDaemonButton {
 					case "Start daemon":
 						if !running {
@@ -175,21 +169,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 		case key.Matches(msg, m.keymap.up):
-			return m, tea.Batch(cmdMainMenu, cmdConfigMenu, cmdDaemonButton)
+			return m, tea.Batch(cmdMainMenu, cmdDaemonButton)
 		case key.Matches(msg, m.keymap.down):
-			return m, tea.Batch(cmdMainMenu, cmdConfigMenu, cmdDaemonButton)
+			return m, tea.Batch(cmdMainMenu, cmdDaemonButton)
 		case key.Matches(msg, m.keymap.back):
 			if choiceMainMenu != "Report" {
-				if choiceMainMenu != "" && choiceConfigMenu != "" {
-					choiceConfigMenu = ""
-					m.listConfigMenu.ResetSelected()
-				} else if choiceMainMenu != "" {
+				if choiceMainMenu != "" {
 					choiceMainMenu = ""
 					m.listMainMenu.ResetSelected()
 				}
 			}
-		case msg.Type == tea.KeyF5:
-			return m, nil
 		default:
 			return m, nil
 		}
@@ -200,8 +189,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.help.Width = msg.Width
 		h, v := docStyle.GetFrameSize()
 		m.listMainMenu.SetSize(msg.Width-h, msg.Height-v)
-		m.listConfigMenu.SetSize(msg.Width-h, msg.Height-v)
-		return m, nil
+		return m, cmdConfigModel
 
 	case errMsg:
 		m.err = msg
@@ -222,6 +210,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			choiceReportModel = "reportModel"
 		}
 		return m, tea.Batch(cmdElapsedTrigger, cmdReportModel)
+	}
+	if choiceMainMenu == "Config" {
+		return m, tea.Batch(cmdElapsedTrigger, cmdConfigModel)
 	}
 	return m, cmdElapsedTrigger
 
@@ -250,20 +241,8 @@ func (m Model) View() string {
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.reportModel.View()))
 	case "Config":
 		//Act based one config menu changes
-		switch choiceConfigMenu {
-		case "Daemon":
-			//Render daemon option
-			m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(5))
-			m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(choiceConfigMenu))
-		case "TUI":
-			//Render tui option
-			m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(5))
-			m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(choiceConfigMenu))
-		default:
-			//Render config menu
-			m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(7))
-			m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.listConfigMenu.View()))
-		}
+		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(7))
+		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render("Config"))
 	default:
 		//Render main menu
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(10))
