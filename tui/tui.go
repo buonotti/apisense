@@ -16,9 +16,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/viper"
-
-	"github.com/buonotti/odh-data-monitor/daemon"
-	"github.com/buonotti/odh-data-monitor/errors"
 )
 
 var (

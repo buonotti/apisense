@@ -2,16 +2,14 @@ package tui
 
 import (
 	"fmt"
-	"strconv"
-	"time"
-
+	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/odh-data-monitor/validation"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/validation"
+	"strconv"
+	"time"
 )
 
 var (
