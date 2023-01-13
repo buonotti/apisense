@@ -71,14 +71,18 @@ func writeFiles() error {
 		return errors.CannotWriteFileError.Wrap(err, "Cannot write bluetooth definition file")
 	}
 
-	err = os.WriteFile(daemon.Directory()+"/"+daemon.StatusFile, []byte("down"), os.ModePerm)
-	if err != nil {
-		return errors.CannotWriteFileError.Wrap(err, "Cannot write status file")
+	if _, err := os.Stat(daemon.StatusFile); os.IsNotExist(err) {
+		err = os.WriteFile(daemon.StatusFile, []byte("down"), os.ModePerm)
+		if err != nil {
+			return errors.CannotWriteFileError.Wrap(err, "Cannot write status file")
+		}
 	}
 
-	err = os.WriteFile(daemon.Directory()+"/"+daemon.PidFile, []byte("-1"), os.ModePerm)
-	if err != nil {
-		return errors.CannotWriteFileError.Wrap(err, "Cannot write pid file")
+	if _, err := os.Stat(daemon.PidFile); os.IsNotExist(err) {
+		err = os.WriteFile(daemon.PidFile, []byte("0"), os.ModePerm)
+		if err != nil {
+			return errors.CannotWriteFileError.Wrap(err, "Cannot write pid file")
+		}
 	}
 
 	return nil

@@ -4,22 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
-
-	"github.com/spf13/viper"
 
 	"github.com/buonotti/odh-data-monitor/errors"
 )
 
 // ReportLocation returns the output directory where all reports are stored
 func ReportLocation() string {
-	path := viper.GetString("daemon.reports-dir")
-	if strings.Contains(path, "~") {
-		path = strings.Replace(path, "~", os.Getenv("HOME"), 1)
-	}
-	return filepath.FromSlash(path)
+	return os.Getenv("HOME") + "/odh-data-monitor/reports"
 }
 
 // Report is a report of a test run
