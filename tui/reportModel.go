@@ -2,13 +2,16 @@ package tui
 
 import (
 	"fmt"
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/validation"
+	"strconv"
+	"time"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"strconv"
+
+	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/odh-data-monitor/validation"
 )
 
 var (
@@ -102,7 +105,7 @@ func (r reportModel) View() string {
 func getReportRows(reports []validation.Report) []table.Row {
 	rows := make([]table.Row, 0)
 	for i, report := range reports {
-		rows = append(rows, table.Row{fmt.Sprintf("%v", i), report.Id, fmt.Sprintf("%v", report.Time.Format("2006-01-02 15:04:05"))})
+		rows = append(rows, table.Row{fmt.Sprintf("%v", i), report.Id, fmt.Sprintf("%v", time.Time(report.Time).Format("2006-01-02 15:04:05"))})
 	}
 	return rows
 }

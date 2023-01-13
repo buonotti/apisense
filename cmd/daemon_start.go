@@ -17,7 +17,6 @@ case if there is already a daemon running the new one won't start.`,
 		errors.HandleError(errors.SafeWrap(errors.CannotGetFlagValueError, err, "Cannot get value of flag: background"))
 		force, err := cmd.Flags().GetBool("force")
 		errors.HandleError(errors.SafeWrap(errors.CannotGetFlagValueError, err, "Cannot get value of flag: force"))
-		errors.HandleError(daemon.Setup())
 		_, err = daemon.Start(bg, force)
 		errors.HandleError(err)
 	},

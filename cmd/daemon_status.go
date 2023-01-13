@@ -1,11 +1,12 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/buonotti/odh-data-monitor/daemon"
 	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/log"
 )
 
 var daemonStatusCmd = &cobra.Command{
@@ -17,7 +18,7 @@ var daemonStatusCmd = &cobra.Command{
 		errors.HandleError(err)
 		pid, err := daemon.Pid()
 		errors.HandleError(err)
-		log.DefaultLogger.Infof("Daemon is %s (pid %d)", status, pid)
+		fmt.Printf("Daemon is %s (pid %d)\n", status, pid)
 	},
 }
 
