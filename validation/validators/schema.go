@@ -1,8 +1,8 @@
 package validators
 
 import (
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/validation"
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/validation"
 )
 
 // NewSchemaValidator returns a new schema validator

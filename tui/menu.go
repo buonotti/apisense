@@ -2,7 +2,7 @@ package tui
 
 import (
 	"fmt"
-	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/apisense/errors"
 	"io"
 
 	"github.com/charmbracelet/bubbles/list"

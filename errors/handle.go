@@ -6,7 +6,7 @@ import (
 
 	"github.com/joomcode/errorx"
 
-	"github.com/buonotti/odh-data-monitor/log"
+	"github.com/buonotti/apisense/log"
 )
 
 // fatalTrait is a trait that can be added to any error type to make it fatal and make the program exit with code 1

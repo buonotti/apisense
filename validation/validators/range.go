@@ -3,8 +3,8 @@ package validators
 import (
 	"strconv"
 
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/validation"
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/validation"
 )
 
 // NewRangeValidator creates a new instance of a range validator

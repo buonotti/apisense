@@ -3,7 +3,7 @@ package conversion
 import (
 	"encoding/xml"
 
-	"github.com/buonotti/odh-data-monitor/validation"
+	"github.com/buonotti/apisense/validation"
 )
 
 func Xml() Converter {

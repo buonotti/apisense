@@ -8,7 +8,7 @@ import (
 	lf "github.com/nightlyone/lockfile"
 	"golang.org/x/sys/unix"
 
-	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/apisense/errors"
 )
 
 // PidFile is the file where the pid of the daemon is stored

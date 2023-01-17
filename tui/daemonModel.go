@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/buonotti/odh-data-monitor/daemon"
+	"github.com/buonotti/apisense/daemon"
 	tea "github.com/charmbracelet/bubbletea"
 )
 

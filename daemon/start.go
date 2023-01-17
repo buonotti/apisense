@@ -5,10 +5,10 @@ import (
 
 	lf "github.com/nightlyone/lockfile"
 
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/validation"
-	"github.com/buonotti/odh-data-monitor/validation/external"
-	"github.com/buonotti/odh-data-monitor/validation/validators"
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/external"
+	"github.com/buonotti/apisense/validation/validators"
 )
 
 // Start starts the daemon. If the daemon is already running it returns an
@@ -19,7 +19,7 @@ func Start(background bool, runOnStart bool) (*exec.Cmd, error) {
 	// If the background flag is set start a new process which runs the daemon
 	// without the --bg flag which calls this function with background = false
 	if background {
-		cmd := exec.Command("odh-data-monitor", "daemon", "start")
+		cmd := exec.Command("apisense", "daemon", "start")
 		return cmd, cmd.Start()
 	}
 

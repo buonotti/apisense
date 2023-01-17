@@ -3,8 +3,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/buonotti/odh-data-monitor/api"
-	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/apisense/api"
+	"github.com/buonotti/apisense/errors"
 )
 
 var apiCmd = &cobra.Command{

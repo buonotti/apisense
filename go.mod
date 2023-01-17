@@ -1,4 +1,4 @@
-module github.com/buonotti/odh-data-monitor
+module github.com/buonotti/apisense
 
 go 1.19
 

@@ -1,8 +1,8 @@
 package conversion
 
 import (
-	"github.com/buonotti/odh-data-monitor/util"
-	"github.com/buonotti/odh-data-monitor/validation"
+	"github.com/buonotti/apisense/util"
+	"github.com/buonotti/apisense/validation"
 )
 
 type Converter interface {

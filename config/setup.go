@@ -7,14 +7,14 @@ import (
 	"github.com/kirsle/configdir"
 	"github.com/spf13/viper"
 
-	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/apisense/errors"
 )
 
 // FileName is the name of the config file without extension
 var FileName = "config"
 
 // Directory is the path of the users config directory
-var Directory = configdir.LocalConfig("odh-data-monitor")
+var Directory = configdir.LocalConfig("apisense")
 
 // FullPath is the full path of the config file with extension
 var FullPath = Directory + string(filepath.Separator) + FileName + ".toml"
@@ -35,7 +35,7 @@ func Setup() error {
 		}
 	}
 
-	viper.SetConfigFile(os.Getenv("HOME") + "/odh-data-monitor/.env")
+	viper.SetConfigFile(os.Getenv("HOME") + "/apisense/.env")
 	err = viper.MergeInConfig()
 	if err != nil {
 		err = createEnv()

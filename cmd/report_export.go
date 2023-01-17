@@ -5,10 +5,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/buonotti/odh-data-monitor/conversion"
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/util"
-	"github.com/buonotti/odh-data-monitor/validation"
+	"github.com/buonotti/apisense/conversion"
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/util"
+	"github.com/buonotti/apisense/validation"
 )
 
 var reportExportCmd = &cobra.Command{

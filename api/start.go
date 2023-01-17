@@ -12,11 +12,11 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"golang.org/x/sys/unix"
 
-	"github.com/buonotti/odh-data-monitor/api/controllers"
-	"github.com/buonotti/odh-data-monitor/api/middleware"
-	"github.com/buonotti/odh-data-monitor/docs"
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/log"
+	"github.com/buonotti/apisense/api/controllers"
+	"github.com/buonotti/apisense/api/middleware"
+	"github.com/buonotti/apisense/docs"
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/log"
 )
 
 func Start() error {
