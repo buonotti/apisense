@@ -37,8 +37,8 @@ func Start() error {
 	// create the filesystem handler for scp and create the ssh server
 	fsHandler := scp.NewFileSystemHandler(validation.ReportLocation())
 	s, err := wish.NewServer(
-		wish.WithAddress(fmt.Sprintf("%s:%d", host(), port())), // set the address of the server
-		wish.WithHostKeyPath(".ssh/term_info_ed25519"),         // set the path where the keys should be stored
+		wish.WithAddress(fmt.Sprintf("%s:%d", host(), port())),               // set the address of the server
+		wish.WithHostKeyPath(os.Getenv("HOME")+"/"+".ssh/term_info_ed25519"), // set the path where the keys should be stored
 		wish.WithMiddleware( // add middleware to the server
 			bm.Middleware(teaHandler),      // add the bubbletea middleware to serve the tui over ssh
 			log.WishMiddleware(),           // add the custom logging middleware
