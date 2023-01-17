@@ -47,8 +47,8 @@ func Start() error {
 	signal.Notify(done, unix.SIGINT, unix.SIGTERM)
 
 	go func() {
-		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-			errors.HandleError(err)
+		if err := srv.ListenAndServe(); err != nil {
+			log.ApiLogger.Error(err.Error())
 		}
 	}()
 

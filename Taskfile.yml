@@ -41,7 +41,7 @@ tasks:
     deps:
       - build
     cmds:
-      - docker build --no-cache --build-arg BRANCH=dev -t apisense .
+      - docker build --build-arg BRANCH=dev -t apisense .
       - docker run -it --rm -p 23232:23232 -p 8080:8080 --name apisense apisense
 
   clean-all:

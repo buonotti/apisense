@@ -11,6 +11,7 @@ import (
 
 	"github.com/buonotti/apisense/conversion"
 	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/util"
 	"github.com/buonotti/apisense/validation"
 )
@@ -222,15 +223,17 @@ func filterReports(c *gin.Context, reports []validation.Report) ([]validation.Re
 		return nil, err
 	}
 
-	filterPredicate := buildFilterPredicate(whereClause)
+	filterPredicate, err := buildFilterPredicate(whereClause)
+	if err != nil {
+		return nil, err
+	}
 	return util.Where(reports, filterPredicate), nil
 }
 
-func buildFilterPredicate(whereClause string) func(validation.Report) bool {
-
+func buildFilterPredicate(whereClause string) (func(validation.Report) bool, error) {
 	op := util.FindFirst(util.Keys(operators), func(op string) bool { return strings.Contains(whereClause, op) })
 	if op == nil {
-		return nil
+		return nil, errors.InvalidWhereClauseError.New("invalid where clause. where clause does not contain any valid operator")
 	}
 
 	comp := operators[*op]
@@ -243,11 +246,13 @@ func buildFilterPredicate(whereClause string) func(validation.Report) bool {
 		data := gjson.GetBytes(jsonString, key)
 		if strings.Contains(strings.ToLower(key), "time") {
 			t, err := time.Parse("2006-01-02T15:04:05.000Z", value)
-			errors.HandleError(err)
+			if err != nil {
+				log.ApiLogger.Error(err.Error())
+			}
 			return comp.compare(data.Time(), t)
 		}
 		return comp.compare(data.Value(), value)
-	}
+	}, nil
 }
 
 // @BasePath /api
