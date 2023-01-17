@@ -3,7 +3,7 @@ package config
 import (
 	"os"
 
-	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/apisense/errors"
 )
 
 // GetAsset is a function that returns the content of an asset file identified by its name. It is used to pass down the asset loading function to the config package.

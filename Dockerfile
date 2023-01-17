@@ -16,7 +16,7 @@ RUN curl -OL https://go.dev/dl/go1.19.4.linux-amd64.tar.gz
 RUN tar -C /usr/local -xvf go1.19.4.linux-amd64.tar.gz
 
 # clone the project and cd into it
-RUN git clone -b $BRANCH https://github.com/buonotti/odh-data-monitor
+RUN git clone -b $BRANCH https://github.com/buonotti/apisense
 WORKDIR /odh-data-monitor
 
 # build the project install it and add it to path

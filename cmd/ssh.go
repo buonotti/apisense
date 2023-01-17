@@ -3,8 +3,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/ssh"
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/ssh"
 )
 
 var sshCmd = &cobra.Command{

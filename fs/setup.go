@@ -4,10 +4,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/buonotti/odh-data-monitor/config"
-	"github.com/buonotti/odh-data-monitor/daemon"
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/validation"
+	"github.com/buonotti/apisense/config"
+	"github.com/buonotti/apisense/daemon"
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/validation"
 )
 
 // Setup creates the daemon directory and writes the default files to it.

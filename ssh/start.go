@@ -16,10 +16,10 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/sys/unix"
 
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/log"
-	"github.com/buonotti/odh-data-monitor/tui"
-	"github.com/buonotti/odh-data-monitor/validation"
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/tui"
+	"github.com/buonotti/apisense/validation"
 )
 
 // host returns the host value from the config

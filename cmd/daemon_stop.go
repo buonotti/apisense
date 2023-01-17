@@ -3,9 +3,9 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/buonotti/odh-data-monitor/daemon"
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/log"
+	"github.com/buonotti/apisense/daemon"
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/log"
 )
 
 var daemonStopCmd = &cobra.Command{

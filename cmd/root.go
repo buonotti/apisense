@@ -5,9 +5,9 @@ import (
 
 	cc "github.com/ivanpirog/coloredcobra"
 
-	"github.com/buonotti/odh-data-monitor/config"
-	"github.com/buonotti/odh-data-monitor/fs"
-	"github.com/buonotti/odh-data-monitor/log"
+	"github.com/buonotti/apisense/config"
+	"github.com/buonotti/apisense/fs"
+	"github.com/buonotti/apisense/log"
 )
 
 var rootCmd = &cobra.Command{

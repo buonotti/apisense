@@ -7,7 +7,7 @@ import (
 	"github.com/kirsle/configdir"
 	"github.com/spf13/viper"
 
-	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/apisense/errors"
 )
 
 // FileName is the name of the config file without extension

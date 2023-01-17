@@ -5,8 +5,8 @@ import (
 
 	"github.com/speps/go-hashids/v2"
 
-	"github.com/buonotti/odh-data-monitor/log"
-	"github.com/buonotti/odh-data-monitor/util"
+	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/util"
 )
 
 // Validator is an interface that all validators in the pipeline must implement

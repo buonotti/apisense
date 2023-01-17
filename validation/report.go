@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/apisense/errors"
 )
 
 // ReportLocation returns the output directory where all reports are stored

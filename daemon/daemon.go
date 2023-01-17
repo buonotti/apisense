@@ -11,10 +11,10 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/sys/unix"
 
-	"github.com/buonotti/odh-data-monitor/conversion"
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/log"
-	"github.com/buonotti/odh-data-monitor/validation"
+	"github.com/buonotti/apisense/conversion"
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/validation"
 )
 
 // daemon provides simple daemon operations, and it holds the validation.Pipeline

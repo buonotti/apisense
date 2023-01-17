@@ -5,10 +5,10 @@ import (
 
 	lf "github.com/nightlyone/lockfile"
 
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/validation"
-	"github.com/buonotti/odh-data-monitor/validation/external"
-	"github.com/buonotti/odh-data-monitor/validation/validators"
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/external"
+	"github.com/buonotti/apisense/validation/validators"
 )
 
 // Start starts the daemon. If the daemon is already running it returns an
