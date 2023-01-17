@@ -16,7 +16,7 @@ ignore-prefix = "_"
 level = "info"
 
 # Set the log file. Leave empty to log to stdout.
-file = "~/odh-data-monitor/odh-data-monitor.log"
+file = "~/apisense/apisense.log"
 #file = ""
 
 # Enable pretty log output. This will colorize the log output and print it in a readable format.

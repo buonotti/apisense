@@ -12,7 +12,7 @@ import (
 
 // ReportLocation returns the output directory where all reports are stored
 func ReportLocation() string {
-	return os.Getenv("HOME") + "/odh-data-monitor/reports"
+	return os.Getenv("HOME") + "/apisense/reports"
 }
 
 // Report is a report of a test run

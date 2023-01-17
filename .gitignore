@@ -7,7 +7,7 @@
 *.dll
 *.so
 *.dylib
-odh-data-monitor
+apisense
 .ssh/
 .ssh/*
 

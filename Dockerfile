@@ -17,7 +17,7 @@ RUN tar -C /usr/local -xvf go1.19.4.linux-amd64.tar.gz
 
 # clone the project and cd into it
 RUN git clone -b $BRANCH https://github.com/buonotti/apisense
-WORKDIR /odh-data-monitor
+WORKDIR /apisense
 
 # build the project install it and add it to path
 ENV PATH="$PATH:/root/go/bin"
@@ -28,8 +28,8 @@ RUN /usr/local/go/bin/go build
 RUN /usr/local/go/bin/go install
 
 # create app directories
-RUN mkdir -p /root/.config/odh-data-monitor
-RUN mkdir /root/odh-data-monitor
+RUN mkdir -p /root/.config/apisense
+RUN mkdir /root/apisense
 
 # copy supervisor config
 COPY docker/ssh.supervisor.conf /etc/supervisor/conf.d/ssh.supervisor.conf

@@ -13,7 +13,7 @@ import (
 
 // DefinitionsLocation returns the location of the definitions directory
 func DefinitionsLocation() string {
-	return os.Getenv("HOME") + "/odh-data-monitor/definitions"
+	return os.Getenv("HOME") + "/apisense/definitions"
 }
 
 // endpointDefinition is the definition of an endpoint to test with all its query

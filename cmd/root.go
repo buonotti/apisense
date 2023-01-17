@@ -11,8 +11,8 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "odh-data-monitor",
-	Short: "odh-data-monitor is a tool to monitor data from the Open Data Hub",
+	Use:   "apisense",
+	Short: "apisense is a tool to monitor data from the Open Data Hub",
 	Long: `This program provides multiple ways to interface with the daemon that is monitoring the Open Data Hub apis.
 In the first place this CLI can be used to start the daemon itself. It also provides a TUI to manage the daemon and its configs
 in a more user friendly way. The program can also start an SSH-Server that serves the tui over SSH and automatically starts the

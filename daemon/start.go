@@ -19,7 +19,7 @@ func Start(background bool, runOnStart bool) (*exec.Cmd, error) {
 	// If the background flag is set start a new process which runs the daemon
 	// without the --bg flag which calls this function with background = false
 	if background {
-		cmd := exec.Command("odh-data-monitor", "daemon", "start")
+		cmd := exec.Command("apisense", "daemon", "start")
 		return cmd, cmd.Start()
 	}
 

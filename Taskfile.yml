@@ -25,7 +25,7 @@ tasks:
       - build
       - install
     cmds:
-      - odh-data-monitor {{.CLI_ARGS}}
+      - apisense {{.CLI_ARGS}}
 
   dev:
     desc: Runs the project in dev mode
@@ -34,15 +34,15 @@ tasks:
       - install
       - clean-all
     cmds:
-      - odh-data-monitor {{.CLI_ARGS}}
+      - apisense {{.CLI_ARGS}}
 
   docker:
     desc: Builds a fresh docker image and runs the app in a container
     deps:
       - build
     cmds:
-      - docker build --build-arg BRANCH=dev -t odh-data-monitor .
-      - docker run -it --rm -p 23232:23232 -p 8080:8080 --name odh-data-monitor odh-data-monitor
+      - docker build --build-arg BRANCH=dev -t apisense .
+      - docker run -it --rm -p 23232:23232 -p 8080:8080 --name apisense apisense
 
   clean-all:
     desc: Cleans the project
@@ -58,5 +58,5 @@ tasks:
   clean-cfg:
     desc: Cleans the project configs
     cmds:
-      - rm -r {{.HOME}}/.config/odh-data-monitor
-      - rm -r {{.HOME}}/odh-data-monitor
+      - rm -r {{.HOME}}/.config/apisense
+      - rm -r {{.HOME}}/apisense

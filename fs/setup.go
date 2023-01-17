@@ -29,10 +29,10 @@ func Setup() error {
 // If any of the directories exist it does nothing.
 // If there is an error while creating the directories it returns an *errors.CannotCreateDirectoryError.
 func createDirectories() error {
-	if _, err := os.Stat(os.Getenv("HOME") + "/odh-data-monitor"); os.IsNotExist(err) {
-		err = os.Mkdir(os.Getenv("HOME")+"/odh-data-monitor", os.ModePerm)
+	if _, err := os.Stat(os.Getenv("HOME") + "/apisense"); os.IsNotExist(err) {
+		err = os.Mkdir(os.Getenv("HOME")+"/apisense", os.ModePerm)
 		if err != nil {
-			return errors.CannotCreateDirectoryError.Wrap(err, "Cannot create odh-data-monitor directory")
+			return errors.CannotCreateDirectoryError.Wrap(err, "Cannot create apisense directory")
 		}
 	}
 

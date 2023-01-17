@@ -127,7 +127,7 @@ func (p Pipeline) Validate() Report {
 
 	t := time.Now()
 	hd := hashids.NewData()
-	hd.Salt = "odh-data-monitor"
+	hd.Salt = "apisense"
 	hd.MinLength = 5
 	h, _ := hashids.NewWithData(hd)
 	id, _ := h.Encode([]int{int(t.Unix())})
