@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/apisense/errors"
 )
 
 type FileWatcher struct {

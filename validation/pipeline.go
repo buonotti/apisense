@@ -5,8 +5,8 @@ import (
 
 	"github.com/speps/go-hashids/v2"
 
-	"github.com/buonotti/odh-data-monitor/log"
-	"github.com/buonotti/odh-data-monitor/util"
+	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/util"
 )
 
 // Validator is an interface that all validators in the pipeline must implement
@@ -127,7 +127,7 @@ func (p Pipeline) Validate() Report {
 
 	t := time.Now()
 	hd := hashids.NewData()
-	hd.Salt = "odh-data-monitor"
+	hd.Salt = "apisense"
 	hd.MinLength = 5
 	h, _ := hashids.NewWithData(hd)
 	id, _ := h.Encode([]int{int(t.Unix())})

@@ -2,8 +2,8 @@ package tui
 
 import (
 	"fmt"
-	"github.com/buonotti/odh-data-monitor/util"
-	"github.com/buonotti/odh-data-monitor/validation"
+	"github.com/buonotti/apisense/util"
+	"github.com/buonotti/apisense/validation"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"

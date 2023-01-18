@@ -3,7 +3,7 @@ package config
 import (
 	"os"
 
-	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/apisense/errors"
 )
 
 // GetAsset is a function that returns the content of an asset file identified by its name. It is used to pass down the asset loading function to the config package.
@@ -31,7 +31,7 @@ func createEnv() error {
 	if err != nil {
 		return errors.CannotLoadAssetError.Wrap(err, "Cannot load .env example asset")
 	}
-	err = os.WriteFile(os.Getenv("HOME")+"/odh-data-monitor/.env", data, os.ModePerm)
+	err = os.WriteFile(os.Getenv("HOME")+"/apisense/.env", data, os.ModePerm)
 	if err != nil {
 		return errors.CannotWriteFileError.Wrap(err, "Cannot write .env file")
 	}

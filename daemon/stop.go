@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/sys/unix"
 
-	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/apisense/errors"
 )
 
 // Stop stops the daemon. If there is no daemon running it return an *errors.DaemonNotRunningError.

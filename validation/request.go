@@ -9,10 +9,10 @@ import (
 
 	"github.com/go-resty/resty/v2"
 
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/log"
-	"github.com/buonotti/odh-data-monitor/util"
-	"github.com/buonotti/odh-data-monitor/validation/variables"
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/util"
+	"github.com/buonotti/apisense/validation/variables"
 )
 
 // rest return the rest client with the set headers

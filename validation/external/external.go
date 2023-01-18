@@ -3,7 +3,7 @@ package external
 import (
 	"github.com/spf13/viper"
 
-	"github.com/buonotti/odh-data-monitor/errors"
+	"github.com/buonotti/apisense/errors"
 )
 
 // ValidatorDefinition is the definition of an external validator

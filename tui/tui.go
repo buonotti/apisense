@@ -6,9 +6,9 @@ import (
 
 	"github.com/common-nighthawk/go-figure"
 
-	"github.com/buonotti/odh-data-monitor/daemon"
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/validation"
+	"github.com/buonotti/apisense/daemon"
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/validation"
 
 	"github.com/76creates/stickers"
 	"github.com/charmbracelet/bubbles/help"

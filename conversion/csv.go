@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/buonotti/odh-data-monitor/validation"
+	"github.com/buonotti/apisense/validation"
 )
 
 func Csv() Converter {

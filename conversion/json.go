@@ -3,7 +3,7 @@ package conversion
 import (
 	"encoding/json"
 
-	"github.com/buonotti/odh-data-monitor/validation"
+	"github.com/buonotti/apisense/validation"
 )
 
 func Json() Converter {

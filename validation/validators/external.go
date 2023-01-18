@@ -5,9 +5,9 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/buonotti/odh-data-monitor/errors"
-	"github.com/buonotti/odh-data-monitor/validation"
-	"github.com/buonotti/odh-data-monitor/validation/external"
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/external"
 )
 
 // NewExternalValidator creates a new external validator based on the given definition and returns a validation.Validator
