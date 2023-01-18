@@ -74,6 +74,7 @@ func TuiModule() Model {
 		reportModel:      ReportModel(),
 		elapsedTrigger:   stopwatch.NewWithInterval(time.Second),
 		daemonCmd:        nil,
+		configModel:      ConfigModel(),
 	}
 }
 
@@ -227,7 +228,7 @@ func (m Model) View() string {
 	}
 
 	//Render Title
-	title := figure.NewFigure("ODM - TUI", "", true)
+	title := figure.NewFigure("API SENSE", "", true)
 	m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(title.String()))
 	//m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(fmt.Sprintf("%v", choiceReportModel)))
 
@@ -244,7 +245,7 @@ func (m Model) View() string {
 	case "Config":
 		//Act based one config menu changes
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(7))
-		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render("Config"))
+		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.configModel.View()))
 	default:
 		//Render main menu
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(10))
