@@ -6,7 +6,7 @@
 ![Build](https://github.com/buonotti/apisense/actions/workflows/codeql.yml/badge.svg)
 
 Apisense is a project that is used to monitor given endpoints in the most flexible way and generate reports about the
-state of the returned data. If you want to know more check [The abstrakt](./Abstrakt.md)
+state of the returned data. If you want to know more check: [About](./About.md)
 
 ## Installation
 
@@ -129,7 +129,8 @@ command with `task docker`.
 
 ## Contribution
 
-Info will be added here soon...
+The project is still in the early stages of development. If you want to contribute or have a issue to report make sure
+you open a [GitHub Issue](https://github.com/buonotti/apisense/issues/new) because we might already be working on it.
 
 ## License
 
