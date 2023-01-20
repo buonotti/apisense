@@ -2,12 +2,14 @@ package tui
 
 import (
 	"fmt"
-	"github.com/buonotti/odh-data-monitor/config"
-	"github.com/buonotti/odh-data-monitor/errors"
+	"os"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
-	"os"
+
+	"github.com/buonotti/apisense/config"
+	"github.com/buonotti/apisense/errors"
 )
 
 const useHighPerformanceRenderer = false
