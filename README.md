@@ -1,12 +1,12 @@
 # Apisense
 
-<img src="./logo.svg" style="background: white; border-radius: 10px" width="100%" alt="apisense logo" />
+<img src="./logo.svg" style="border-radius: 10px" width="100%" alt="apisense logo" />
 
 ![Build](https://github.com/buonotti/apisense/actions/workflows/go.yml/badge.svg)
 ![Build](https://github.com/buonotti/apisense/actions/workflows/codeql.yml/badge.svg)
 
 Apisense is a project that is used to monitor given endpoints in the most flexible way and generate reports about the
-state of the returned data.
+state of the returned data. If you want to know more check [The abstrakt](./Abstrakt.md)
 
 ## Installation
 
