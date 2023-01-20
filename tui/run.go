@@ -5,7 +5,7 @@ import (
 )
 
 func Run() error {
-	p := tea.NewProgram(TuiModule(), tea.WithAltScreen())
+	p := tea.NewProgram(TuiModule(), tea.WithAltScreen(), tea.WithMouseCellMotion())
 	err := p.Start()
 	return err
 }

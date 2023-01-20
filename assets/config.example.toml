@@ -57,6 +57,7 @@ host = ""
 # Set the SSH port.
 port = 23232
 
+### TUI CONFIGURATION ###
 [tui]
 # Set the filewatcher sleep time
 
