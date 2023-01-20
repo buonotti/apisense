@@ -18,7 +18,7 @@ type ValidatorDefinition struct {
 
 // ExitCode is the definition of an exit code
 type ExitCode struct {
-	Code        int    // Code is the exit code of the validator
+	Code        int64  // Code is the exit code of the validator
 	Ok          bool   // Ok sets whether the exit code is considered as a pass or not
 	Description string // Description is the description in the report that should be put alongside the error if the item fails to validate
 }
@@ -49,7 +49,12 @@ func Parse() ([]ValidatorDefinition, error) {
 		}
 
 		// parse the exit codes
-		exitCodes, err := parseExitCodes(obj["exitCodes"])
+		exitCodes, err := parseExitCodes(obj["exit-codes"])
+		if err != nil {
+			return nil, err
+		}
+
+		args, err := parseArgs(obj["args"])
 		if err != nil {
 			return nil, err
 		}
@@ -58,12 +63,33 @@ func Parse() ([]ValidatorDefinition, error) {
 		validators[i] = ValidatorDefinition{
 			Name:          obj["name"].(string),
 			Path:          obj["path"].(string),
-			Args:          obj["args"].([]string),
+			Args:          args,
 			ReadFromStdin: obj["read-from-stdin"].(bool),
+			Fatal:         obj["fatal"].(bool),
 			ExitCodes:     exitCodes,
 		}
 	}
 	return validators, nil
+}
+
+func parseArgs(i interface{}) ([]string, error) {
+	arr, isArray := i.([]interface{})
+	if !isArray {
+		return nil, errors.ExternalValidatorParseError.New("cannot parse external validator. expected []interface{}, got %T", i)
+	}
+	if len(arr) == 0 {
+		return []string{}, nil
+	}
+
+	args := make([]string, len(arr))
+	for _, elem := range arr {
+		if _, isString := elem.(string); !isString {
+			return nil, errors.ExternalValidatorParseError.New("cannot parse external validator. expected []string, got []%T", elem)
+		}
+		args = append(args, elem.(string))
+	}
+
+	return args, nil
 }
 
 // parseExitCodes is a helper function to parse the exit codes from the config
@@ -86,7 +112,7 @@ func parseExitCodes(object interface{}) ([]ExitCode, error) {
 
 		// create the exit code definition by accessing the object properties as keys in the map
 		exitCodes[i] = ExitCode{
-			Code:        obj["code"].(int),
+			Code:        obj["code"].(int64),
 			Ok:          obj["ok"].(bool),
 			Description: obj["description"].(string),
 		}

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/validation"
 	"github.com/buonotti/apisense/validation/external"
 )
@@ -33,27 +34,30 @@ func (v externalValidator) Name() string {
 // program
 func (v externalValidator) Validate(item validation.PipelineItem) error {
 	jsonString, err := json.Marshal(item)
+	outString := &strings.Builder{}
 	if err != nil {
 		return errors.CannotSerializeItemError.Wrap(err, "cannot serialize item: %s", err)
 	}
 	cmd := exec.Command(v.Definition.Path, v.Definition.Args...)
+	log.DaemonLogger.Infof("Running external validator %s with args %v", v.Definition.Path, v.Definition.Args)
 	if v.Definition.ReadFromStdin {
 		cmd.Stdin = strings.NewReader(string(jsonString))
+		cmd.Stdout = outString
 	}
 	err = cmd.Run()
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			for _, exitCode := range v.Definition.ExitCodes {
-				if exitCode.Code == exitError.ExitCode() {
+				if exitCode.Code == int64(exitError.ExitCode()) {
 					if exitCode.Ok {
 						return nil
 					}
-					return errors.ValidationError.New("validation failed for endpoint %s: %s", item.Url, exitCode.Description)
+					return errors.ValidationError.New("validation failed for endpoint %s: %s: %s", item.Url, exitCode.Description, outString)
 				}
 			}
-			return errors.ValidationError.New("validation failed for endpoint %s: %s", item.Url, err)
+			return errors.ValidationError.New("validation failed for endpoint %s: %s: %s", item.Url, err, outString)
 		}
-		return errors.ValidationError.New("validation failed for endpoint %s: %s", item.Url, err)
+		return errors.ValidationError.New("validation failed for endpoint %s: %s: %s", item.Url, err, outString)
 	} else {
 		if len(v.Definition.ExitCodes) > 0 {
 			for _, exitCode := range v.Definition.ExitCodes {
@@ -61,7 +65,7 @@ func (v externalValidator) Validate(item validation.PipelineItem) error {
 					if exitCode.Ok {
 						return nil
 					}
-					return errors.ValidationError.New("validation failed for endpoint %s: %s", item.Url, exitCode.Description)
+					return errors.ValidationError.New("validation failed for endpoint %s: %s: %s", item.Url, exitCode.Description, outString)
 				}
 			}
 		}

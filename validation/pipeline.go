@@ -83,12 +83,12 @@ func NewPipeline() (Pipeline, error) {
 }
 
 // AddValidator adds a validator to the end of the validation pipeline
-func (p Pipeline) AddValidator(validator Validator) {
+func (p *Pipeline) AddValidator(validator Validator) {
 	p.Validators = append(p.Validators, validator)
 }
 
 // RemoveValidator removes a validator from the validation pipeline identified by its name
-func (p Pipeline) RemoveValidator(name string) {
+func (p *Pipeline) RemoveValidator(name string) {
 	for i, v := range p.Validators {
 		if v.Name() == name {
 			p.Validators = append(p.Validators[:i], p.Validators[i+1:]...)
@@ -97,7 +97,7 @@ func (p Pipeline) RemoveValidator(name string) {
 }
 
 // RefreshItems re-populates the Pipeline.EndpointItems collection
-func (p Pipeline) RefreshItems() error {
+func (p *Pipeline) RefreshItems() error {
 	definitions, err := endpointDefinitions()
 	if err != nil {
 		return err
@@ -113,7 +113,7 @@ func (p Pipeline) RefreshItems() error {
 }
 
 // Validate validates all the items in the pipeline and returns a Report
-func (p Pipeline) Validate() Report {
+func (p *Pipeline) Validate() Report {
 	results := make([]ValidatedEndpoint, 0)
 
 	// for each endpoint validate all the items
@@ -141,7 +141,7 @@ func (p Pipeline) Validate() Report {
 }
 
 // validateItems validates a collection of items and returns the results
-func (p Pipeline) validateItems(items []PipelineItem) []Result {
+func (p *Pipeline) validateItems(items []PipelineItem) []Result {
 	validatorResults := make([]Result, 0)
 
 	// validate each single item and append to the results
@@ -156,7 +156,7 @@ func (p Pipeline) validateItems(items []PipelineItem) []Result {
 }
 
 // validateSingleItem validates a single item and returns the result of the validators
-func (p Pipeline) validateSingleItem(item PipelineItem) []ValidatorOutput {
+func (p *Pipeline) validateSingleItem(item PipelineItem) []ValidatorOutput {
 	validatorOutputs := make([]ValidatorOutput, 0)
 
 	// send the item to each validator and append the result to the outputs

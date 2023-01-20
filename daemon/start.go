@@ -45,6 +45,19 @@ func Start(background bool, runOnStart bool) (*exec.Cmd, error) {
 
 	// Create a new pipeline with the status schema and range validators, then load
 	// all external validators from the config file
+	pipeline, err := CreatePipeline()
+	if err != nil {
+		return nil, err
+	}
+
+	// Create the daemon with the pipeline then run the daemon
+	d := daemon{
+		Pipeline: pipeline,
+	}
+	return nil, d.run(runOnStart)
+}
+
+func CreatePipeline() (*validation.Pipeline, error) {
 	pipeline, err := validation.NewPipelineV(
 		validators.NewStatusValidator(),
 		validators.NewSchemaValidator(),
@@ -59,13 +72,5 @@ func Start(background bool, runOnStart bool) (*exec.Cmd, error) {
 	for _, externalValidator := range externalValidators {
 		pipeline.AddValidator(validators.NewExternalValidator(externalValidator))
 	}
-	if err != nil {
-		return nil, err
-	}
-
-	// Create the daemon with the pipeline then run the daemon
-	d := daemon{
-		Pipeline: &pipeline,
-	}
-	return nil, d.run(runOnStart)
+	return &pipeline, err
 }

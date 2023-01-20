@@ -16,8 +16,8 @@ ignore-prefix = "_"
 level = "info"
 
 # Set the log file. Leave empty to log to stdout.
-file = "~/apisense/apisense.log"
-#file = ""
+#file = "~/apisense/apisense.log"
+file = ""
 
 # Enable pretty log output. This will colorize the log output and print it in a readable format.
 # If set to false, the log output will be in JSON format.
@@ -62,3 +62,24 @@ port = 23232
 
 
 [api]
+
+[validation]
+[[validation.external]]
+name = "data-hole"
+path = "../data_hole_validator/target/release/data_hole_validator"
+args = [
+    "--interval",
+    "1",
+    "--unit",
+    "hour"
+]
+read-from-stdin = true
+fatal = false
+[[validation.external.exit-codes]]
+code = 0
+ok = true
+description = "passed"
+[[validation.external.exit-codes]]
+code = 1
+ok = false
+description = "failed"

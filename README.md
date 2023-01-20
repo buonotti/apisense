@@ -1,5 +1,9 @@
 # Apisense
 
+<img src="./logo.svg" style="background: white; border-radius: 10px" width="100%" alt="apisense logo" />
+
+![Build](https://github.com/buonotti/apisense/actions/workflows/go.yml/badge.svg)
+
 Apisense is a project that is used to monitor given endpoints in the most flexible way and generate reports about the
 state of the returned data.
 
