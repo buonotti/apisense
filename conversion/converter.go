@@ -13,7 +13,6 @@ type Converter interface {
 var convMap = map[string]Converter{
 	"json": Json(),
 	"csv":  Csv(),
-	"xml":  Xml(),
 }
 
 func Get(name string) Converter {

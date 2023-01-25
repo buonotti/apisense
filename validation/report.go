@@ -17,9 +17,9 @@ func ReportLocation() string {
 
 // Report is a report of a test run
 type Report struct {
-	Id      string              // Id is a unique identifier for each report
-	Time    ReportTime          // Time is the timestamp of the report
-	Results []ValidatedEndpoint // Results is a collection of ValidatedEndpoint holding the validation results
+	Id        string              `json:"id"`      // Id is a unique identifier for each report
+	Time      ReportTime          `json:"time"`    // Time is the timestamp of the report
+	Endpoints []ValidatedEndpoint `json:"results"` // Endpoints is a collection of ValidatedEndpoint holding the validation results
 }
 
 type ReportTime time.Time
@@ -48,7 +48,7 @@ func (t ReportTime) String() string {
 func GetReport(filename string) (*Report, error) {
 	files, err := os.ReadDir(ReportLocation())
 	errors.HandleError(err)
-	
+
 	for _, file := range files {
 		if !file.IsDir() && file.Name() == filename {
 			fileName := ReportLocation() + "/" + file.Name()

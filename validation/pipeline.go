@@ -18,38 +18,38 @@ type Validator interface {
 
 // PipelineItem represents an item in the validation pipeline
 type PipelineItem struct {
-	SchemaEntries      []SchemaEntry  // SchemaEntries are the schema definitions of every field in the items Data
-	Data               map[string]any // Data is the raw response data mapped in a map
-	Url                string         // Url is the request url of the item
-	Code               int            // Code is the response code of the request
-	ExcludedValidators []string       // ExcludedValidators is a list of validators that should be excluded from the validation
+	SchemaEntries      []SchemaEntry  `json:"schemaEntries"`      // SchemaEntries are the schema definitions of every field in the items Data
+	Data               map[string]any `json:"data"`               // Data is the raw response data mapped in a map
+	Url                string         `json:"url"`                // Url is the request url of the item
+	Code               int            `json:"code"`               // Code is the response code of the request
+	ExcludedValidators []string       `json:"excludedValidators"` // ExcludedValidators is a list of validators that should be excluded from the validation
 }
 
 // Pipeline represents the validation pipeline
 type Pipeline struct {
-	EndpointItems map[string][]PipelineItem // EndpointItems are the collection of PipelineItem for each endpoint (definition file)
-	Validators    []Validator               // Validators are the validators that will be applied to the items in the pipeline
+	EndpointItems map[string][]PipelineItem `json:"endpointItems"` // EndpointItems are the collection of PipelineItem for each endpoint (definition file)
+	Validators    []Validator               `json:"validators"`    // Validators are the validators that will be applied to the items in the pipeline
 }
 
 // ValidatedEndpoint is the collection of results for each endpoint (definition)
 // that are generated for each different call to the endpoint (produced by the
 // multiple variable values)
 type ValidatedEndpoint struct {
-	EndpointName string   // EndpointName is he name of the endpoint
-	Results      []Result // Results are the collection of Result that describe the result of validating a single api call
+	EndpointName string   `json:"endpointName"` // EndpointName is he name of the endpoint
+	Results      []Result `json:"results"`      // Results are the collection of Result that describe the result of validating a single api call
 }
 
 // Result is the result of validating a single api call
 type Result struct {
-	Url              string            // Url is the url of the api call (with query parameters)
-	ValidatorsOutput []ValidatorOutput // ValidatorsOutput is the collection of ValidatorOutput that describe the result of each validator
+	Url              string            `json:"url"`              // Url is the url of the api call (with query parameters)
+	ValidatorsOutput []ValidatorOutput `json:"validatorsOutput"` // ValidatorsOutput is the collection of ValidatorOutput that describe the result of each validator
 }
 
 // ValidatorOutput is the output of a single validator
 type ValidatorOutput struct {
-	Validator string // Validator is the name of the validator
-	Status    string // Status is the status of the validator (success/fail/skipped)
-	Error     string // Error is the error message of the validator
+	Validator string `json:"validator"` // Validator is the name of the validator
+	Status    string `json:"status"`    // Status is the status of the validator (success/fail/skipped)
+	Error     string `json:"error"`     // Error is the error message of the validator
 }
 
 // NewPipelineV creates a new validation pipeline with the given validators already added
@@ -134,9 +134,9 @@ func (p *Pipeline) Validate() Report {
 
 	// return the report with the current timestamp
 	return Report{
-		Id:      id,
-		Time:    ReportTime(t),
-		Results: results,
+		Id:        id,
+		Time:      ReportTime(t),
+		Endpoints: results,
 	}
 }
 

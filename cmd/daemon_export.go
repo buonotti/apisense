@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"encoding/json"
-	"encoding/xml"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -24,9 +23,6 @@ var daemonExportCmd = &cobra.Command{
 		switch format {
 		case "json":
 			data, _ := json.Marshal(pipeline)
-			fmt.Println(string(data))
-		case "xml":
-			data, _ := xml.Marshal(pipeline)
 			fmt.Println(string(data))
 		default:
 			fmt.Println("Unknown format") // TODO csv?

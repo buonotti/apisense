@@ -23,7 +23,7 @@ var reportListCmd = &cobra.Command{
 		errors.HandleError(err)
 		reportIds := util.Map(reports, func(in validation.Report) string {
 			if verbose {
-				return fmt.Sprintf("%s --- %s with %d result(s)", in.Id, time.Time(in.Time).Format("2006-01-02 at 15-04-05.000Z"), len(in.Results))
+				return fmt.Sprintf("%s --- %s with %d result(s)", in.Id, time.Time(in.Time).Format("2006-01-02 at 15-04-05.000Z"), len(in.Endpoints))
 			}
 			return in.Id
 		})

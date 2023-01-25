@@ -21,17 +21,16 @@ var wsUpgrader = websocket.Upgrader{
 }
 
 type wsResponse struct {
-	Timestamp time.Time
-	Filename  string
-	ReportId  string
-	Report    validation.Report
+	Timestamp time.Time         `json:"timestamp"`
+	Filename  string            `json:"filename"`
+	ReportId  string            `json:"reportId"`
+	Report    validation.Report `json:"report"`
 }
 
-func wsHandler(w http.ResponseWriter, r *http.Request) error {
-	conn, err := wsUpgrader.Upgrade(w, r, nil)
-	if err != nil {
-		return errors.CannotUpgradeWebsocket.Wrap(err, "Cannot upgrade websocket")
-	}
+func Ws(c *gin.Context) {
+	conn, err := wsUpgrader.Upgrade(c.Writer, c.Request, nil)
+	err = errors.SafeWrap(errors.CannotUpgradeWebsocket, err, "cannot upgrade websocket connection")
+	errors.HandleError(err)
 
 	defer func() {
 		err := conn.Close()
@@ -39,9 +38,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) error {
 	}()
 
 	watcher, err := fs.NewDirectoryWatcherWithFiles(validation.ReportLocation())
-	if err != nil {
-		return err
-	}
+	errors.HandleError(err)
 
 	go func() {
 		err := watcher.Start()
@@ -51,25 +48,14 @@ func wsHandler(w http.ResponseWriter, r *http.Request) error {
 	for {
 		newFile := <-watcher.Events
 		report, err := validation.GetReport(newFile)
-		if err != nil {
-			return err
-		}
+		errors.HandleError(err)
 		err = conn.WriteJSON(wsResponse{
 			Timestamp: time.Now(),
 			Filename:  newFile,
 			ReportId:  report.Id,
 			Report:    *report,
 		})
-		if err != nil {
-			return errors.CannotWriteWebsocket.Wrap(err, "cannot write to websocket")
-		}
-	}
-}
-
-func Ws(c *gin.Context) {
-	err := wsHandler(c.Writer, c.Request)
-	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"message": err.Error()})
-		return
+		err = errors.SafeWrap(errors.CannotWriteWebsocket, err, "cannot write to websocket")
+		errors.HandleError(err)
 	}
 }

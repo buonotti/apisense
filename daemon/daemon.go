@@ -140,7 +140,7 @@ func (d daemon) work() func() {
 
 // logResults logs the results of the validation pipeline to the output file or stdout using the log.DaemonLogger
 func (d daemon) logResults(report validation.Report) {
-	for _, validatedEndpoint := range report.Results {
+	for _, validatedEndpoint := range report.Endpoints {
 		for _, result := range validatedEndpoint.Results {
 			for _, validatorResult := range result.ValidatorsOutput {
 				log.DaemonLogger.Infof("Validation result for validator '%s' on endpoint %s (%s)", validatorResult.Validator, validatedEndpoint.EndpointName, result.Url)
