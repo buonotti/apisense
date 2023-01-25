@@ -37,6 +37,7 @@ func Start() error {
 	api.GET("/health", controllers.GetHealth)
 	api.GET("/reports" /*cache.CacheByRequestPath(store, 1*time.Minute),*/, controllers.AllReports)
 	api.GET("/reports/:id" /*cache.CacheByRequestPath(store, 1*time.Minute),*/, controllers.Report)
+	api.GET("/ws", controllers.Ws)
 
 	srv := &http.Server{
 		Addr:    ":8080",

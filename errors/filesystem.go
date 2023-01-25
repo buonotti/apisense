@@ -30,3 +30,5 @@ var CannotUnlockFileError = FileSystemErrors.NewType("cannot_unlock_file", fatal
 
 // CannotCreateDirectoryError is returned when any of the setup functions fails to create the required directories
 var CannotCreateDirectoryError = FileSystemErrors.NewType("cannot_create_directory", fatalTrait)
+
+var CannotFindReportFile = FileSystemErrors.NewType("cannot_find_report_file", fatalTrait)
