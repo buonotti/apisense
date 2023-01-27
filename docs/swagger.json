@@ -21,41 +21,15 @@
         },
         "/api/reports": {
             "get": {
-                "description": "Gets a list of all reports that can be filtered with a query",
+                "description": "Connect to this endpoint with the ws:// protocol to instantiate a websocket connection to get updates for new reports",
                 "tags": [
                     "reports"
                 ],
-                "summary": "Get all the reports",
-                "operationId": "all-reports",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "field.op.value",
-                        "name": "where",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "json",
-                        "name": "format",
-                        "in": "query"
-                    }
-                ],
+                "summary": "Open a websocket connection to receive notifications",
+                "operationId": "ws",
                 "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/validation.Report"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
+                    "101": {
+                        "description": "Switching Protocols"
                     }
                 }
             }
@@ -93,13 +67,13 @@
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     }
                 }
@@ -107,7 +81,7 @@
         }
     },
     "definitions": {
-        "api.ErrorResponse": {
+        "controllers.ErrorResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -118,16 +92,16 @@
         "validation.Report": {
             "type": "object",
             "properties": {
-                "id": {
-                    "description": "Id is a unique identifier for each report",
-                    "type": "string"
-                },
-                "results": {
+                "endpoints": {
                     "description": "Endpoints is a collection of ValidatedEndpoint holding the validation results",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/validation.ValidatedEndpoint"
                     }
+                },
+                "id": {
+                    "description": "Id is a unique identifier for each report",
+                    "type": "string"
                 },
                 "time": {
                     "description": "Time is the timestamp of the report",
@@ -135,18 +109,18 @@
                 }
             }
         },
-        "validation.Result": {
+        "validation.TestCaseResult": {
             "type": "object",
             "properties": {
                 "url": {
                     "description": "Url is the url of the api call (with query parameters)",
                     "type": "string"
                 },
-                "validatorsOutput": {
-                    "description": "ValidatorsOutput is the collection of ValidatorOutput that describe the result of each validator",
+                "validatorResults": {
+                    "description": "ValidatorResults is the collection of ValidatorResult that describe the result of each validator",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/validation.ValidatorOutput"
+                        "$ref": "#/definitions/validation.ValidatorResult"
                     }
                 }
             }
@@ -158,28 +132,28 @@
                     "description": "EndpointName is he name of the endpoint",
                     "type": "string"
                 },
-                "results": {
-                    "description": "Results are the collection of Result that describe the result of validating a single api call",
+                "testCaseResults": {
+                    "description": "TestCaseResults are the collection of TestCaseResult that describe the result of validating a single api call",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/validation.Result"
+                        "$ref": "#/definitions/validation.TestCaseResult"
                     }
                 }
             }
         },
-        "validation.ValidatorOutput": {
+        "validation.ValidatorResult": {
             "type": "object",
             "properties": {
-                "error": {
-                    "description": "Error is the error message of the validator",
+                "message": {
+                    "description": "Message is the error message of the validator",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name is the name of the validator",
                     "type": "string"
                 },
                 "status": {
                     "description": "Status is the status of the validator (success/fail/skipped)",
-                    "type": "string"
-                },
-                "validator": {
-                    "description": "Validator is the name of the validator",
                     "type": "string"
                 }
             }

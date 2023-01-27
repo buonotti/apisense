@@ -62,7 +62,7 @@ func createDirectories() error {
 // If there is an error while reading the default asset with config.GetAsset it return an *errors.CannotLoadAssetError.
 // If there is an error while writing the file it returns an *errors.CannotWriteFileError.
 func writeFiles() error {
-	defData, err := config.GetAsset("assets/bluetooth.toml")
+	defData, err := config.Asset("assets/bluetooth.toml")
 	if err != nil {
 		return errors.CannotLoadAssetError.Wrap(err, "cannot load bluetooth definition asset")
 	}
@@ -72,7 +72,7 @@ func writeFiles() error {
 		return errors.CannotWriteFileError.Wrap(err, "cannot write bluetooth definition file")
 	}
 
-	defData2, err := config.GetAsset("assets/bluetooth2.toml")
+	defData2, err := config.Asset("assets/bluetooth2.toml")
 	if err != nil {
 		return errors.CannotLoadAssetError.Wrap(err, "cannot load bluetooth2 definition asset")
 	}

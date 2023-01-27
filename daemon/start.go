@@ -51,10 +51,8 @@ func Start(background bool, runOnStart bool) (*exec.Cmd, error) {
 }
 
 func NewPipeline() (*validation.Pipeline, error) {
-	pipeline, err := validation.NewPipelineV(
-		validators.NewStatusValidator(),
-		validators.NewSchemaValidator(),
-		validators.NewRangeValidator(),
+	pipeline, err := validation.NewPipelineWithValidators(
+		validators.All()...,
 	)
 
 	externalValidators, err := external.Parse()

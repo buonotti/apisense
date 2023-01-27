@@ -72,7 +72,7 @@ func (d daemon) signalListener(signalChan chan os.Signal, cancel context.CancelF
 			switch s {
 			case unix.SIGHUP:
 				log.DaemonLogger.Info("received SIGHUP, reloading configuration")
-				errors.HandleError(d.Pipeline.RefreshItems())
+				errors.HandleError(d.Pipeline.Reload())
 			case unix.SIGINT:
 				log.DaemonLogger.Info("received SIGINT, stopping daemon")
 				errors.HandleError(writeStatus(DOWN))
@@ -107,7 +107,7 @@ func endRun(signalChan chan os.Signal, cancel context.CancelFunc) {
 
 // work runs the validation pipeline and logs the results
 func (d daemon) work() {
-	err := d.Pipeline.RefreshItems()
+	err := d.Pipeline.Reload()
 	errors.HandleError(err)
 
 	result := d.Pipeline.Validate()

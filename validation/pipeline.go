@@ -46,8 +46,8 @@ type ValidatorResult struct {
 	Message string `json:"message"` // Message is the error message of the validator
 }
 
-// NewPipelineV creates a new validation pipeline with the given validators already added
-func NewPipelineV(validators ...Validator) (Pipeline, error) {
+// NewPipelineWithValidators creates a new validation pipeline with the given validators already added
+func NewPipelineWithValidators(validators ...Validator) (Pipeline, error) {
 	pipeline, err := NewPipeline()
 	if err != nil {
 		return Pipeline{}, err
@@ -70,7 +70,7 @@ func NewPipeline() (Pipeline, error) {
 	}
 
 	for _, definition := range definitions {
-		items, err := loadItems(definition)
+		items, err := loadTestCases(definition)
 		if err != nil {
 			return Pipeline{}, err
 		}
@@ -95,15 +95,15 @@ func (p *Pipeline) RemoveValidator(name string) {
 	}
 }
 
-// RefreshItems re-populates the Pipeline.TestCases collection
-func (p *Pipeline) RefreshItems() error {
+// Reload re-populates the Pipeline.TestCases collection
+func (p *Pipeline) Reload() error {
 	definitions, err := EndpointDefinitions()
 	if err != nil {
 		return err
 	}
 
 	for _, definition := range definitions {
-		items, err := loadItems(definition)
+		items, err := loadTestCases(definition)
 		if err != nil {
 			return err
 		}
@@ -113,7 +113,7 @@ func (p *Pipeline) RefreshItems() error {
 	return nil
 }
 
-// Validate validates all the items in the pipeline and returns a Report
+// Validate validates all the test cases in the pipeline and returns a Report
 func (p *Pipeline) Validate() Report {
 	results := make([]ValidatedEndpoint, 0)
 
@@ -192,10 +192,10 @@ func (p *Pipeline) validateTestCase(item PipelineTestCase) []ValidatorResult {
 	return validatorResults
 }
 
-// loadItems parses the definition files and populates the Pipeline.TestCases collection
-func loadItems(definition EndpointDefinition) ([]PipelineTestCase, error) {
-	log.DaemonLogger.Infof("loading pipeline items for %s", definition.Name)
-	var items []PipelineTestCase
+// loadTestCases parses the definition files and populates the Pipeline.TestCases collection
+func loadTestCases(definition EndpointDefinition) ([]PipelineTestCase, error) {
+	log.DaemonLogger.Infof("loading pipeline test-cases for %s", definition.Name)
+	var testCases []PipelineTestCase
 	requests, err := parseRequests(definition)
 	if err != nil {
 		return nil, err
@@ -207,7 +207,7 @@ func loadItems(definition EndpointDefinition) ([]PipelineTestCase, error) {
 	}
 
 	for _, resp := range responses {
-		items = append(items, PipelineTestCase{
+		testCases = append(testCases, PipelineTestCase{
 			SchemaEntries:      definition.ResultSchema.Entries,
 			Data:               resp.RawData,
 			Url:                resp.Url,
@@ -216,5 +216,5 @@ func loadItems(definition EndpointDefinition) ([]PipelineTestCase, error) {
 		})
 	}
 
-	return items, nil
+	return testCases, nil
 }

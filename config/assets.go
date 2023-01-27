@@ -1,10 +1,10 @@
-// Code generated for package main by go-bindata DO NOT EDIT. (@generated)
+// Code generated for package config by go-bindata DO NOT EDIT. (@generated)
 // sources:
 // assets/.env.example
 // assets/bluetooth.toml
 // assets/bluetooth2.toml
 // assets/config.example.toml
-package main
+package config
 
 import (
 	"bytes"

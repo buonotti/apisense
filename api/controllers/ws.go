@@ -27,12 +27,12 @@ type wsResponse struct {
 }
 
 // Ws godoc
-// @Summary Open a websocket connection to receive notifications
-// @Description Connect to this endpoint with the ws:// protocol to instantiate a websocket connection to get updates for new reports
-// @ID ws
-// @Tags reports
-// @Success 101
-// @Router /api/reports [get]
+//	@Summary		Open a websocket connection to receive notifications
+//	@Description	Connect to this endpoint with the ws:// protocol to instantiate a websocket connection to get updates for new reports
+//	@ID				ws
+//	@Tags			reports
+//	@Success		101
+//	@Router			/api/reports [get]
 func Ws(c *gin.Context) {
 	// we have to handle the errors because the upgrade hijacks the response writer
 	// so we cant use the context to write the response to the client

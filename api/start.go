@@ -22,6 +22,9 @@ import (
 func Start() error {
 	// TODO config
 	docs.SwaggerInfo.BasePath = "/api"
+	docs.SwaggerInfo.Title = "apisense"
+	docs.SwaggerInfo.Version = "1.0.0"
+
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
@@ -29,13 +32,14 @@ func Start() error {
 	router.Use(log.GinLogger())
 	router.Use(gin.Recovery())
 	router.Use(middleware.Limiter())
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api := router.Group("/api")
 	api.GET("/health", controllers.GetHealth)
 	api.GET("/reports", controllers.AllReports)
 	api.GET("/reports/:id", controllers.Report)
 	api.GET("/ws", controllers.Ws)
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	srv := &http.Server{
 		Addr:    ":8080",

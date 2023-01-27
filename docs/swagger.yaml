@@ -1,34 +1,34 @@
 definitions:
-  api.ErrorResponse:
+  controllers.ErrorResponse:
     properties:
       message:
         type: string
     type: object
   validation.Report:
     properties:
-      id:
-        description: Id is a unique identifier for each report
-        type: string
-      results:
+      endpoints:
         description: Endpoints is a collection of ValidatedEndpoint holding the validation
           results
         items:
           $ref: '#/definitions/validation.ValidatedEndpoint'
         type: array
+      id:
+        description: Id is a unique identifier for each report
+        type: string
       time:
         description: Time is the timestamp of the report
         type: string
     type: object
-  validation.Result:
+  validation.TestCaseResult:
     properties:
       url:
         description: Url is the url of the api call (with query parameters)
         type: string
-      validatorsOutput:
-        description: ValidatorsOutput is the collection of ValidatorOutput that describe
+      validatorResults:
+        description: ValidatorResults is the collection of ValidatorResult that describe
           the result of each validator
         items:
-          $ref: '#/definitions/validation.ValidatorOutput'
+          $ref: '#/definitions/validation.ValidatorResult'
         type: array
     type: object
   validation.ValidatedEndpoint:
@@ -36,23 +36,23 @@ definitions:
       endpointName:
         description: EndpointName is he name of the endpoint
         type: string
-      results:
-        description: Results are the collection of Result that describe the result
-          of validating a single api call
+      testCaseResults:
+        description: TestCaseResults are the collection of TestCaseResult that describe
+          the result of validating a single api call
         items:
-          $ref: '#/definitions/validation.Result'
+          $ref: '#/definitions/validation.TestCaseResult'
         type: array
     type: object
-  validation.ValidatorOutput:
+  validation.ValidatorResult:
     properties:
-      error:
-        description: Error is the error message of the validator
+      message:
+        description: Message is the error message of the validator
+        type: string
+      name:
+        description: Name is the name of the validator
         type: string
       status:
         description: Status is the status of the validator (success/fail/skipped)
-        type: string
-      validator:
-        description: Validator is the name of the validator
         type: string
     type: object
 info:
@@ -70,29 +70,13 @@ paths:
       - health
   /api/reports:
     get:
-      description: Gets a list of all reports that can be filtered with a query
-      operationId: all-reports
-      parameters:
-      - description: field.op.value
-        in: query
-        name: where
-        type: string
-      - description: json
-        in: query
-        name: format
-        type: string
+      description: Connect to this endpoint with the ws:// protocol to instantiate
+        a websocket connection to get updates for new reports
+      operationId: ws
       responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/validation.Report'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: Get all the reports
+        "101":
+          description: Switching Protocols
+      summary: Open a websocket connection to receive notifications
       tags:
       - reports
   /api/reports/:id:
@@ -117,11 +101,11 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.ErrorResponse'
+            $ref: '#/definitions/controllers.ErrorResponse'
       summary: Get one report
       tags:
       - reports

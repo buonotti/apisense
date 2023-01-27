@@ -9,7 +9,7 @@ tasks:
   build:
     desc: Builds the project
     cmds:
-      - go-bindata -o assets.go assets/
+      - go-bindata -pkg config -o config/assets.go assets/
       - go build
 
   install:

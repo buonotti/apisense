@@ -13,15 +13,15 @@ import (
 )
 
 // AllReports godoc
-// @Summary Get all the reports
-// @Description Gets a list of all reports that can be filtered with a query
-// @ID all-reports
-// @Tags reports
-// @Param where query string false "field.op.value"
-// @Param format query string false "json"
-// @Success 200 array validation.Report
-// @Failure 500 object api.ErrorResponse
-// @Router /api/reports [get]
+//	@Summary		Get all the reports
+//	@Description	Gets a list of all reports that can be filtered with a query
+//	@ID				all-reports
+//	@Tags			reports
+//	@Param			where	query		string	false	"field.op.value"
+//	@Param			format	query		string	false	"json"
+//	@Success		200		array		validation.Report
+//	@Failure		500		{object}	ErrorResponse
+//	@Router			/api/reports [get]
 func AllReports(c *gin.Context) {
 	allReports, err := validation.Reports()
 	if err != nil {
@@ -40,19 +40,19 @@ func AllReports(c *gin.Context) {
 	writeFormattedReport(c, allReports...)
 }
 
-// @BasePath /api
+//	@BasePath	/api
 
 // Report godoc
-// @Summary Get one report
-// @Description Gets a single report identified by his id
-// @ID report
-// @Tags reports
-// @Param format query string false "json"
-// @Param id path string true "qNg8rJX"
-// @Success 200 object validation.Report
-// @Failure 404 object api.ErrorResponse
-// @Failure 500 object api.ErrorResponse
-// @Router /api/reports/:id [get]
+//	@Summary		Get one report
+//	@Description	Gets a single report identified by his id
+//	@ID				report
+//	@Tags			reports
+//	@Param			format	query		string	false	"json"
+//	@Param			id		path		string	true	"qNg8rJX"
+//	@Success		200		{object}	validation.Report
+//	@Failure		404		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
+//	@Router			/api/reports/:id [get]
 func Report(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
