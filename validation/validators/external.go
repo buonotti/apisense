@@ -32,7 +32,7 @@ func (v externalValidator) Name() string {
 // Validate validates an item by serializing it and sending it to the external
 // process then returning an error according to the status code of the external
 // program
-func (v externalValidator) Validate(item validation.PipelineItem) error {
+func (v externalValidator) Validate(item validation.PipelineTestCase) error {
 	jsonString, err := json.Marshal(item)
 	outString := &strings.Builder{}
 	if err != nil {
@@ -75,6 +75,6 @@ func (v externalValidator) Validate(item validation.PipelineItem) error {
 	return nil
 }
 
-func (v externalValidator) Fatal() bool {
+func (v externalValidator) IsFatal() bool {
 	return v.Definition.Fatal
 }

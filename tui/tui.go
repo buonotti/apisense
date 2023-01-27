@@ -6,11 +6,6 @@ import (
 
 	"github.com/common-nighthawk/go-figure"
 
-	"github.com/buonotti/apisense/daemon"
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/fs"
-	"github.com/buonotti/apisense/validation"
-
 	"github.com/76creates/stickers"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
@@ -19,6 +14,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/viper"
+
+	"github.com/buonotti/apisense/daemon"
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/fs"
+	"github.com/buonotti/apisense/validation"
 )
 
 var (

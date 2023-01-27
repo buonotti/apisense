@@ -64,7 +64,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal Server Message",
                         "schema": {
                             "$ref": "#/definitions/api.ErrorResponse"
                         }
@@ -109,7 +109,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal Server Message",
                         "schema": {
                             "$ref": "#/definitions/api.ErrorResponse"
                         }
@@ -155,7 +155,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "validatorsOutput": {
-                    "description": "ValidatorsOutput is the collection of ValidatorOutput that describe the result of each validator",
+                    "description": "ValidatorResults is the collection of ValidatorOutput that describe the result of each validator",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/validation.ValidatorOutput"
@@ -171,7 +171,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "results": {
-                    "description": "Results are the collection of Result that describe the result of validating a single api call",
+                    "description": "TestCaseResults are the collection of Result that describe the result of validating a single api call",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/validation.Result"
@@ -183,7 +183,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "error": {
-                    "description": "Error is the error message of the validator",
+                    "description": "Message is the error message of the validator",
                     "type": "string"
                 },
                 "status": {
@@ -191,7 +191,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "validator": {
-                    "description": "Validator is the name of the validator",
+                    "description": "Name is the name of the validator",
                     "type": "string"
                 }
             }

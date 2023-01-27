@@ -83,7 +83,7 @@ func (v validationEndpointModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				val, err := getSelectedValidatedEndpoint(selectedReport, i)
 				errors.HandleError(err)
 				selectedValidatedEndpoint = val
-				resultRows = getResultRows(selectedValidatedEndpoint.Results)
+				resultRows = getResultRows(selectedValidatedEndpoint.TestCaseResults)
 				if choiceReportModel != "validatedEndpointModel" {
 					v.resultModel, cmdModel = v.resultModel.Update(msg)
 					v.table, cmd = v.table.Update(msg)

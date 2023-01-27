@@ -14,9 +14,9 @@ func ReportLocation() string {
 
 // Report is a report of a test run
 type Report struct {
-	Id        string              `json:"id"`      // Id is a unique identifier for each report
-	Time      ReportTime          `json:"time"`    // Time is the timestamp of the report
-	Endpoints []ValidatedEndpoint `json:"results"` // Endpoints is a collection of ValidatedEndpoint holding the validation results
+	Id        string              `json:"id"`        // Id is a unique identifier for each report
+	Time      ReportTime          `json:"time"`      // Time is the timestamp of the report
+	Endpoints []ValidatedEndpoint `json:"endpoints"` // Endpoints is a collection of ValidatedEndpoint holding the validation results
 }
 
 func GetReport(filename string) (*Report, error) {

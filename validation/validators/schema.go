@@ -3,6 +3,7 @@ package validators
 import (
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/response"
 )
 
 // NewSchemaValidator returns a new schema validator
@@ -20,13 +21,13 @@ func (v schemaValidator) Name() string {
 }
 
 // Validate validates the given items schema and return nil on success or an error on failure
-func (v schemaValidator) Validate(item validation.PipelineItem) error {
+func (v schemaValidator) Validate(item validation.PipelineTestCase) error {
 	return validateSchema(item.SchemaEntries, item.Data)
 }
 
 // validateSchema validates the result against the schema and return nil on success or an error on failure.
 // The function recursively checks child object or array definitions
-func validateSchema(schemaEntries []validation.SchemaEntry, data map[string]any) error {
+func validateSchema(schemaEntries []response.SchemaEntry, data map[string]any) error {
 	for _, schemaEntry := range schemaEntries {
 		// get the response value for the current schema schemaEntry
 		value := data[schemaEntry.Name]
@@ -94,6 +95,6 @@ func validateSchema(schemaEntries []validation.SchemaEntry, data map[string]any)
 	return nil
 }
 
-func (v schemaValidator) Fatal() bool {
+func (v schemaValidator) IsFatal() bool {
 	return true
 }

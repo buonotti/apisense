@@ -9,6 +9,9 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/validation/query"
+	"github.com/buonotti/apisense/validation/response"
+	"github.com/buonotti/apisense/validation/variables"
 )
 
 // DefinitionsLocation returns the location of the definitions directory
@@ -20,41 +23,13 @@ func DefinitionsLocation() string {
 // parameters, variables and its result schema
 type EndpointDefinition struct {
 	FileName           string
-	Name               string           `toml:"name"`                // Name is the name of the endpoint
-	BaseUrl            string           `toml:"base-url"`            // BaseUrl is the base path of the endpoint
-	ExcludedValidators []string         `toml:"excluded-validators"` // ExcludedValidators is a list of validators that should not be used for this endpoint
-	QueryParameters    []queryParameter `toml:"query"`               // QueryParameters are all the query parameters that should be added to the call
-	Format             string           `toml:"format"`              // Format is the response format of the
-	Variables          []variableSchema `toml:"variable"`            // Variables are all the variables that should be interpolated in the base url and the query parameters
-	ResultSchema       resultSchema     `toml:"result"`              // ResultSchema describes how the response should look like
-}
-
-// queryParameter is a query parameter that should be added to the call
-type queryParameter struct {
-	Name  string // Name is the name of the query parameter
-	Value string // Value is the value of the query parameter
-}
-
-// resultSchema describes how the response should look like
-type resultSchema struct {
-	Entries []SchemaEntry `toml:"entry"` // Entries are all the field definitions of the response
-}
-
-// SchemaEntry is a field definition of the response
-type SchemaEntry struct {
-	Name         string        `toml:"name"`     // Name is the name of the field
-	Type         string        `toml:"type"`     // Type is the type of the field
-	Minimum      interface{}   `toml:"min"`      // Minimum is the minimum allowed value of the field
-	Maximum      interface{}   `toml:"max"`      // Maximum is the maximum allowed value of the field
-	IsRequired   bool          `toml:"required"` // Required is true if the field is required (not null or not empty in case of an array)
-	ChildEntries []SchemaEntry `toml:"fields"`   // ChildEntries describe the children of this field if the field is an object or array
-}
-
-// variableSchema describes a variable that should be interpolated in the base url and the query parameters
-type variableSchema struct {
-	Name       string   `toml:"name"`     // Name is the name of the variable
-	IsConstant bool     `toml:"constant"` // IsConstant is true if the value of the variable is constant or else false
-	Values     []string `toml:"values"`   // Values are all the possible values of the variable (only 1 in case of a constant)
+	Name               string                 `toml:"name"`                // Name is the name of the endpoint
+	BaseUrl            string                 `toml:"base-url"`            // BaseUrl is the base path of the endpoint
+	ExcludedValidators []string               `toml:"excluded-validators"` // ExcludedValidators is a list of validators that should not be used for this endpoint
+	QueryParameters    []query.Definition     `toml:"query"`               // QueryParameters are all the query parameters that should be added to the call
+	Format             string                 `toml:"format"`              // Format is the response format of the
+	Variables          []variables.Definition `toml:"variable"`            // Variables are all the variables that should be interpolated in the base url and the query parameters
+	ResultSchema       response.Schema        `toml:"result"`              // ResultSchema describes how the response should look like
 }
 
 // parseDefinition reads a given file and returns and EndpointDefinition.

@@ -2,13 +2,15 @@ package tui
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation"
+	"strings"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"strings"
+
+	"github.com/buonotti/apisense/util"
+	"github.com/buonotti/apisense/validation"
 )
 
 type validatorOutputModel struct {
@@ -84,15 +86,15 @@ func (v validatorOutputModel) View() string {
 	return lipgloss.NewStyle().Render(v.table.View() + "\n")
 }
 
-func getValidatorOutputRows(validatorOutputs []validation.ValidatorOutput) []table.Row {
+func getValidatorOutputRows(validatorOutputs []validation.ValidatorResult) []table.Row {
 	rows := make([]table.Row, 0)
 	for i, output := range validatorOutputs {
-		s := strings.Split(output.Error, ": ")
+		s := strings.Split(output.Message, ": ")
 		q := util.Join(s[1:], "")
 		if len(s) > 1 {
-			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Validator, q, output.Status})
+			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Name, q, output.Status})
 		} else {
-			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Validator, "", output.Status})
+			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Name, "", output.Status})
 		}
 	}
 	return rows
@@ -101,8 +103,8 @@ func getValidatorOutputRows(validatorOutputs []validation.ValidatorOutput) []tab
 func getValidatorOutputColumns() []table.Column {
 	return []table.Column{
 		{Title: "", Width: 3},
-		{Title: "Validator", Width: 10},
-		{Title: "Error", Width: 50},
+		{Title: "Name", Width: 10},
+		{Title: "Message", Width: 50},
 		{Title: "Status", Width: 10},
 	}
 }

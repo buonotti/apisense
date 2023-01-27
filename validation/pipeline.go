@@ -7,49 +7,43 @@ import (
 
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/util"
+	"github.com/buonotti/apisense/validation/response"
 )
 
-// Validator is an interface that all validators in the pipeline must implement
-type Validator interface {
-	Name() string                     // Name returns the name of the validator
-	Validate(item PipelineItem) error // Validate validates the given item and return nil on success or an error on failure
-	Fatal() bool                      // Fatal returns true if the validator is fatal and the pipeline should stop on failure
-}
-
-// PipelineItem represents an item in the validation pipeline
-type PipelineItem struct {
-	SchemaEntries      []SchemaEntry  `json:"schemaEntries"`      // SchemaEntries are the schema definitions of every field in the items Data
-	Data               map[string]any `json:"data"`               // Data is the raw response data mapped in a map
-	Url                string         `json:"url"`                // Url is the request url of the item
-	Code               int            `json:"code"`               // Code is the response code of the request
-	ExcludedValidators []string       `json:"excludedValidators"` // ExcludedValidators is a list of validators that should be excluded from the validation
+// PipelineTestCase represents an item in the validation pipeline
+type PipelineTestCase struct {
+	SchemaEntries      []response.SchemaEntry `json:"schemaEntries"`      // SchemaEntries are the schema definitions of every field in the items Data
+	Data               map[string]any         `json:"data"`               // Data is the raw response data mapped in a map
+	Url                string                 `json:"url"`                // Url is the request url of the item
+	Code               int                    `json:"code"`               // Code is the response code of the request
+	ExcludedValidators []string               `json:"excludedValidators"` // ExcludedValidators is a list of validators that should be excluded from the validation
 }
 
 // Pipeline represents the validation pipeline
 type Pipeline struct {
-	EndpointItems map[string][]PipelineItem `json:"endpointItems"` // EndpointItems are the collection of PipelineItem for each endpoint (definition file)
-	Validators    []Validator               `json:"validators"`    // Validators are the validators that will be applied to the items in the pipeline
+	TestCases  map[string][]PipelineTestCase `json:"testCases"`  // TestCases are the collection of PipelineTestCase for each endpoint (definition file)
+	Validators []Validator                   `json:"validators"` // Validators are the validators that will be applied to the items in the pipeline
 }
 
 // ValidatedEndpoint is the collection of results for each endpoint (definition)
 // that are generated for each different call to the endpoint (produced by the
 // multiple variable values)
 type ValidatedEndpoint struct {
-	EndpointName string   `json:"endpointName"` // EndpointName is he name of the endpoint
-	Results      []Result `json:"results"`      // Results are the collection of Result that describe the result of validating a single api call
+	EndpointName    string           `json:"endpointName"`    // EndpointName is he name of the endpoint
+	TestCaseResults []TestCaseResult `json:"testCaseResults"` // TestCaseResults are the collection of TestCaseResult that describe the result of validating a single api call
 }
 
-// Result is the result of validating a single api call
-type Result struct {
+// TestCaseResult is the result of validating a single api call
+type TestCaseResult struct {
 	Url              string            `json:"url"`              // Url is the url of the api call (with query parameters)
-	ValidatorsOutput []ValidatorOutput `json:"validatorsOutput"` // ValidatorsOutput is the collection of ValidatorOutput that describe the result of each validator
+	ValidatorResults []ValidatorResult `json:"validatorResults"` // ValidatorResults is the collection of ValidatorResult that describe the result of each validator
 }
 
-// ValidatorOutput is the output of a single validator
-type ValidatorOutput struct {
-	Validator string `json:"validator"` // Validator is the name of the validator
-	Status    string `json:"status"`    // Status is the status of the validator (success/fail/skipped)
-	Error     string `json:"error"`     // Error is the error message of the validator
+// ValidatorResult is the output of a single validator
+type ValidatorResult struct {
+	Name    string `json:"name"`    // Name is the name of the validator
+	Status  string `json:"status"`  // Status is the status of the validator (success/fail/skipped)
+	Message string `json:"message"` // Message is the error message of the validator
 }
 
 // NewPipelineV creates a new validation pipeline with the given validators already added
@@ -71,8 +65,8 @@ func NewPipeline() (Pipeline, error) {
 	}
 
 	pipeline := Pipeline{
-		EndpointItems: make(map[string][]PipelineItem),
-		Validators:    make([]Validator, 0),
+		TestCases:  make(map[string][]PipelineTestCase),
+		Validators: make([]Validator, 0),
 	}
 
 	for _, definition := range definitions {
@@ -81,7 +75,7 @@ func NewPipeline() (Pipeline, error) {
 			return Pipeline{}, err
 		}
 
-		pipeline.EndpointItems[definition.Name] = items
+		pipeline.TestCases[definition.Name] = items
 	}
 
 	return pipeline, nil
@@ -101,7 +95,7 @@ func (p *Pipeline) RemoveValidator(name string) {
 	}
 }
 
-// RefreshItems re-populates the Pipeline.EndpointItems collection
+// RefreshItems re-populates the Pipeline.TestCases collection
 func (p *Pipeline) RefreshItems() error {
 	definitions, err := EndpointDefinitions()
 	if err != nil {
@@ -113,7 +107,7 @@ func (p *Pipeline) RefreshItems() error {
 		if err != nil {
 			return err
 		}
-		p.EndpointItems[definition.Name] = items
+		p.TestCases[definition.Name] = items
 	}
 
 	return nil
@@ -123,12 +117,12 @@ func (p *Pipeline) RefreshItems() error {
 func (p *Pipeline) Validate() Report {
 	results := make([]ValidatedEndpoint, 0)
 
-	// for each endpoint validate all the items
-	for endpoint, items := range p.EndpointItems {
-		validatorResults := p.validateItems(items)
+	// for each endpoint testCaseResults all the testCases
+	for endpoint, testCases := range p.TestCases {
+		validatorResults := p.testCaseResults(testCases)
 		results = append(results, ValidatedEndpoint{
-			EndpointName: endpoint,
-			Results:      validatorResults,
+			EndpointName:    endpoint,
+			TestCaseResults: validatorResults,
 		})
 	}
 
@@ -147,61 +141,61 @@ func (p *Pipeline) Validate() Report {
 	}
 }
 
-// validateItems validates a collection of items and returns the results
-func (p *Pipeline) validateItems(items []PipelineItem) []Result {
-	validatorResults := make([]Result, 0)
+// testCaseResults validates a collection of items and returns the results
+func (p *Pipeline) testCaseResults(items []PipelineTestCase) []TestCaseResult {
+	testCaseResults := make([]TestCaseResult, 0)
 
-	// validate each single item and append to the results
+	// testCaseResults each single item and append to the results
 	for _, item := range items {
-		validatorOutputs := p.validateSingleItem(item)
-		validatorResults = append(validatorResults, Result{
+		validatorResults := p.validateTestCase(item)
+		testCaseResults = append(testCaseResults, TestCaseResult{
 			Url:              item.Url,
-			ValidatorsOutput: validatorOutputs,
+			ValidatorResults: validatorResults,
 		})
 	}
 
-	return validatorResults
+	return testCaseResults
 }
 
-// validateSingleItem validates a single item and returns the result of the validators
-func (p *Pipeline) validateSingleItem(item PipelineItem) []ValidatorOutput {
-	validatorOutputs := make([]ValidatorOutput, 0)
+// validateTestCase validates a single item and returns the result of the validators
+func (p *Pipeline) validateTestCase(item PipelineTestCase) []ValidatorResult {
+	validatorResults := make([]ValidatorResult, 0)
 
 	for _, validator := range p.Validators {
-		validatorOutput := ValidatorOutput{
-			Validator: validator.Name(),
-			Status:    "success",
-			Error:     "",
+		validatorResult := ValidatorResult{
+			Name:    validator.Name(),
+			Status:  "success",
+			Message: "",
 		}
 
 		if util.Contains(item.ExcludedValidators, validator.Name()) {
 			log.DaemonLogger.Warnf("validator %s is excluded for %s", validator.Name(), item.Url)
-			validatorOutput.Status = "skipped"
-			validatorOutputs = append(validatorOutputs, validatorOutput)
+			validatorResult.Status = "skipped"
+			validatorResults = append(validatorResults, validatorResult)
 			continue
 		}
 
 		err := validator.Validate(item)
 
 		if err != nil {
-			validatorOutput.Error = err.Error()
-			validatorOutput.Status = "fail"
-			validatorOutputs = append(validatorOutputs, validatorOutput)
-			if validator.Fatal() {
+			validatorResult.Message = err.Error()
+			validatorResult.Status = "fail"
+			validatorResults = append(validatorResults, validatorResult)
+			if validator.IsFatal() {
 				break
 			}
 		}
 
-		validatorOutputs = append(validatorOutputs, validatorOutput)
+		validatorResults = append(validatorResults, validatorResult)
 	}
 
-	return validatorOutputs
+	return validatorResults
 }
 
-// loadItems parses the definition files and populates the Pipeline.EndpointItems collection
-func loadItems(definition EndpointDefinition) ([]PipelineItem, error) {
+// loadItems parses the definition files and populates the Pipeline.TestCases collection
+func loadItems(definition EndpointDefinition) ([]PipelineTestCase, error) {
 	log.DaemonLogger.Infof("loading pipeline items for %s", definition.Name)
-	var items []PipelineItem
+	var items []PipelineTestCase
 	requests, err := parseRequests(definition)
 	if err != nil {
 		return nil, err
@@ -212,12 +206,12 @@ func loadItems(definition EndpointDefinition) ([]PipelineItem, error) {
 		return nil, err
 	}
 
-	for _, response := range responses {
-		items = append(items, PipelineItem{
+	for _, resp := range responses {
+		items = append(items, PipelineTestCase{
 			SchemaEntries:      definition.ResultSchema.Entries,
-			Data:               response.RawData,
-			Url:                response.Url,
-			Code:               response.StatusCode,
+			Data:               resp.RawData,
+			Url:                resp.Url,
+			Code:               resp.StatusCode,
 			ExcludedValidators: definition.ExcludedValidators,
 		})
 	}

@@ -97,7 +97,7 @@ func requestData(definition endpointRequest) (endpointResponse, error) {
 // normalizeVariables converts all given variables in the definition of an endpoint to a collection of variables.EndpointParameter
 func normalizeVariables(definition EndpointDefinition) ([]variables.EndpointParameter, error) {
 	// get the length of the first non-constant element of the variables. if there are only constants the valueCount is 1
-	firstVariableVar := util.FindFirst(definition.Variables, func(param variableSchema) bool { return !param.IsConstant })
+	firstVariableVar := util.FindFirst(definition.Variables, func(param variables.Definition) bool { return !param.IsConstant })
 	valueCount := 1
 	if firstVariableVar != nil {
 		valueCount = len(firstVariableVar.Values)
@@ -135,7 +135,7 @@ func parseRequests(definition EndpointDefinition) ([]endpointRequest, error) {
 	}
 
 	// get the length of the first non-constant element of the variables. if there are only constants the valueCount is 1
-	firstVariableVar := util.FindFirst(definition.Variables, func(param variableSchema) bool { return !param.IsConstant })
+	firstVariableVar := util.FindFirst(definition.Variables, func(param variables.Definition) bool { return !param.IsConstant })
 	valueCount := 1
 	if firstVariableVar != nil {
 		valueCount = len(firstVariableVar.Values)

@@ -23,7 +23,7 @@ func (v rangeValidator) Name() string {
 
 // Validate validates the given item by checking the range values in the
 // definition, and return nil on success or an error on failure
-func (v rangeValidator) Validate(item validation.PipelineItem) error {
+func (v rangeValidator) Validate(item validation.PipelineTestCase) error {
 	for _, schemaEntry := range item.SchemaEntries {
 		value := item.Data[schemaEntry.Name]
 		if value == nil {
@@ -91,6 +91,6 @@ func (v rangeValidator) Validate(item validation.PipelineItem) error {
 	return nil
 }
 
-func (v rangeValidator) Fatal() bool {
+func (v rangeValidator) IsFatal() bool {
 	return true
 }
