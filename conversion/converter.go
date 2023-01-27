@@ -7,7 +7,6 @@ import (
 
 type Converter interface {
 	Convert(report ...validation.Report) ([]byte, error)
-	//ConvertMany(reports []validation.Report) ([]byte, error)
 }
 
 var convMap = map[string]Converter{

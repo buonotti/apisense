@@ -24,8 +24,6 @@ func Start() error {
 	docs.SwaggerInfo.BasePath = "/api"
 	gin.SetMode(gin.ReleaseMode)
 
-	// store := persist.NewMemoryStore(2 * time.Minute)
-
 	router := gin.New()
 	router.Use(middleware.CORS())
 	router.Use(log.GinLogger())
@@ -35,8 +33,8 @@ func Start() error {
 
 	api := router.Group("/api")
 	api.GET("/health", controllers.GetHealth)
-	api.GET("/reports" /*cache.CacheByRequestPath(store, 1*time.Minute),*/, controllers.AllReports)
-	api.GET("/reports/:id" /*cache.CacheByRequestPath(store, 1*time.Minute),*/, controllers.Report)
+	api.GET("/reports", controllers.AllReports)
+	api.GET("/reports/:id", controllers.Report)
 	api.GET("/ws", controllers.Ws)
 
 	srv := &http.Server{
@@ -53,17 +51,18 @@ func Start() error {
 		}
 	}()
 
-	log.ApiLogger.Info("Api service started")
+	log.ApiLogger.Info("api service started")
 
 	<-done
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	log.ApiLogger.Info("Stopping api service")
+	log.ApiLogger.Info("stopping api service")
 
 	if err := srv.Shutdown(ctx); err != nil {
-		err = errors.CannotStopApiServiceError.Wrap(err, "Cannot stop api service")
+		err = errors.CannotStopApiServiceError.Wrap(err, "cannot stop api service")
 	}
+
 	return nil
 }

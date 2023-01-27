@@ -24,9 +24,7 @@ func (v rangeValidator) Name() string {
 // Validate validates the given item by checking the range values in the
 // definition, and return nil on success or an error on failure
 func (v rangeValidator) Validate(item validation.PipelineItem) error {
-	// go through all the definitions
 	for _, schemaEntry := range item.SchemaEntries {
-		// get the response value for the current schema schemaEntry
 		value := item.Data[schemaEntry.Name]
 		if value == nil {
 			continue

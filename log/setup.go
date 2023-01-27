@@ -2,32 +2,33 @@ package log
 
 import (
 	"os"
-	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/fs"
 )
 
 // Setup reads the config and configures log level and log output of all loggers
 func Setup() error {
-	// read configs
 	doPrettyLog := viper.GetBool("daemon.log.pretty")
 	forceColorLog := viper.GetBool("daemon.log.force-color")
 	logLevel := viper.GetString("daemon.log.level")
 	logFileName := viper.GetString("daemon.log.file")
 
-	// set logger type
+	hasLogFile := logFileName != ""
+
 	if doPrettyLog {
 		logrus.SetFormatter(&logrus.TextFormatter{
 			ForceColors:   forceColorLog,
-			DisableColors: logFileName != "",
+			DisableColors: hasLogFile,
 			PadLevelText:  true,
 		})
 	} else {
 		logrus.SetFormatter(&logrus.JSONFormatter{})
 	}
 
-	// parse the level from the config into a logrus.Level
 	lvl, err := logrus.ParseLevel(logLevel)
 	if err != nil {
 		return err
@@ -35,15 +36,12 @@ func Setup() error {
 
 	logrus.SetLevel(lvl)
 
-	// set the log output
-	if logFileName != "" {
+	if hasLogFile {
 		path := logFileName
-		if strings.Contains(path, "~") {
-			path = strings.Replace(path, "~", os.Getenv("HOME"), 1)
-		}
+		fs.ExpandHome(&path)
 		logFile, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 		if err != nil {
-			return err
+			return errors.CannotCreateFileError.Wrap(err, "cannot create log file")
 		}
 
 		logrus.SetOutput(logFile)

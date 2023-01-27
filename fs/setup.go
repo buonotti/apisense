@@ -2,7 +2,6 @@ package fs
 
 import (
 	"os"
-	"path/filepath"
 
 	"github.com/buonotti/apisense/config"
 	"github.com/buonotti/apisense/daemon"
@@ -29,28 +28,30 @@ func Setup() error {
 // If any of the directories exist it does nothing.
 // If there is an error while creating the directories it returns an *errors.CannotCreateDirectoryError.
 func createDirectories() error {
-	if _, err := os.Stat(os.Getenv("HOME") + "/apisense"); os.IsNotExist(err) {
-		err = os.Mkdir(os.Getenv("HOME")+"/apisense", os.ModePerm)
+	dataDirectory := os.Getenv("HOME") + "/apisense"
+
+	if _, err := os.Stat(dataDirectory); os.IsNotExist(err) {
+		err = os.Mkdir(dataDirectory, os.ModePerm)
 		if err != nil {
-			return errors.CannotCreateDirectoryError.Wrap(err, "Cannot create apisense directory")
+			return errors.CannotCreateDirectoryError.Wrap(err, "cannot create apisense directory: "+dataDirectory)
 		}
 	}
 
 	if _, err := os.Stat(daemon.Directory()); os.IsNotExist(err) {
 		if err = os.Mkdir(daemon.Directory(), 0755); err != nil {
-			return errors.CannotCreateDirectoryError.Wrap(err, "Cannot create daemon directory")
+			return errors.CannotCreateDirectoryError.Wrap(err, "cannot create daemon directory: "+daemon.Directory())
 		}
 	}
 
 	if _, err := os.Stat(validation.DefinitionsLocation()); os.IsNotExist(err) {
 		if err = os.Mkdir(validation.DefinitionsLocation(), 0755); err != nil {
-			return errors.CannotCreateDirectoryError.Wrap(err, "Cannot create definitions directory")
+			return errors.CannotCreateDirectoryError.Wrap(err, "cannot create definitions directory: "+validation.DefinitionsLocation())
 		}
 	}
 
 	if _, err := os.Stat(validation.ReportLocation()); os.IsNotExist(err) {
 		if err = os.Mkdir(validation.ReportLocation(), 0755); err != nil {
-			return errors.CannotCreateDirectoryError.Wrap(err, "Cannot create reports directory")
+			return errors.CannotCreateDirectoryError.Wrap(err, "cannot create reports directory: "+validation.ReportLocation())
 		}
 	}
 
@@ -63,35 +64,35 @@ func createDirectories() error {
 func writeFiles() error {
 	defData, err := config.GetAsset("assets/bluetooth.toml")
 	if err != nil {
-		return errors.CannotLoadAssetError.Wrap(err, "Cannot load bluetooth definition asset")
+		return errors.CannotLoadAssetError.Wrap(err, "cannot load bluetooth definition asset")
 	}
 
-	err = os.WriteFile(validation.DefinitionsLocation()+string(filepath.Separator)+"bluetooth.toml", defData, os.ModePerm)
+	err = os.WriteFile(validation.DefinitionsLocation()+"/bluetooth.toml", defData, os.ModePerm)
 	if err != nil {
-		return errors.CannotWriteFileError.Wrap(err, "Cannot write bluetooth definition file")
+		return errors.CannotWriteFileError.Wrap(err, "cannot write bluetooth definition file")
 	}
 
 	defData2, err := config.GetAsset("assets/bluetooth2.toml")
 	if err != nil {
-		return errors.CannotLoadAssetError.Wrap(err, "Cannot load bluetooth2 definition asset")
+		return errors.CannotLoadAssetError.Wrap(err, "cannot load bluetooth2 definition asset")
 	}
 
-	err = os.WriteFile(validation.DefinitionsLocation()+string(filepath.Separator)+"bluetooth2.toml", defData2, os.ModePerm)
+	err = os.WriteFile(validation.DefinitionsLocation()+"/bluetooth2.toml", defData2, os.ModePerm)
 	if err != nil {
-		return errors.CannotWriteFileError.Wrap(err, "Cannot write bluetooth2 definition file")
+		return errors.CannotWriteFileError.Wrap(err, "cannot write bluetooth2 definition file")
 	}
 
 	if _, err := os.Stat(daemon.StatusFile); os.IsNotExist(err) {
 		err = os.WriteFile(daemon.StatusFile, []byte("down"), os.ModePerm)
 		if err != nil {
-			return errors.CannotWriteFileError.Wrap(err, "Cannot write status file")
+			return errors.CannotWriteFileError.Wrap(err, "cannot write status file")
 		}
 	}
 
 	if _, err := os.Stat(daemon.PidFile); os.IsNotExist(err) {
 		err = os.WriteFile(daemon.PidFile, []byte("0"), os.ModePerm)
 		if err != nil {
-			return errors.CannotWriteFileError.Wrap(err, "Cannot write pid file")
+			return errors.CannotWriteFileError.Wrap(err, "cannot write pid file")
 		}
 	}
 

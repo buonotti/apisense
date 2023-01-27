@@ -58,27 +58,32 @@ func NewPipelineV(validators ...Validator) (Pipeline, error) {
 	if err != nil {
 		return Pipeline{}, err
 	}
+
 	pipeline.Validators = validators
 	return pipeline, nil
 }
 
 // NewPipeline creates a new validation pipeline without any validators
 func NewPipeline() (Pipeline, error) {
-	definitions, err := endpointDefinitions()
+	definitions, err := EndpointDefinitions()
 	if err != nil {
 		return Pipeline{}, err
 	}
+
 	pipeline := Pipeline{
 		EndpointItems: make(map[string][]PipelineItem),
 		Validators:    make([]Validator, 0),
 	}
+
 	for _, definition := range definitions {
 		items, err := loadItems(definition)
 		if err != nil {
 			return Pipeline{}, err
 		}
+
 		pipeline.EndpointItems[definition.Name] = items
 	}
+
 	return pipeline, nil
 }
 
@@ -98,10 +103,11 @@ func (p *Pipeline) RemoveValidator(name string) {
 
 // RefreshItems re-populates the Pipeline.EndpointItems collection
 func (p *Pipeline) RefreshItems() error {
-	definitions, err := endpointDefinitions()
+	definitions, err := EndpointDefinitions()
 	if err != nil {
 		return err
 	}
+
 	for _, definition := range definitions {
 		items, err := loadItems(definition)
 		if err != nil {
@@ -109,6 +115,7 @@ func (p *Pipeline) RefreshItems() error {
 		}
 		p.EndpointItems[definition.Name] = items
 	}
+
 	return nil
 }
 
@@ -125,17 +132,17 @@ func (p *Pipeline) Validate() Report {
 		})
 	}
 
-	t := time.Now()
-	hd := hashids.NewData()
-	hd.Salt = "apisense"
-	hd.MinLength = 5
-	h, _ := hashids.NewWithData(hd)
-	id, _ := h.Encode([]int{int(t.Unix())})
+	currentTime := time.Now()
+	hashIDData := hashids.NewData()
+	hashIDData.Salt = "apisense"
+	hashIDData.MinLength = 5
+	h, _ := hashids.NewWithData(hashIDData)
+	id, _ := h.Encode([]int{int(currentTime.Unix())})
 
 	// return the report with the current timestamp
 	return Report{
 		Id:        id,
-		Time:      ReportTime(t),
+		Time:      ReportTime(currentTime),
 		Endpoints: results,
 	}
 }
@@ -152,6 +159,7 @@ func (p *Pipeline) validateItems(items []PipelineItem) []Result {
 			ValidatorsOutput: validatorOutputs,
 		})
 	}
+
 	return validatorResults
 }
 
@@ -159,9 +167,7 @@ func (p *Pipeline) validateItems(items []PipelineItem) []Result {
 func (p *Pipeline) validateSingleItem(item PipelineItem) []ValidatorOutput {
 	validatorOutputs := make([]ValidatorOutput, 0)
 
-	// send the item to each validator and append the result to the outputs
 	for _, validator := range p.Validators {
-
 		validatorOutput := ValidatorOutput{
 			Validator: validator.Name(),
 			Status:    "success",
@@ -169,7 +175,7 @@ func (p *Pipeline) validateSingleItem(item PipelineItem) []ValidatorOutput {
 		}
 
 		if util.Contains(item.ExcludedValidators, validator.Name()) {
-			log.DaemonLogger.Warnf("Validator %s is excluded for %s", validator.Name(), item.Url)
+			log.DaemonLogger.Warnf("validator %s is excluded for %s", validator.Name(), item.Url)
 			validatorOutput.Status = "skipped"
 			validatorOutputs = append(validatorOutputs, validatorOutput)
 			continue
@@ -177,9 +183,6 @@ func (p *Pipeline) validateSingleItem(item PipelineItem) []ValidatorOutput {
 
 		err := validator.Validate(item)
 
-		// capture the error message
-		// if one of the validator fails, break the loop, because we don't want to
-		// validate everything else
 		if err != nil {
 			validatorOutput.Error = err.Error()
 			validatorOutput.Status = "fail"
@@ -191,27 +194,24 @@ func (p *Pipeline) validateSingleItem(item PipelineItem) []ValidatorOutput {
 
 		validatorOutputs = append(validatorOutputs, validatorOutput)
 	}
+
 	return validatorOutputs
 }
 
 // loadItems parses the definition files and populates the Pipeline.EndpointItems collection
-func loadItems(definition endpointDefinition) ([]PipelineItem, error) {
-	log.DaemonLogger.Infof("Loading pipeline items for %s", definition.Name)
-
-	// parse the definition file to generate the requests
+func loadItems(definition EndpointDefinition) ([]PipelineItem, error) {
+	log.DaemonLogger.Infof("loading pipeline items for %s", definition.Name)
 	var items []PipelineItem
 	requests, err := parseRequests(definition)
 	if err != nil {
 		return nil, err
 	}
 
-	// send all the request and collect the responses
 	responses, err := send(requests)
 	if err != nil {
 		return nil, err
 	}
 
-	// create a pipeline item for each response and add it to the endpoint items collection
 	for _, response := range responses {
 		items = append(items, PipelineItem{
 			SchemaEntries:      definition.ResultSchema.Entries,
@@ -221,5 +221,6 @@ func loadItems(definition endpointDefinition) ([]PipelineItem, error) {
 			ExcludedValidators: definition.ExcludedValidators,
 		})
 	}
+
 	return items, nil
 }

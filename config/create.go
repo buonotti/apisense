@@ -13,27 +13,32 @@ var GetAsset func(string) ([]byte, error)
 func create() error {
 	err := os.Mkdir(Directory, 0755)
 	if err != nil && !os.IsExist(err) {
-		return errors.CannotCreateDirectoryError.Wrap(err, "Cannot create config directory")
+		return errors.CannotCreateDirectoryError.Wrap(err, "cannot create config directory")
 	}
+
 	data, err := GetAsset("assets/config.example.toml")
 	if err != nil {
-		return errors.CannotLoadAssetError.Wrap(err, "Cannot load config example asset")
+		return errors.CannotLoadAssetError.Wrap(err, "cannot load config example asset")
 	}
+
 	err = os.WriteFile(FullPath, data, os.ModePerm)
 	if err != nil {
-		return errors.CannotWriteFileError.Wrap(err, "Cannot write config file")
+		return errors.CannotWriteFileError.Wrap(err, "cannot write config file")
 	}
+
 	return nil
 }
 
 func createEnv() error {
 	data, err := GetAsset("assets/.env.example")
 	if err != nil {
-		return errors.CannotLoadAssetError.Wrap(err, "Cannot load .env example asset")
+		return errors.CannotLoadAssetError.Wrap(err, "cannot load .env example asset")
 	}
+
 	err = os.WriteFile(os.Getenv("HOME")+"/apisense/.env", data, os.ModePerm)
 	if err != nil {
-		return errors.CannotWriteFileError.Wrap(err, "Cannot write .env file")
+		return errors.CannotWriteFileError.Wrap(err, "cannot write .env file")
 	}
+
 	return nil
 }

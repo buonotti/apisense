@@ -1,3 +1,60 @@
+definitions:
+  api.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  validation.Report:
+    properties:
+      id:
+        description: Id is a unique identifier for each report
+        type: string
+      results:
+        description: Endpoints is a collection of ValidatedEndpoint holding the validation
+          results
+        items:
+          $ref: '#/definitions/validation.ValidatedEndpoint'
+        type: array
+      time:
+        description: Time is the timestamp of the report
+        type: string
+    type: object
+  validation.Result:
+    properties:
+      url:
+        description: Url is the url of the api call (with query parameters)
+        type: string
+      validatorsOutput:
+        description: ValidatorsOutput is the collection of ValidatorOutput that describe
+          the result of each validator
+        items:
+          $ref: '#/definitions/validation.ValidatorOutput'
+        type: array
+    type: object
+  validation.ValidatedEndpoint:
+    properties:
+      endpointName:
+        description: EndpointName is he name of the endpoint
+        type: string
+      results:
+        description: Results are the collection of Result that describe the result
+          of validating a single api call
+        items:
+          $ref: '#/definitions/validation.Result'
+        type: array
+    type: object
+  validation.ValidatorOutput:
+    properties:
+      error:
+        description: Error is the error message of the validator
+        type: string
+      status:
+        description: Status is the status of the validator (success/fail/skipped)
+        type: string
+      validator:
+        description: Validator is the name of the validator
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -20,12 +77,52 @@ paths:
         in: query
         name: where
         type: string
+      - description: json
+        in: query
+        name: format
+        type: string
       responses:
         "200":
           description: OK
+          schema:
+            items:
+              $ref: '#/definitions/validation.Report'
+            type: array
         "500":
           description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
       summary: Get all the reports
+      tags:
+      - reports
+  /api/reports/:id:
+    get:
+      description: Gets a single report identified by his id
+      operationId: report
+      parameters:
+      - description: json
+        in: query
+        name: format
+        type: string
+      - description: qNg8rJX
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/validation.Report'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get one report
       tags:
       - reports
 swagger: "2.0"

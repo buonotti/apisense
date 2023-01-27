@@ -21,15 +21,23 @@ var wsUpgrader = websocket.Upgrader{
 }
 
 type wsResponse struct {
-	Timestamp time.Time         `json:"timestamp"`
-	Filename  string            `json:"filename"`
-	ReportId  string            `json:"reportId"`
-	Report    validation.Report `json:"report"`
+	Timestamp time.Time `json:"timestamp"`
+	Filename  string    `json:"filename"`
+	ReportId  string    `json:"reportId"`
 }
 
+// Ws godoc
+// @Summary Open a websocket connection to receive notifications
+// @Description Connect to this endpoint with the ws:// protocol to instantiate a websocket connection to get updates for new reports
+// @ID ws
+// @Tags reports
+// @Success 101
+// @Router /api/reports [get]
 func Ws(c *gin.Context) {
+	// we have to handle the errors because the upgrade hijacks the response writer
+	// so we cant use the context to write the response to the client
 	conn, err := wsUpgrader.Upgrade(c.Writer, c.Request, nil)
-	err = errors.SafeWrap(errors.CannotUpgradeWebsocket, err, "cannot upgrade websocket connection")
+	err = errors.SafeWrap(errors.CannotUpgradeWebsocketError, err, "cannot upgrade websocket connection")
 	errors.HandleError(err)
 
 	defer func() {
@@ -46,16 +54,15 @@ func Ws(c *gin.Context) {
 	}()
 
 	for {
-		newFile := <-watcher.Events
-		report, err := validation.GetReport(newFile)
+		newFileName := <-watcher.Events
+		report, err := validation.GetReport(newFileName)
 		errors.HandleError(err)
 		err = conn.WriteJSON(wsResponse{
 			Timestamp: time.Now(),
-			Filename:  newFile,
+			Filename:  newFileName,
 			ReportId:  report.Id,
-			Report:    *report,
 		})
-		err = errors.SafeWrap(errors.CannotWriteWebsocket, err, "cannot write to websocket")
+		err = errors.SafeWrap(errors.CannotWriteWebsocketError, err, "cannot write to websocket")
 		errors.HandleError(err)
 	}
 }

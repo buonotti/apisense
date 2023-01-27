@@ -16,48 +16,41 @@ import (
 // the file. The background parameters controls whether the daemon should be run
 // in the foreground or not.
 func Start(background bool, runOnStart bool) (*exec.Cmd, error) {
-	// If the background flag is set start a new process which runs the daemon
-	// without the --bg flag which calls this function with background = false
 	if background {
 		cmd := exec.Command("apisense", "daemon", "start")
 		return cmd, cmd.Start()
 	}
 
-	// Get the lockfile and try to lock it. If the lock cannot be acquired return an error else
-	// defer a call to the unlock function
 	lock, err := lockfile()
 	if err != nil {
-		return nil, errors.CannotReadLockFileError.Wrap(err, "Cannot create lock file")
+		return nil, errors.CannotReadLockFileError.Wrap(err, "cannot create lock file")
 	}
 
 	err = lock.TryLock()
 	if err != nil {
-		return nil, errors.CannotLockFileError.Wrap(err, "Cannot acquire lock file")
+		return nil, errors.CannotLockFileError.Wrap(err, "cannot acquire lock file")
 	}
 
 	defer func(lock lf.Lockfile) {
 		err := lock.Unlock()
 		if err != nil {
-			err = errors.CannotUnlockFileError.Wrap(err, "Cannot unlock lock file")
+			err = errors.CannotUnlockFileError.Wrap(err, "cannot unlock lock file")
 			errors.HandleError(err)
 		}
 	}(lock)
 
-	// Create a new pipeline with the status schema and range validators, then load
-	// all external validators from the config file
-	pipeline, err := CreatePipeline()
+	pipeline, err := NewPipeline()
 	if err != nil {
 		return nil, err
 	}
 
-	// Create the daemon with the pipeline then run the daemon
 	d := daemon{
 		Pipeline: pipeline,
 	}
 	return nil, d.run(runOnStart)
 }
 
-func CreatePipeline() (*validation.Pipeline, error) {
+func NewPipeline() (*validation.Pipeline, error) {
 	pipeline, err := validation.NewPipelineV(
 		validators.NewStatusValidator(),
 		validators.NewSchemaValidator(),

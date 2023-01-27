@@ -16,16 +16,17 @@ func DefinitionsLocation() string {
 	return os.Getenv("HOME") + "/apisense/definitions"
 }
 
-// endpointDefinition is the definition of an endpoint to test with all its query
+// EndpointDefinition is the definition of an endpoint to test with all its query
 // parameters, variables and its result schema
-type endpointDefinition struct {
-	Name               string           // Name is the name of the endpoint
+type EndpointDefinition struct {
+	FileName           string
+	Name               string           `toml:"name"`                // Name is the name of the endpoint
 	BaseUrl            string           `toml:"base-url"`            // BaseUrl is the base path of the endpoint
 	ExcludedValidators []string         `toml:"excluded-validators"` // ExcludedValidators is a list of validators that should not be used for this endpoint
 	QueryParameters    []queryParameter `toml:"query"`               // QueryParameters are all the query parameters that should be added to the call
-	Format             string           // Format is the response format of the
-	Variables          []variableSchema `toml:"variable"` // Variables are all the variables that should be interpolated in the base url and the query parameters
-	ResultSchema       resultSchema     `toml:"result"`   // ResultSchema describes how the response should look like
+	Format             string           `toml:"format"`              // Format is the response format of the
+	Variables          []variableSchema `toml:"variable"`            // Variables are all the variables that should be interpolated in the base url and the query parameters
+	ResultSchema       resultSchema     `toml:"result"`              // ResultSchema describes how the response should look like
 }
 
 // queryParameter is a query parameter that should be added to the call
@@ -41,8 +42,8 @@ type resultSchema struct {
 
 // SchemaEntry is a field definition of the response
 type SchemaEntry struct {
-	Name         string        // Name is the name of the field
-	Type         string        // Type is the type of the field
+	Name         string        `toml:"name"`     // Name is the name of the field
+	Type         string        `toml:"type"`     // Type is the type of the field
 	Minimum      interface{}   `toml:"min"`      // Minimum is the minimum allowed value of the field
 	Maximum      interface{}   `toml:"max"`      // Maximum is the maximum allowed value of the field
 	IsRequired   bool          `toml:"required"` // Required is true if the field is required (not null or not empty in case of an array)
@@ -51,37 +52,38 @@ type SchemaEntry struct {
 
 // variableSchema describes a variable that should be interpolated in the base url and the query parameters
 type variableSchema struct {
-	Name       string   // Name is the name of the variable
+	Name       string   `toml:"name"`     // Name is the name of the variable
 	IsConstant bool     `toml:"constant"` // IsConstant is true if the value of the variable is constant or else false
-	Values     []string // Values are all the possible values of the variable (only 1 in case of a constant)
+	Values     []string `toml:"values"`   // Values are all the possible values of the variable (only 1 in case of a constant)
 }
 
-// parseDefinition reads a given file and returns and endpointDefinition.
+// parseDefinition reads a given file and returns and EndpointDefinition.
 // If the file could not be parsed the function returns an *errors.FileNotFoundError
-func parseDefinition(filename string) (endpointDefinition, error) {
+func parseDefinition(filename string) (EndpointDefinition, error) {
 	definitionContent, err := os.ReadFile(DefinitionsLocation() + string(filepath.Separator) + filename)
 	if err != nil {
-		return endpointDefinition{}, errors.FileNotFoundError.Wrap(err, "Cannot read definition file")
+		return EndpointDefinition{}, errors.FileNotFoundError.Wrap(err, "cannot read definition file")
 	}
 
-	var definition endpointDefinition
+	var definition EndpointDefinition
 	err = toml.Unmarshal(definitionContent, &definition)
 	if err != nil {
-		return endpointDefinition{}, errors.CannotParseDefinitionFileError.Wrap(err, "Cannot parse definition file")
+		return EndpointDefinition{}, errors.CannotParseDefinitionFileError.Wrap(err, "cannot parse definition file")
 	}
+	definition.FileName = filename
 
 	return definition, nil
 }
 
-// endpointDefinition uses parseDefinition to parse all the definitions found in
+// EndpointDefinitions uses parseDefinition to parse all the definitions found in
 // the definitions/ directory. Directories and Files that start with the
 // ignorePrefix are ignored.
-func endpointDefinitions() ([]endpointDefinition, error) {
+func EndpointDefinitions() ([]EndpointDefinition, error) {
 	definitionsFiles, err := os.ReadDir(DefinitionsLocation())
 	if err != nil {
-		return []endpointDefinition{}, errors.FileNotFoundError.Wrap(err, "Cannot read definitions directory")
+		return []EndpointDefinition{}, errors.FileNotFoundError.Wrap(err, "cannot read definitions directory")
 	}
-	var definitions []endpointDefinition
+	var definitions []EndpointDefinition
 	for _, definitionFile := range definitionsFiles {
 		if definitionFile.IsDir() || strings.HasPrefix(definitionFile.Name(), viper.GetString("daemon.ignore-prefix")) {
 			continue
@@ -89,7 +91,7 @@ func endpointDefinitions() ([]endpointDefinition, error) {
 
 		definition, err := parseDefinition(definitionFile.Name())
 		if err != nil {
-			return []endpointDefinition{}, err
+			return []EndpointDefinition{}, err
 		}
 
 		definitions = append(definitions, definition)

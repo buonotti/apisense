@@ -44,7 +44,6 @@ func (csvConverter) Convert(reports ...validation.Report) ([]byte, error) {
 				}
 			}
 		}
-
 	}
 	return []byte(lines.String()), nil
 }

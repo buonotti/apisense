@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/buonotti/apisense/daemon"
@@ -14,11 +16,14 @@ var daemonStartCmd = &cobra.Command{
 case if there is already a daemon running the new one won't start.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		bg, err := cmd.Flags().GetBool("background")
-		errors.HandleError(errors.SafeWrap(errors.CannotGetFlagValueError, err, "Cannot get value of flag: background"))
+		errors.HandleError(errors.SafeWrap(errors.CannotGetFlagValueError, err, "cannot get value of flag: background"))
 		force, err := cmd.Flags().GetBool("force")
-		errors.HandleError(errors.SafeWrap(errors.CannotGetFlagValueError, err, "Cannot get value of flag: force"))
+		errors.HandleError(errors.SafeWrap(errors.CannotGetFlagValueError, err, "cannot get value of flag: force"))
 		_, err = daemon.Start(bg, force)
 		errors.HandleError(err)
+		if bg {
+			fmt.Printf("Daemon started")
+		}
 	},
 }
 

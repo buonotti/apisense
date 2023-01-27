@@ -21,8 +21,7 @@ var FullPath = Directory + string(filepath.Separator) + FileName + ".toml"
 
 // Setup loads the config file with viper.ReadInConfig and creates the default config if it doesn't exist.
 func Setup() error {
-	viper.SetConfigName(FileName)
-	viper.AddConfigPath(Directory)
+	viper.SetConfigFile(os.Getenv("HOME") + "/apisense/.env")
 	err := viper.ReadInConfig()
 	if err != nil {
 		err = create()
@@ -31,21 +30,24 @@ func Setup() error {
 		}
 		err = viper.ReadInConfig()
 		if err != nil {
-			return errors.CannotReadInConfigError.Wrap(err, "Cannot read in main config")
+			return errors.CannotReadInConfigError.Wrap(err, "cannot read in .env file")
 		}
 	}
 
-	viper.SetConfigFile(os.Getenv("HOME") + "/apisense/.env")
+	viper.SetConfigName(FileName)
+	viper.AddConfigPath(Directory)
 	err = viper.MergeInConfig()
 	if err != nil {
 		err = createEnv()
 		if err != nil {
 			return err
 		}
+
 		err = viper.MergeInConfig()
 		if err != nil {
-			return errors.CannotReadInConfigError.Wrap(err, "Cannot read in .env file")
+			return errors.CannotReadInConfigError.Wrap(err, "cannot read in main config file")
 		}
 	}
+
 	return nil
 }

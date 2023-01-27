@@ -39,12 +39,14 @@ func (v externalValidator) Validate(item validation.PipelineItem) error {
 		return errors.CannotSerializeItemError.Wrap(err, "cannot serialize item: %s", err)
 	}
 	cmd := exec.Command(v.Definition.Path, v.Definition.Args...)
-	log.DaemonLogger.Infof("Running external validator %s with args %v", v.Definition.Path, v.Definition.Args)
+	log.DaemonLogger.Infof("running external validator %s with args %v", v.Definition.Path, v.Definition.Args)
 	if v.Definition.ReadFromStdin {
 		cmd.Stdin = strings.NewReader(string(jsonString))
 		cmd.Stdout = outString
 	}
+
 	err = cmd.Run()
+
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			for _, exitCode := range v.Definition.ExitCodes {

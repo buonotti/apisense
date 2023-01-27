@@ -15,17 +15,20 @@ func Stop() error {
 	if err != nil {
 		return err
 	}
+
 	if pid == -1 {
-		return errors.DaemonNotRunningError.New("Daemon is not running")
-	} else {
-		proc, err := os.FindProcess(pid)
-		if err != nil {
-			return errors.CannotGetProcessInfoError.Wrap(err, "Cannot get process info for pid "+strconv.Itoa(pid))
-		}
-		err = proc.Signal(unix.SIGINT)
-		if err != nil {
-			return errors.CannotSendSignalError.Wrap(err, "Cannot send signal SIGINT to process "+strconv.Itoa(pid))
-		}
+		return errors.DaemonNotRunningError.New("daemon is not running")
 	}
+
+	proc, err := os.FindProcess(pid)
+	if err != nil {
+		return errors.CannotGetProcessInfoError.Wrap(err, "cannot get process info for pid "+strconv.Itoa(pid))
+	}
+
+	err = proc.Signal(unix.SIGINT)
+	if err != nil {
+		return errors.CannotSendSignalError.Wrap(err, "cannot send signal SIGINT to process "+strconv.Itoa(pid))
+	}
+
 	return nil
 }

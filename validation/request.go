@@ -3,7 +3,6 @@ package validation
 import (
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"strings"
 	"text/template"
 
@@ -42,41 +41,61 @@ type endpointResponse struct {
 func requestData(definition endpointRequest) (endpointResponse, error) {
 	var data map[string]any
 
-	// set the query parameters and send the request to the url
 	resp, err := rest().R().SetQueryParams(definition.QueryParameters).Get(definition.Url)
 	if err != nil {
-		return endpointResponse{RawData: nil, StatusCode: -1, Url: ""}, errors.CannotRequestDataError.Wrap(err, "Cannot request data from "+definition.Url)
+		return endpointResponse{
+			RawData:    nil,
+			StatusCode: -1,
+			Url:        "",
+		}, errors.CannotRequestDataError.Wrap(err, "cannot request data from "+definition.Url)
 	}
 
-	// save the full request url for later
 	loc := resp.RawResponse.Request.URL.String()
-	log.DaemonLogger.Infof("Sent request to %s", resp.Request.URL)
+	log.DaemonLogger.Infof("sent request to %s", resp.Request.URL)
 
-	// check the status code and on failure return an error
 	if resp.StatusCode() != 200 {
-		return endpointResponse{RawData: nil, StatusCode: resp.StatusCode(), Url: loc}, errors.CannotRequestDataError.Wrap(nil, fmt.Sprintf("Cannot send request to: %s (status code %d)", definition.Url, resp.StatusCode()))
+		return endpointResponse{
+			RawData:    nil,
+			StatusCode: resp.StatusCode(),
+			Url:        loc,
+		}, errors.NewF(errors.CannotRequestDataError, "cannot send request to: %s (status code %d)", definition.Url, resp.StatusCode())
 	}
 
-	// parse the response based on the format and return an endpointResponse
 	switch definition.ResponseFormat {
 	case "json":
 		err = json.Unmarshal(resp.Body(), &data)
 		if err != nil {
-			return endpointResponse{RawData: nil, StatusCode: -1, Url: loc}, errors.CannotParseDataError.Wrap(err, "Cannot parse data from: "+definition.Url)
+			return endpointResponse{
+				RawData:    nil,
+				StatusCode: -1,
+				Url:        loc,
+			}, errors.CannotParseDataError.Wrap(err, "cannot parse data from: "+definition.Url)
 		}
 	case "xml":
 		err = xml.Unmarshal(resp.Body(), &data)
 		if err != nil {
-			return endpointResponse{RawData: nil, StatusCode: -1, Url: loc}, errors.CannotParseDataError.Wrap(err, "Cannot parse data from: "+definition.Url)
+			return endpointResponse{
+				RawData:    nil,
+				StatusCode: -1,
+				Url:        loc,
+			}, errors.CannotParseDataError.Wrap(err, "cannot parse data from: "+definition.Url)
 		}
 	default:
-		return endpointResponse{RawData: nil, StatusCode: -1, Url: loc}, errors.UnknownFormatError.Wrap(err, "Unknown format: "+definition.ResponseFormat)
+		return endpointResponse{
+			RawData:    nil,
+			StatusCode: -1,
+			Url:        loc,
+		}, errors.UnknownFormatError.Wrap(err, "unknown format: "+definition.ResponseFormat)
 	}
-	return endpointResponse{RawData: data, StatusCode: resp.StatusCode(), Url: loc}, nil
+	return endpointResponse{
+		RawData:    data,
+		StatusCode: resp.StatusCode(),
+		Url:        loc,
+	}, nil
 }
 
 // normalizeVariables converts all given variables in the definition of an endpoint to a collection of variables.EndpointParameter
-func normalizeVariables(definition endpointDefinition) ([]variables.EndpointParameter, error) {
+func normalizeVariables(definition EndpointDefinition) ([]variables.EndpointParameter, error) {
 	// get the length of the first non-constant element of the variables. if there are only constants the valueCount is 1
 	firstVariableVar := util.FindFirst(definition.Variables, func(param variableSchema) bool { return !param.IsConstant })
 	valueCount := 1
@@ -87,7 +106,7 @@ func normalizeVariables(definition endpointDefinition) ([]variables.EndpointPara
 	// check if any of the non-constant variables has a different length of values than the first non-constant variable
 	for _, param := range definition.Variables {
 		if !param.IsConstant && len(param.Values) != valueCount {
-			return nil, errors.NewF(errors.VariableValueLengthMismatchError, "Variable %s has %d values, but %d are expected", param.Name, len(param.Values), valueCount)
+			return nil, errors.NewF(errors.VariableValueLengthMismatchError, "variable %s has %d values, but %d are expected", param.Name, len(param.Values), valueCount)
 		}
 	}
 
@@ -106,7 +125,7 @@ func normalizeVariables(definition endpointDefinition) ([]variables.EndpointPara
 }
 
 // parseRequests reads in the definition of an endpoint and returns a list of requests that need to be sent
-func parseRequests(definition endpointDefinition) ([]endpointRequest, error) {
+func parseRequests(definition EndpointDefinition) ([]endpointRequest, error) {
 	var requests []endpointRequest
 
 	// normalize the variables
@@ -138,14 +157,14 @@ func parseRequests(definition endpointDefinition) ([]endpointRequest, error) {
 		// parse the template on the base url of the definition
 		temp, err := temp.Parse(definition.BaseUrl)
 		if err != nil {
-			return nil, errors.CannotApplyTemplateError.Wrap(err, "Cannot parse endpoint: "+definition.BaseUrl)
+			return nil, errors.CannotApplyTemplateError.Wrap(err, "cannot parse endpoint: "+definition.BaseUrl)
 		}
 
 		// execute the template using the variable map of the current cycle
 		var stringBuilder strings.Builder
 		err = temp.Execute(&stringBuilder, variableMap)
 		if err != nil {
-			return nil, errors.CannotApplyTemplateError.Wrap(err, "Cannot apply template to endpoint: "+definition.BaseUrl)
+			return nil, errors.CannotApplyTemplateError.Wrap(err, "cannot apply template to endpoint: "+definition.BaseUrl)
 		}
 
 		// get the url with the interpolated variables
@@ -156,13 +175,13 @@ func parseRequests(definition endpointDefinition) ([]endpointRequest, error) {
 		for _, queryParam := range definition.QueryParameters {
 			temp, err := temp.Parse(queryParam.Value)
 			if err != nil {
-				return nil, errors.CannotApplyTemplateError.Wrap(err, "Cannot parse query parameter: "+queryParam.Value)
+				return nil, errors.CannotApplyTemplateError.Wrap(err, "cannot parse query parameter: "+queryParam.Value)
 			}
 
 			var stringBuilder strings.Builder
 			err = temp.Execute(&stringBuilder, variableMap)
 			if err != nil {
-				return nil, errors.CannotApplyTemplateError.Wrap(err, "Cannot apply template to query parameter: "+queryParam.Value)
+				return nil, errors.CannotApplyTemplateError.Wrap(err, "cannot apply template to query parameter: "+queryParam.Value)
 			}
 
 			queryParam.Value = stringBuilder.String()
@@ -187,7 +206,7 @@ func send(requests []endpointRequest) ([]endpointResponse, error) {
 		if err != nil {
 			return nil, err
 		}
-		
+
 		responses = append(responses, resp)
 	}
 	return responses, nil

@@ -45,15 +45,154 @@ const docTemplate = `{
                         "description": "field.op.value",
                         "name": "where",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "json",
+                        "name": "format",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/validation.Report"
+                            }
+                        }
                     },
                     "500": {
-                        "description": "Internal Server Error"
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
                     }
+                }
+            }
+        },
+        "/api/reports/:id": {
+            "get": {
+                "description": "Gets a single report identified by his id",
+                "tags": [
+                    "reports"
+                ],
+                "summary": "Get one report",
+                "operationId": "report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "json",
+                        "name": "format",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "qNg8rJX",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/validation.Report"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "validation.Report": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Id is a unique identifier for each report",
+                    "type": "string"
+                },
+                "results": {
+                    "description": "Endpoints is a collection of ValidatedEndpoint holding the validation results",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/validation.ValidatedEndpoint"
+                    }
+                },
+                "time": {
+                    "description": "Time is the timestamp of the report",
+                    "type": "string"
+                }
+            }
+        },
+        "validation.Result": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "description": "Url is the url of the api call (with query parameters)",
+                    "type": "string"
+                },
+                "validatorsOutput": {
+                    "description": "ValidatorsOutput is the collection of ValidatorOutput that describe the result of each validator",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/validation.ValidatorOutput"
+                    }
+                }
+            }
+        },
+        "validation.ValidatedEndpoint": {
+            "type": "object",
+            "properties": {
+                "endpointName": {
+                    "description": "EndpointName is he name of the endpoint",
+                    "type": "string"
+                },
+                "results": {
+                    "description": "Results are the collection of Result that describe the result of validating a single api call",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/validation.Result"
+                    }
+                }
+            }
+        },
+        "validation.ValidatorOutput": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "description": "Error is the error message of the validator",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status is the status of the validator (success/fail/skipped)",
+                    "type": "string"
+                },
+                "validator": {
+                    "description": "Validator is the name of the validator",
+                    "type": "string"
                 }
             }
         }

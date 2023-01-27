@@ -8,6 +8,7 @@ import (
 
 	"github.com/buonotti/apisense/daemon"
 	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/fs"
 	"github.com/buonotti/apisense/validation"
 
 	"github.com/76creates/stickers"
@@ -82,17 +83,13 @@ func (m Model) Init() tea.Cmd {
 	m.daemonModel.Init()
 	m.reportModel.Init()
 	m.configModel.Init()
-	watcher := NewFileWatcher()
+	watcher := fs.NewFileWatcher()
 	err := watcher.AddFile(daemon.PidFile)
-	if err != nil {
-		errors.HandleError(errors.WatcherError.Wrap(err, "Failed to add file to Watcher"))
-	}
+	errors.HandleError(err)
 
 	go func() {
 		err := watcher.Start()
-		if err != nil {
-			errors.HandleError(errors.WatcherError.Wrap(err, "Failed to start Watcher"))
-		}
+		errors.HandleError(err)
 	}()
 
 	go func() {
