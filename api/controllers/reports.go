@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/buonotti/apisense/api"
 	"github.com/buonotti/apisense/api/filter"
 	"github.com/buonotti/apisense/conversion"
 	"github.com/buonotti/apisense/errors"
@@ -26,7 +25,7 @@ import (
 func AllReports(c *gin.Context) {
 	allReports, err := validation.Reports()
 	if err != nil {
-		c.AbortWithStatusJSON(500, api.ErrorResponse{Message: err.Error()})
+		c.AbortWithStatusJSON(500, ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -34,7 +33,7 @@ func AllReports(c *gin.Context) {
 	allReports = whereFilter.Apply(allReports)
 
 	if err != nil {
-		c.AbortWithStatusJSON(500, api.ErrorResponse{Message: err.Error()})
+		c.AbortWithStatusJSON(500, ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -58,13 +57,13 @@ func Report(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
 		err := errors.IdRequiredError.New("")
-		c.AbortWithStatusJSON(400, api.ErrorResponse{Message: err.Error()})
+		c.AbortWithStatusJSON(400, ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	reports, err := validation.Reports()
 	if err != nil {
-		c.AbortWithStatusJSON(500, api.ErrorResponse{Message: err.Error()})
+		c.AbortWithStatusJSON(500, ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -74,7 +73,7 @@ func Report(c *gin.Context) {
 
 	if report == nil {
 		err = errors.CannotFindReportError.New("cannot find report with id: " + id)
-		c.AbortWithStatusJSON(404, api.ErrorResponse{Message: err.Error()})
+		c.AbortWithStatusJSON(404, ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -91,13 +90,13 @@ func writeFormattedReport(c *gin.Context, reports ...validation.Report) {
 	formatter := conversion.Get(format)
 	if formatter == nil {
 		err := errors.UnknownFormatError.New("unknown format: " + format)
-		c.AbortWithStatusJSON(400, api.ErrorResponse{Message: err.Error()})
+		c.AbortWithStatusJSON(400, ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	convertedReports, err := formatter.Convert(reports...)
 	if err != nil {
-		c.AbortWithStatusJSON(500, api.ErrorResponse{Message: err.Error()})
+		c.AbortWithStatusJSON(500, ErrorResponse{Message: err.Error()})
 	}
 
 	body.Write(convertedReports)

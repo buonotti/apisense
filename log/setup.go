@@ -4,10 +4,10 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/fs"
+	"github.com/buonotti/apisense/util"
 )
 
 // Setup reads the config and configures log level and log output of all loggers
@@ -38,11 +38,9 @@ func Setup() error {
 
 	if hasLogFile {
 		path := logFileName
-		fs.ExpandHome(&path)
+		util.ExpandHome(&path)
 		logFile, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		if err != nil {
-			return errors.CannotCreateFileError.Wrap(err, "cannot create log file")
-		}
+		cobra.CheckErr(err) // TODO find better fix
 
 		logrus.SetOutput(logFile)
 	}

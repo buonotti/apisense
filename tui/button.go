@@ -2,10 +2,12 @@ package tui
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/errors"
+	"io"
+
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"io"
+
+	"github.com/buonotti/apisense/errors"
 )
 
 type option struct {

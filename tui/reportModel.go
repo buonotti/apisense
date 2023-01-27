@@ -2,14 +2,16 @@ package tui
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/validation"
+	"strconv"
+	"time"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"strconv"
-	"time"
+
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/validation"
 )
 
 var (
