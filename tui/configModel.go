@@ -24,7 +24,7 @@ type configModel struct {
 func ConfigModel() tea.Model {
 
 	s, err := os.ReadFile(config.FullPath)
-	errors.HandleError(err)
+	errors.CheckErr(err)
 
 	ti := textarea.New()
 	ti.SetHeight(80)
@@ -67,7 +67,7 @@ func (c configModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// We handle errors just like any other message
 	case errMsg:
 		c.err = msg
-		errors.HandleError(c.err)
+		errors.CheckErr(c.err)
 	}
 
 	c.textarea, cmd = c.textarea.Update(msg)

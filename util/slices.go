@@ -102,3 +102,16 @@ func Join(arr []string, joiner string) string {
 	res.Write([]byte(arr[len(arr)-1]))
 	return res.String()
 }
+
+func Max(arr []int) int {
+	if len(arr) == 0 {
+		panic("cannot find max of empty slice")
+	}
+	max := arr[0]
+	for _, elem := range arr {
+		if elem > max {
+			max = elem
+		}
+	}
+	return max
+}

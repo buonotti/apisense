@@ -72,24 +72,24 @@ func (d daemon) signalListener(signalChan chan os.Signal, cancel context.CancelF
 			switch s {
 			case unix.SIGHUP:
 				log.DaemonLogger.Info("received SIGHUP, reloading configuration")
-				errors.HandleError(d.Pipeline.Reload())
+				errors.CheckErr(d.Pipeline.Reload())
 			case unix.SIGINT:
 				log.DaemonLogger.Info("received SIGINT, stopping daemon")
-				errors.HandleError(writeStatus(DOWN))
-				errors.HandleError(writePid(-1))
+				errors.CheckErr(writeStatus(DOWN))
+				errors.CheckErr(writePid(-1))
 				cancel()
 				os.Exit(0)
 			case unix.SIGTERM:
 				log.DaemonLogger.Info("received SIGTERM, stopping daemon")
-				errors.HandleError(writeStatus(DOWN))
-				errors.HandleError(writePid(-1))
+				errors.CheckErr(writeStatus(DOWN))
+				errors.CheckErr(writePid(-1))
 				cancel()
 				os.Exit(0)
 			}
 		case <-ctx.Done():
 			log.DaemonLogger.Infof("context done, exiting signal handler")
-			errors.HandleError(writeStatus(DOWN))
-			errors.HandleError(writePid(-1))
+			errors.CheckErr(writeStatus(DOWN))
+			errors.CheckErr(writePid(-1))
 			os.Exit(0)
 		}
 	}
@@ -99,8 +99,8 @@ func (d daemon) signalListener(signalChan chan os.Signal, cancel context.CancelF
 // given cancel function and writes the daemon status
 func endRun(signalChan chan os.Signal, cancel context.CancelFunc) {
 	log.DaemonLogger.Info("stopping daemon")
-	errors.HandleError(writeStatus(DOWN))
-	errors.HandleError(writePid(-1))
+	errors.CheckErr(writeStatus(DOWN))
+	errors.CheckErr(writePid(-1))
 	signal.Stop(signalChan)
 	cancel()
 }
@@ -108,7 +108,7 @@ func endRun(signalChan chan os.Signal, cancel context.CancelFunc) {
 // work runs the validation pipeline and logs the results
 func (d daemon) work() {
 	err := d.Pipeline.Reload()
-	errors.HandleError(err)
+	errors.CheckErr(err)
 
 	result := d.Pipeline.Validate()
 
@@ -116,13 +116,13 @@ func (d daemon) work() {
 
 	reportData, err := conversion.Json().Convert(result)
 	if err != nil {
-		errors.HandleError(errors.CannotSerializeItemError.Wrap(err, "cannot serialize report"))
+		errors.CheckErr(errors.CannotSerializeItemError.Wrap(err, "cannot serialize report"))
 	}
 
 	reportPath := validation.ReportLocation() + string(filepath.Separator) + time.Now().Format("02-01-2006T15:04:05.000Z") + ".report.json"
 	err = os.WriteFile(reportPath, reportData, 0644)
 	if err != nil {
-		errors.HandleError(errors.CannotWriteFileError.Wrap(err, "cannot write report to file"))
+		errors.CheckErr(errors.CannotWriteFileError.Wrap(err, "cannot write report to file"))
 	}
 
 	log.DaemonLogger.Infof("generated report (%s)", reportPath)

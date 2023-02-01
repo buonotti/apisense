@@ -43,12 +43,6 @@ smtp-server = "smtp.example.com"
 # Set the SMTP port to use for sending notifications.
 smtp-port = 587
 
-# Set the SMTP username to use for sending notifications.
-smtp-username = "example"
-
-# Set the SMTP password to use for sending notifications.
-smtp-password = "password"
-
 ### SSH CONFIGURATION ###
 [ssh]
 # Set the SSH host. Leave empty to allow any host to connect
@@ -61,9 +55,11 @@ port = 23232
 [tui]
 # Set the filewatcher sleep time
 
+# Set the color scheme. Valid values are: dark, light, latte, frappe, macchiato, mocha
+theme = "mocha"
 
 [api]
-
+port = 8080
 #[validation]
 #[[validation.external]]
 #name = "data-hole"

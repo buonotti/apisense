@@ -79,9 +79,9 @@ func (v validationEndpointModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return v, tea.Quit
 			case key.Matches(msg, v.keymap.choose):
 				i, err := strconv.Atoi(v.table.SelectedRow()[0])
-				errors.HandleError(err)
+				errors.CheckErr(err)
 				val, err := getSelectedValidatedEndpoint(selectedReport, i)
-				errors.HandleError(err)
+				errors.CheckErr(err)
 				selectedValidatedEndpoint = val
 				resultRows = getResultRows(selectedValidatedEndpoint.TestCaseResults)
 				if choiceReportModel != "validatedEndpointModel" {

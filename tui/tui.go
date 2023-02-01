@@ -85,11 +85,11 @@ func (m Model) Init() tea.Cmd {
 	m.configModel.Init()
 	watcher := fs.NewFileWatcher()
 	err := watcher.AddFile(daemon.PidFile)
-	errors.HandleError(err)
+	errors.CheckErr(err)
 
 	go func() {
 		err := watcher.Start()
-		errors.HandleError(err)
+		errors.CheckErr(err)
 	}()
 
 	go func() {
@@ -153,15 +153,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						if !running {
 							daemonCmd, err := daemon.Start(true, viper.GetBool("daemon.validate-on-startup"))
 							m.daemonCmd = daemonCmd
-							errors.HandleError(err)
+							errors.CheckErr(err)
 						}
 					case "Stop daemon":
 						if running {
 							err := daemon.Stop()
-							errors.HandleError(err)
+							errors.CheckErr(err)
 							if m.daemonCmd != nil {
 								err = m.daemonCmd.Wait()
-								errors.HandleError(err)
+								errors.CheckErr(err)
 								m.daemonCmd = nil
 							}
 						}
@@ -205,7 +205,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if choiceMainMenu == "Report" {
 		if choiceReportModel == "" {
 			r, err := validation.Reports()
-			errors.HandleError(err)
+			errors.CheckErr(err)
 			reports = r
 			choiceReportModel = "reportModel"
 		}
@@ -221,7 +221,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 
 	if m.err != nil {
-		errors.HandleError(errors.UnknownError.Wrap(m.err, "Unknown error"))
+		errors.CheckErr(errors.UnknownError.Wrap(m.err, "Unknown error"))
 	}
 
 	//Render Title

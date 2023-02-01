@@ -2,12 +2,14 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"golang.org/x/sys/unix"
@@ -20,7 +22,6 @@ import (
 )
 
 func Start() error {
-	// TODO config
 	docs.SwaggerInfo.BasePath = "/api"
 	docs.SwaggerInfo.Title = "apisense"
 	docs.SwaggerInfo.Version = "1.0.0"
@@ -42,7 +43,7 @@ func Start() error {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    fmt.Sprintf(":%d", viper.GetInt("api.port")),
 		Handler: router,
 	}
 

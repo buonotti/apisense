@@ -28,7 +28,7 @@ type reportModel struct {
 func ReportModel() tea.Model {
 
 	r, err := validation.Reports()
-	errors.HandleError(err)
+	errors.CheckErr(err)
 	reports = r
 
 	t := table.New(
@@ -72,9 +72,9 @@ func (r reportModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return r, tea.Quit
 			case key.Matches(msg, r.keymap.choose):
 				i, err := strconv.Atoi(r.table.SelectedRow()[0])
-				errors.HandleError(err)
+				errors.CheckErr(err)
 				rep, err := getSelectedReport(reports, i)
-				errors.HandleError(err)
+				errors.CheckErr(err)
 				selectedReport = rep
 				validatedEndpointRows = getValidatedEndpointRows(selectedReport)
 				if choiceReportModel != "reportModel" {

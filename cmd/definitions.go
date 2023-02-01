@@ -11,7 +11,7 @@ var definitionsCmd = &cobra.Command{
 	Short: "Manage definitions",
 	Long:  `Manage definitions`, // TODO: Add more info
 	Run: func(cmd *cobra.Command, args []string) {
-		errors.HandleError(cmd.Help())
+		errors.CheckErr(cmd.Help())
 	},
 }
 

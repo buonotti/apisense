@@ -87,9 +87,9 @@ func (r resultModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return r, tea.Quit
 			case key.Matches(msg, r.keymap.choose):
 				i, err := strconv.Atoi(r.table.SelectedRow()[0])
-				errors.HandleError(err)
+				errors.CheckErr(err)
 				res, err := getSelectedResult(selectedValidatedEndpoint, i)
-				errors.HandleError(err)
+				errors.CheckErr(err)
 				selectedResult = res
 				validatorOutputRows = getValidatorOutputRows(selectedResult.ValidatorResults)
 				if choiceReportModel != "resultModel" {
@@ -123,7 +123,7 @@ func getResultRows(results []validation.TestCaseResult) []table.Row {
 	queriesToRender := make([]string, 0)
 	for _, result := range results {
 		u, err := url.Parse(result.Url)
-		errors.HandleError(err)
+		errors.CheckErr(err)
 		query := make([]string, 0)
 		for value := range u.Query() {
 			query = append(query, value+"="+u.Query().Get(value))

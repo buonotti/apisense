@@ -24,7 +24,7 @@ func Setup() error {
 	viper.SetConfigFile(os.Getenv("HOME") + "/apisense/.env")
 	err := viper.ReadInConfig()
 	if err != nil {
-		err = create()
+		err = createEnv()
 		if err != nil {
 			return err
 		}
@@ -38,7 +38,7 @@ func Setup() error {
 	viper.AddConfigPath(Directory)
 	err = viper.MergeInConfig()
 	if err != nil {
-		err = createEnv()
+		err = create()
 		if err != nil {
 			return err
 		}

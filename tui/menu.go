@@ -41,7 +41,7 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 	}
 
 	_, err := fmt.Fprint(w, fn(str))
-	errors.HandleError(err)
+	errors.CheckErr(err)
 }
 
 func (i item) Title() string       { return i.title }

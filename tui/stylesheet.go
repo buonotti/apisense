@@ -2,6 +2,8 @@ package tui
 
 import (
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/buonotti/apisense/theme"
 )
 
 // BASE STYLE THAT GOES AROUND THE WHOLE TUI
@@ -30,14 +32,10 @@ var infoStyle = func() lipgloss.Style {
 }()
 
 // COLORS
-var styleHelp = lipgloss.NewStyle().
-	Foreground(lipgloss.Color("#536878"))
-var stylePrimary = lipgloss.NewStyle().
-	Foreground(lipgloss.Color("#F38BA8"))
-var styleInfo = lipgloss.NewStyle().
-	Foreground(lipgloss.Color("#89b4fa"))
-var styleSuccess = lipgloss.NewStyle().
-	Foreground(lipgloss.Color("#a6e3a1"))
+var styleHelp = theme.Overlay0().S()
+var stylePrimary = theme.Red().S()
+var styleInfo = theme.Blue().S()
+var styleSuccess = theme.Green().S()
 
 // CENTER
 var styleContentCenter = lipgloss.NewStyle().

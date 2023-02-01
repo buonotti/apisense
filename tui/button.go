@@ -35,7 +35,7 @@ func (d optionDelegate) Render(w io.Writer, m list.Model, index int, listItem li
 	}
 
 	_, err := fmt.Fprint(w, fn(str))
-	errors.HandleError(err)
+	errors.CheckErr(err)
 }
 
 func (o option) Title() string       { return o.option }

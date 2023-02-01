@@ -16,15 +16,15 @@ var daemonExportCmd = &cobra.Command{
 	Long:  `This command exports the currently available pipeline items. The exported items are the ones that are available in the pipeline.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		pipeline, err := daemon.NewPipeline()
-		errors.HandleError(err)
+		errors.CheckErr(err)
 		format, err := cmd.Flags().GetString("format")
-		errors.HandleError(errors.SafeWrap(errors.CannotGetFlagValueError, err, "cannot get value of flag: format"))
+		errors.CheckErr(errors.SafeWrap(errors.CannotGetFlagValueError, err, "cannot get value of flag: format"))
 		switch format {
 		case "json":
 			data, _ := json.Marshal(pipeline)
 			fmt.Println(string(data))
 		default:
-			fmt.Println("Unknown format") // TODO csv?
+			errors.CheckErr(errors.UnknownFormatError.New("invalid format: %s", format))
 		}
 	},
 }
@@ -32,7 +32,7 @@ var daemonExportCmd = &cobra.Command{
 func init() {
 	daemonExportCmd.Flags().StringP("format", "f", "", "Specify the export format")
 	err := daemonExportCmd.RegisterFlagCompletionFunc("format", validFormatsFunc())
-	errors.HandleError(errors.SafeWrap(errors.CannotRegisterCompletionFunction, err, "cannot register completion function for daemon export"))
-	errors.HandleError(daemonExportCmd.MarkFlagRequired("format"))
+	errors.CheckErr(errors.SafeWrap(errors.CannotRegisterCompletionFunction, err, "cannot register completion function for daemon export"))
+	errors.CheckErr(daemonExportCmd.MarkFlagRequired("format"))
 	daemonCmd.AddCommand(daemonExportCmd)
 }

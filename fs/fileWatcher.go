@@ -7,8 +7,6 @@ import (
 	"github.com/buonotti/apisense/errors"
 )
 
-// TODO refactor errors
-
 type FileWatcher struct {
 	content string
 	file    string

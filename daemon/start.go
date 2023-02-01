@@ -35,7 +35,7 @@ func Start(background bool, runOnStart bool) (*exec.Cmd, error) {
 		err := lock.Unlock()
 		if err != nil {
 			err = errors.CannotUnlockFileError.Wrap(err, "cannot unlock lock file")
-			errors.HandleError(err)
+			errors.CheckErr(err)
 		}
 	}(lock)
 

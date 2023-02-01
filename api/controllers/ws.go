@@ -27,6 +27,7 @@ type wsResponse struct {
 }
 
 // Ws godoc
+//
 //	@Summary		Open a websocket connection to receive notifications
 //	@Description	Connect to this endpoint with the ws:// protocol to instantiate a websocket connection to get updates for new reports
 //	@ID				ws
@@ -38,31 +39,31 @@ func Ws(c *gin.Context) {
 	// so we cant use the context to write the response to the client
 	conn, err := wsUpgrader.Upgrade(c.Writer, c.Request, nil)
 	err = errors.SafeWrap(errors.CannotUpgradeWebsocketError, err, "cannot upgrade websocket connection")
-	errors.HandleError(err)
+	errors.CheckErr(err)
 
 	defer func() {
 		err := conn.Close()
-		errors.HandleError(err)
+		errors.CheckErr(err)
 	}()
 
 	watcher, err := fs.NewDirectoryWatcherWithFiles(validation.ReportLocation())
-	errors.HandleError(err)
+	errors.CheckErr(err)
 
 	go func() {
 		err := watcher.Start()
-		errors.HandleError(err)
+		errors.CheckErr(err)
 	}()
 
 	for {
 		newFileName := <-watcher.Events
 		report, err := validation.GetReport(newFileName)
-		errors.HandleError(err)
+		errors.CheckErr(err)
 		err = conn.WriteJSON(wsResponse{
 			Timestamp: time.Now(),
 			Filename:  newFileName,
 			ReportId:  report.Id,
 		})
 		err = errors.SafeWrap(errors.CannotWriteWebsocketError, err, "cannot write to websocket")
-		errors.HandleError(err)
+		errors.CheckErr(err)
 	}
 }
