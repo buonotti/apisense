@@ -57,11 +57,11 @@ var DefaultKeyMap = keymap{
 	),
 	choose: key.NewBinding(
 		key.WithKeys("enter"),
-		key.WithHelp(styleHotkey.Render("↲"), styleHelp.Render("choose")),
+		key.WithHelp(styleHotkey.Render("↲"), styleHelp.Render("select")),
 	),
 	back: key.NewBinding(
-		key.WithKeys("backspace"),
-		key.WithHelp(styleHotkey.Render("↩"), styleHelp.Render("back")),
+		key.WithKeys("esc"),
+		key.WithHelp(styleHotkey.Render("esc"), styleHelp.Render("back")),
 	),
 	format: key.NewBinding(
 		key.WithKeys("f5"),

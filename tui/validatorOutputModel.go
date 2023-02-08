@@ -88,8 +88,8 @@ func getValidatorOutputRows(validatorOutputs []validation.ValidatorOutput) []tab
 	rows := make([]table.Row, 0)
 	for i, output := range validatorOutputs {
 		s := strings.Split(output.Error, ": ")
-		q := util.Join(s[1:], "")
 		if len(s) > 1 {
+			q := util.Join(s[1:], "")
 			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Validator, q, output.Status})
 		} else {
 			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Validator, "", output.Status})

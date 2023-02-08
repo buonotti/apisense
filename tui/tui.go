@@ -25,6 +25,7 @@ var (
 	choiceMainMenu     string
 	choiceDaemonButton string
 	choiceReportModel  string
+	choiceConfigModel  string
 	reports            []validation.Report
 )
 
@@ -176,7 +177,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keymap.down):
 			return m, tea.Batch(cmdMainMenu, cmdDaemonButton)
 		case key.Matches(msg, m.keymap.back):
-			if choiceMainMenu != "Report" {
+			if choiceMainMenu != "Report" && choiceMainMenu != "Config" {
 				if choiceMainMenu != "" {
 					choiceMainMenu = ""
 					m.listMainMenu.ResetSelected()
@@ -215,6 +216,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(cmdElapsedTrigger, cmdReportModel)
 	}
 	if choiceMainMenu == "Config" {
+		if choiceConfigModel == "" {
+			choiceConfigModel = "configModel"
+		}
 		return m, tea.Batch(cmdElapsedTrigger, cmdConfigModel)
 	}
 	return m, cmdElapsedTrigger
@@ -230,7 +234,6 @@ func (m Model) View() string {
 	//Render Title
 	title := figure.NewFigure("API SENSE", "", true)
 	m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(title.String()))
-	//m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(fmt.Sprintf("%v", choiceReportModel)))
 
 	//Act based one main menu changes
 	switch choiceMainMenu {
@@ -244,7 +247,7 @@ func (m Model) View() string {
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.reportModel.View()))
 	case "Config":
 		//Act based one config menu changes
-		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(7))
+		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5))
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.configModel.View()))
 	default:
 		//Render main menu
