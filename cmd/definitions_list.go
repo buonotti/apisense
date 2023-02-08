@@ -33,7 +33,8 @@ var definitionsListCmd = &cobra.Command{
 func printDefinitionVerbose(definition validation.EndpointDefinition) {
 	keyStyle := lipgloss.NewStyle().Bold(true)
 	fmt.Printf("%s: %s\n", keyStyle.Render("Filename"), definition.Name)
-	fmt.Printf("%s: %s\n", keyStyle.Render("Full path"), validation.DefinitionsLocation()+definition.Name)
+	fmt.Printf("%s: %v\n", keyStyle.Render("Enabled"), definition.IsEnabled)
+	fmt.Printf("%s: %s\n", keyStyle.Render("Full path"), validation.DefinitionsLocation()+"/"+definition.Name)
 	fmt.Printf("%s: %s\n", keyStyle.Render("Base url"), definition.BaseUrl)
 	fmt.Println()
 }

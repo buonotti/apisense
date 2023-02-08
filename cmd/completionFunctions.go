@@ -38,7 +38,37 @@ func validDefinitionsFunc() func(cmd *cobra.Command, args []string, toComplete s
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		definitions, _ := validation.EndpointDefinitions()
 		return util.Map(definitions, func(d validation.EndpointDefinition) string {
-			return fmt.Sprintf("%s\t%s", d.FileName, d.Name)
+			return fmt.Sprintf("%s\t%s", d.Name, d.FileName)
+		}), cobra.ShellCompDirectiveNoFileComp
+	}
+}
+
+func validEnabledDefinitionFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		definitions, _ := validation.EndpointDefinitions()
+		mappedDefinitions := util.Map(definitions, func(d validation.EndpointDefinition) string {
+			if d.IsEnabled {
+				return fmt.Sprintf("%s\t%s", d.Name, d.FileName)
+			}
+			return ""
+		})
+		return util.Where(mappedDefinitions, func(s string) bool {
+			return s != ""
+		}), cobra.ShellCompDirectiveNoFileComp
+	}
+}
+
+func validDisabledDefinitionFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		definitions, _ := validation.EndpointDefinitions()
+		mappedDefinitions := util.Map(definitions, func(d validation.EndpointDefinition) string {
+			if !d.IsEnabled {
+				return fmt.Sprintf("%s\t%s", d.Name, d.FileName)
+			}
+			return ""
+		})
+		return util.Where(mappedDefinitions, func(s string) bool {
+			return s != ""
 		}), cobra.ShellCompDirectiveNoFileComp
 	}
 }

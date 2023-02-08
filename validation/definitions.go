@@ -24,6 +24,7 @@ func DefinitionsLocation() string {
 type EndpointDefinition struct {
 	FileName           string
 	Name               string                 `toml:"name"`                // Name is the name of the endpoint
+	IsEnabled          bool                   `toml:"enabled"`             // IsEnabled is a boolean that indicates if the endpoint is enabled (not contained in the definition)
 	BaseUrl            string                 `toml:"base-url"`            // BaseUrl is the base path of the endpoint
 	ExcludedValidators []string               `toml:"excluded-validators"` // ExcludedValidators is a list of validators that should not be used for this endpoint
 	QueryParameters    []query.Definition     `toml:"query"`               // QueryParameters are all the query parameters that should be added to the call
@@ -46,6 +47,7 @@ func parseDefinition(filename string) (EndpointDefinition, error) {
 		return EndpointDefinition{}, errors.CannotParseDefinitionFileError.Wrap(err, "cannot parse definition file")
 	}
 	definition.FileName = filename
+	definition.IsEnabled = !strings.HasPrefix(filename, viper.GetString("daemon.ignore-prefix"))
 
 	return definition, nil
 }
@@ -60,7 +62,7 @@ func EndpointDefinitions() ([]EndpointDefinition, error) {
 	}
 	var definitions []EndpointDefinition
 	for _, definitionFile := range definitionsFiles {
-		if definitionFile.IsDir() || strings.HasPrefix(definitionFile.Name(), viper.GetString("daemon.ignore-prefix")) {
+		if definitionFile.IsDir() {
 			continue
 		}
 

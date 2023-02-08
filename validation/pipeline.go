@@ -69,7 +69,9 @@ func NewPipeline() (Pipeline, error) {
 		Validators: make([]Validator, 0),
 	}
 
-	for _, definition := range definitions {
+	enabledDefinitions := util.Where(definitions, func(d EndpointDefinition) bool { return d.IsEnabled })
+
+	for _, definition := range enabledDefinitions {
 		items, err := loadTestCases(definition)
 		if err != nil {
 			return Pipeline{}, err
