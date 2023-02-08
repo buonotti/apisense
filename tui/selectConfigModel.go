@@ -15,6 +15,7 @@ import (
 
 var (
 	updateEditConfigField = true
+	allowConfigSelection  bool
 	selectedField         = ""
 	sortedStrings         = make([][]string, 5)
 )
@@ -85,23 +86,25 @@ func (s selectConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, s.keymap.quit):
 				return s, tea.Quit
 			case key.Matches(msg, s.keymap.choose):
-				i, err := strconv.Atoi(s.table.SelectedRow()[0])
-				errors.HandleError(err)
-				selectedField = getSelectedFieldName(i)
+				if allowConfigSelection {
+					i, err := strconv.Atoi(s.table.SelectedRow()[0])
+					errors.CheckErr(err)
+					selectedField = getSelectedFieldName(i)
 
-				if choiceConfigModel != "selectConfigModel" {
-					s.editConfigModel, cmdModel = s.editConfigModel.Update(msg)
-					return s, tea.Batch(cmd, cmdModel)
+					if choiceConfigModel != "selectConfigModel" {
+						s.editConfigModel, cmdModel = s.editConfigModel.Update(msg)
+						return s, tea.Batch(cmd, cmdModel)
+					}
+					updateEditConfigField = true
+					choiceConfigModel = "editConfigModel"
+					s.table, cmd = s.table.Update(msg)
 				}
-				updateEditConfigField = true
-				choiceConfigModel = "editConfigModel"
-				s.table, cmd = s.table.Update(msg)
 				return s, cmd
 			}
 
 		case errMsg:
 			s.err = msg
-			errors.HandleError(s.err)
+			errors.CheckErr(s.err)
 		}
 
 		s.table, cmd = s.table.Update(msg)
@@ -157,5 +160,12 @@ func getSelectConfigRows() []table.Row {
 	for i, configKey := range sortedStrings[selectedConfig] {
 		rows = append(rows, table.Row{fmt.Sprintf("%v", i), configKey, viper.GetString(configKey)})
 	}
+
+	allowConfigSelection = true
+	if len(rows) < 1 {
+		rows = append(rows, table.Row{"", "No config fields found", ""})
+		allowConfigSelection = false
+	}
+
 	return rows
 }

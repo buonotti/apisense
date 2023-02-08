@@ -25,6 +25,7 @@ require (
 
 require (
 	github.com/gorilla/websocket v1.5.0
+	github.com/muesli/termenv v0.13.0
 	github.com/speps/go-hashids/v2 v2.0.1
 	github.com/tidwall/gjson v1.14.4
 	github.com/ulule/limiter/v3 v3.10.0
@@ -63,7 +64,6 @@ require (
 	github.com/muesli/ansi v0.0.0-20221106050444-61f0cd9a192a // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
-	github.com/muesli/termenv v0.13.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/sahilm/fuzzy v0.1.0 // indirect

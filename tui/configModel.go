@@ -88,7 +88,7 @@ func (c configModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return c, tea.Quit
 			case key.Matches(msg, c.keymap.choose):
 				i, err := strconv.Atoi(c.table.SelectedRow()[0])
-				errors.HandleError(err)
+				errors.CheckErr(err)
 				if choiceConfigModel != "configModel" {
 					c.editConfigModel, cmdModel = c.editConfigModel.Update(msg)
 					c.table, cmd = c.table.Update(msg)
@@ -103,7 +103,7 @@ func (c configModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case errMsg:
 			c.err = msg
-			errors.HandleError(c.err)
+			errors.CheckErr(c.err)
 		}
 
 		c.editConfigModel, cmdModel = c.editConfigModel.Update(msg)

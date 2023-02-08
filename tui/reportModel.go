@@ -17,6 +17,7 @@ import (
 var (
 	validatedEndpointRows []table.Row
 	selectedReport        validation.Report
+	allowReportSelection  bool
 )
 
 type reportModel struct {
@@ -107,6 +108,13 @@ func getReportRows(reports []validation.Report) []table.Row {
 	for i, report := range reports {
 		rows = append(rows, table.Row{fmt.Sprintf("%v", i), report.Id, fmt.Sprintf("%v", time.Time(report.Time).Format("2006-01-02 15:04:05"))})
 	}
+
+	allowReportSelection = true
+	if len(rows) < 1 {
+		rows = append(rows, table.Row{"", "No reports found", ""})
+		allowReportSelection = false
+	}
+
 	return rows
 }
 
