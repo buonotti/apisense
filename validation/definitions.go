@@ -71,8 +71,20 @@ func EndpointDefinitions() ([]EndpointDefinition, error) {
 			return []EndpointDefinition{}, err
 		}
 		if definition.IsEnabled {
+			if checkDefinitionDuplicate(definitions, definition) {
+				return []EndpointDefinition{}, errors.DuplicateDefinitionError.New("duplicate definition found: %s", definition.Name)
+			}
 			definitions = append(definitions, definition)
 		}
 	}
 	return definitions, nil
+}
+
+func checkDefinitionDuplicate(definitions []EndpointDefinition, definition EndpointDefinition) bool {
+	for _, def := range definitions {
+		if def.Name == definition.Name {
+			return true
+		}
+	}
+	return false
 }
