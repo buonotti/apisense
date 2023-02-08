@@ -28,49 +28,98 @@ func convAnsiColor(tc termenv.ANSIColor) Color {
 
 func Base() Color {
 	if hasTrueColorSupport() {
-		return Color(t().Base())
+		return Color(Current().Base())
 	}
 	return convAnsiColor(termenv.ANSIBlack)
 }
 
+func BaseS() lipgloss.Style {
+	if hasTrueColorSupport() {
+		return Style().With()
+	}
+	return lipgloss.NewStyle().Background(lipgloss.Color(convAnsiColor(termenv.ANSIBlack)))
+}
+
 func Text() Color {
 	if hasTrueColorSupport() {
-		return Color(t().Text())
+		return Color(Current().Text())
 	}
 	return convAnsiColor(termenv.ANSIWhite)
 }
 
-func Overlay0() Color {
+func TextS() lipgloss.Style {
 	if hasTrueColorSupport() {
-		return Color(t().Overlay0())
+		return Style().With().Foreground(Current().Text())
+	}
+	return lipgloss.NewStyle().Foreground(lipgloss.Color(convAnsiColor(termenv.ANSIWhite)))
+}
+
+func TextDark() Color {
+	if hasTrueColorSupport() {
+		return Color(Current().TextDark())
 	}
 	return convAnsiColor(termenv.ANSIWhite)
+}
+
+func TextDarkS() lipgloss.Style {
+	if hasTrueColorSupport() {
+		return Style().With().Foreground(Current().TextDark())
+	}
+	return lipgloss.NewStyle().Foreground(lipgloss.Color(convAnsiColor(termenv.ANSIWhite)))
 }
 
 func Red() Color {
 	if hasTrueColorSupport() {
-		return Color(t().Red())
+		return Color(Current().Error())
 	}
 	return convAnsiColor(termenv.ANSIRed)
 }
 
+func RedS() lipgloss.Style {
+	if hasTrueColorSupport() {
+		return Style().With().Foreground(Current().Error())
+	}
+	return lipgloss.NewStyle().Foreground(lipgloss.Color(convAnsiColor(termenv.ANSIRed)))
+}
+
 func Blue() Color {
 	if hasTrueColorSupport() {
-		return Color(t().Blue())
+		return Color(Current().Info())
 	}
 	return convAnsiColor(termenv.ANSIBlue)
 }
 
+func BlueS() lipgloss.Style {
+	if hasTrueColorSupport() {
+		return Style().With().Foreground(Current().Info())
+	}
+	return lipgloss.NewStyle().Foreground(lipgloss.Color(convAnsiColor(termenv.ANSIBlue)))
+}
+
 func Green() Color {
 	if hasTrueColorSupport() {
-		return Color(t().Green())
+		return Color(Current().Ok())
 	}
 	return convAnsiColor(termenv.ANSIGreen)
 }
 
+func GreenS() lipgloss.Style {
+	if hasTrueColorSupport() {
+		return Style().With().Foreground(Current().Ok())
+	}
+	return lipgloss.NewStyle().Foreground(lipgloss.Color(convAnsiColor(termenv.ANSIGreen)))
+}
+
 func Yellow() Color {
 	if hasTrueColorSupport() {
-		return Color(t().Yellow())
+		return Color(Current().Warning())
 	}
 	return convAnsiColor(termenv.ANSIYellow)
+}
+
+func YellowS() lipgloss.Style {
+	if hasTrueColorSupport() {
+		return Style().With().Foreground(Current().Warning())
+	}
+	return lipgloss.NewStyle().Foreground(lipgloss.Color(convAnsiColor(termenv.ANSIYellow)))
 }

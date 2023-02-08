@@ -20,22 +20,22 @@ func (t *latteTheme) Text() lipgloss.Color {
 	return "#4c4f69"
 }
 
-func (t *latteTheme) Overlay0() lipgloss.Color {
+func (t *latteTheme) TextDark() lipgloss.Color {
 	return "#9ca0b0"
 }
 
-func (t *latteTheme) Red() lipgloss.Color {
+func (t *latteTheme) Error() lipgloss.Color {
 	return "#d20f39"
 }
 
-func (t *latteTheme) Blue() lipgloss.Color {
+func (t *latteTheme) Info() lipgloss.Color {
 	return "#1e66f5"
 }
 
-func (t *latteTheme) Green() lipgloss.Color {
+func (t *latteTheme) Ok() lipgloss.Color {
 	return "#40a02b"
 }
 
-func (t *latteTheme) Yellow() lipgloss.Color {
+func (t *latteTheme) Warning() lipgloss.Color {
 	return "#df8e1d"
 }

@@ -1,21 +1,33 @@
 package theme
 
 import (
+	"os"
+
 	"github.com/charmbracelet/lipgloss"
+	"github.com/pelletier/go-toml/v2"
 	"github.com/spf13/viper"
 
+	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/util"
 )
 
 type Theme interface {
-	IsDark() bool
+	Name() string
 	Base() lipgloss.Color
 	Text() lipgloss.Color
-	Overlay0() lipgloss.Color
-	Red() lipgloss.Color
-	Blue() lipgloss.Color
-	Green() lipgloss.Color
-	Yellow() lipgloss.Color
+	TextDark() lipgloss.Color
+	Error() lipgloss.Color
+	Info() lipgloss.Color
+	Ok() lipgloss.Color
+	Warning() lipgloss.Color
+}
+
+type LipglossStyle struct {
+	Theme Theme
+}
+
+func (t LipglossStyle) With() lipgloss.Style {
+	return lipgloss.NewStyle().Background(t.Theme.Base())
 }
 
 func Location() string {
@@ -24,40 +36,45 @@ func Location() string {
 	return path
 }
 
-type External struct {
-	IsDark        bool   `toml:"dark"`
-	Background    string `toml:"background"`
-	Foreground    string `toml:"foreground"`
-	ForegroundAlt string `toml:"foreground_alt"`
-	Red           string `toml:"red"`
-	Blue          string `toml:"blue"`
-	Green         string `toml:"green"`
-	Yellow        string `toml:"yellow"`
+func Current() Theme {
+	return themeMap[viper.GetString("tui.theme")]
 }
 
-var defaultTheme Theme = &mochaTheme{}
+func Style() *LipglossStyle {
+	return &LipglossStyle{Theme: Current()}
+}
 
-func t() Theme {
-	theme := viper.GetString("tui.theme")
-	switch theme {
-	case "dark":
-		return defaultTheme
-	case "light":
-		return &latteTheme{}
-	case "latte":
-		return &latteTheme{}
-	case "frappe":
-		return &frappeTheme{}
-	case "macchiato":
-		return &macchiatoTheme{}
-	case "mocha":
-		return &mochaTheme{}
-	default:
-		return defaultTheme
+var themeMap map[string]Theme
+
+func Setup() error {
+	themes, err := load()
+	if err != nil {
+		return err
 	}
+	themeMap = themes
+	return nil
 }
 
-func Load() ([]Theme, error) {
-	// TODO
-	return nil, nil
+func load() (map[string]Theme, error) {
+	themes := make(map[string]Theme, 0)
+	files, err := os.ReadDir(Location())
+	if err != nil {
+		return nil, errors.CannotReadDirectoryError.New("cannot read directory: " + Location())
+	}
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		data, err := os.ReadFile(file.Name())
+		if err != nil {
+			return nil, errors.CannotReadFileError.New("cannot read file: " + file.Name())
+		}
+		var theme External
+		err = toml.Unmarshal(data, &theme)
+		if err != nil {
+			return nil, errors.CannotUnmarshalThemeError.New("cannot unmarshal file: " + file.Name())
+		}
+		themes[theme.Name()] = theme
+	}
+	return themes, nil
 }

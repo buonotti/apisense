@@ -20,22 +20,22 @@ func (t *frappeTheme) Text() lipgloss.Color {
 	return "#c6d0f5"
 }
 
-func (t *frappeTheme) Overlay0() lipgloss.Color {
+func (t *frappeTheme) TextDark() lipgloss.Color {
 	return "#737994"
 }
 
-func (t *frappeTheme) Red() lipgloss.Color {
+func (t *frappeTheme) Error() lipgloss.Color {
 	return "#e78284"
 }
 
-func (t *frappeTheme) Blue() lipgloss.Color {
+func (t *frappeTheme) Info() lipgloss.Color {
 	return "#8caaee"
 }
 
-func (t *frappeTheme) Green() lipgloss.Color {
+func (t *frappeTheme) Ok() lipgloss.Color {
 	return "#a6d189"
 }
 
-func (t *frappeTheme) Yellow() lipgloss.Color {
+func (t *frappeTheme) Warning() lipgloss.Color {
 	return "#e5c890"
 }

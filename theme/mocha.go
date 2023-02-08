@@ -20,22 +20,22 @@ func (t *mochaTheme) Text() lipgloss.Color {
 	return "#cdd6f4"
 }
 
-func (t *mochaTheme) Overlay0() lipgloss.Color {
+func (t *mochaTheme) TextDark() lipgloss.Color {
 	return "#6c7086"
 }
 
-func (t *mochaTheme) Red() lipgloss.Color {
+func (t *mochaTheme) Error() lipgloss.Color {
 	return "#f38ba8"
 }
 
-func (t *mochaTheme) Blue() lipgloss.Color {
+func (t *mochaTheme) Info() lipgloss.Color {
 	return "#89b4fa"
 }
 
-func (t *mochaTheme) Green() lipgloss.Color {
+func (t *mochaTheme) Ok() lipgloss.Color {
 	return "#a6e3a1"
 }
 
-func (t *mochaTheme) Yellow() lipgloss.Color {
+func (t *mochaTheme) Warning() lipgloss.Color {
 	return "#f9e2af"
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/buonotti/apisense/config"
 	"github.com/buonotti/apisense/fs"
 	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/theme"
 )
 
 var rootCmd = &cobra.Command{
@@ -25,6 +26,7 @@ daemon. For more info check each commands description.`,
 		cobra.CheckErr(fs.Setup())
 		cobra.CheckErr(config.Setup())
 		cobra.CheckErr(log.Setup())
+		cobra.CheckErr(theme.Setup())
 	},
 }
 

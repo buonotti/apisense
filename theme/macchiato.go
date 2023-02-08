@@ -20,22 +20,22 @@ func (t *macchiatoTheme) Text() lipgloss.Color {
 	return "#cad3f5"
 }
 
-func (t *macchiatoTheme) Overlay0() lipgloss.Color {
+func (t *macchiatoTheme) TextDark() lipgloss.Color {
 	return "#6e738d"
 }
 
-func (t *macchiatoTheme) Red() lipgloss.Color {
+func (t *macchiatoTheme) Error() lipgloss.Color {
 	return "#ed8796"
 }
 
-func (t *macchiatoTheme) Blue() lipgloss.Color {
+func (t *macchiatoTheme) Info() lipgloss.Color {
 	return "#8aadf4"
 }
 
-func (t *macchiatoTheme) Green() lipgloss.Color {
+func (t *macchiatoTheme) Ok() lipgloss.Color {
 	return "#a6da95"
 }
 
-func (t *macchiatoTheme) Yellow() lipgloss.Color {
+func (t *macchiatoTheme) Warning() lipgloss.Color {
 	return "#eed49f"
 }
