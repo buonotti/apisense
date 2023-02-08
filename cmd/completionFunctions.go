@@ -38,7 +38,7 @@ func validDefinitionsFunc() func(cmd *cobra.Command, args []string, toComplete s
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		definitions, _ := validation.EndpointDefinitions()
 		return util.Map(definitions, func(d validation.EndpointDefinition) string {
-			return fmt.Sprintf("%s\t%s", d.Name, d.FileName)
+			return fmt.Sprintf("%s\t%s", d.FileName, d.Name)
 		}), cobra.ShellCompDirectiveNoFileComp
 	}
 }
@@ -48,7 +48,7 @@ func validEnabledDefinitionFunc() func(cmd *cobra.Command, args []string, toComp
 		definitions, _ := validation.EndpointDefinitions()
 		mappedDefinitions := util.Map(definitions, func(d validation.EndpointDefinition) string {
 			if d.IsEnabled {
-				return fmt.Sprintf("%s\t%s", d.Name, d.FileName)
+				return fmt.Sprintf("%s\t%s", d.FileName, d.Name)
 			}
 			return ""
 		})
@@ -63,7 +63,7 @@ func validDisabledDefinitionFunc() func(cmd *cobra.Command, args []string, toCom
 		definitions, _ := validation.EndpointDefinitions()
 		mappedDefinitions := util.Map(definitions, func(d validation.EndpointDefinition) string {
 			if !d.IsEnabled {
-				return fmt.Sprintf("%s\t%s", d.Name, d.FileName)
+				return fmt.Sprintf("%s%s\t%s", viper.GetString("daemon.ignore-prefix"), d.FileName, d.Name)
 			}
 			return ""
 		})

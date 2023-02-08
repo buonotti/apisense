@@ -53,10 +53,7 @@ port = 23232
 
 ### TUI CONFIGURATION ###
 [tui]
-# Set the filewatcher sleep time
-
-# Set the color scheme. Valid values are: dark, light, latte, frappe, macchiato, mocha
-theme = "mocha"
+refresh = 10
 
 [api]
 port = 8080

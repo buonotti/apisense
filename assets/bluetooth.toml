@@ -1,6 +1,9 @@
 # The name of the endpoint (used in the report)
 name = "Bluetooth"
 
+# The format of the response (json or xml)
+format = "json"
+
 # The endpoint to call. Variables can be interpolated with {{ .ParamName }} (Go template syntax)
 # There are also two builtin functions: Now and Env
 # Now is used with the following syntax: {{ .Now "<format>" }} you can find the format here: https://pkg.go.dev/time#Time.Format
@@ -31,9 +34,6 @@ value = "mvalue,mvalidtime,mperiod"
 [[query]]
 name = "where"
 value = 'scode.eq."{{ .Name }}",mperiod.eq.3600,sactive.eq.true'
-
-# The format of the response (json or xml)
-format = "json"
 
 # Variable definitions
 # For all non constant variables, the number of values must be the same and will be used in order to call the endpoint (subject to change)

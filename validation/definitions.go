@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/validation/query"
 	"github.com/buonotti/apisense/validation/response"
 	"github.com/buonotti/apisense/validation/variables"
@@ -71,8 +72,9 @@ func EndpointDefinitions() ([]EndpointDefinition, error) {
 			return []EndpointDefinition{}, err
 		}
 		if definition.IsEnabled {
-			if checkDefinitionDuplicate(definitions, definition) {
-				return []EndpointDefinition{}, errors.DuplicateDefinitionError.New("duplicate definition found: %s", definition.Name)
+			if !validateDefinition(definitions, definition) {
+				log.DaemonLogger.Errorf("validation failed for definition %s (%s). skipping", definition.Name, definition.FileName)
+				continue
 			}
 			definitions = append(definitions, definition)
 		}
@@ -80,11 +82,27 @@ func EndpointDefinitions() ([]EndpointDefinition, error) {
 	return definitions, nil
 }
 
-func checkDefinitionDuplicate(definitions []EndpointDefinition, definition EndpointDefinition) bool {
+func validateDefinition(definitions []EndpointDefinition, definition EndpointDefinition) bool {
 	for _, def := range definitions {
 		if def.Name == definition.Name {
-			return true
+			log.DaemonLogger.Warnf("duplicate definition found: %s (%s)\n", definition.Name, definition.FileName)
+			return false
 		}
 	}
-	return false
+	if definition.BaseUrl == "" {
+		log.DaemonLogger.Errorf("definition %s (%s) has no base url\n", definition.Name, definition.FileName)
+		return false
+	}
+	if definition.Format == "" {
+		log.DaemonLogger.Errorf("definition %s (%s) has no format\n", definition.Name, definition.FileName)
+		return false
+	} else if definition.Format != "json" && definition.Format != "xml" {
+		log.DaemonLogger.Errorf("definition %s (%s) has an invalid format: %s. Found %s expected either 'json' or 'xml'\n", definition.Name, definition.FileName, definition.Format, definition.Format)
+		return false
+	}
+	if len(definition.ResultSchema.Entries) == 0 {
+		log.DaemonLogger.Errorf("schema has no entries\n")
+		return false
+	}
+	return true
 }

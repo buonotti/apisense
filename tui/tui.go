@@ -4,8 +4,6 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/common-nighthawk/go-figure"
-
 	"github.com/76creates/stickers"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
@@ -13,6 +11,7 @@ import (
 	"github.com/charmbracelet/bubbles/stopwatch"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/common-nighthawk/go-figure"
 	"github.com/spf13/viper"
 
 	"github.com/buonotti/apisense/daemon"
@@ -74,7 +73,7 @@ func TuiModule() Model {
 		listDaemonButton: listDaemonButton,
 		daemonModel:      DaemonModel(),
 		reportModel:      ReportModel(),
-		elapsedTrigger:   stopwatch.NewWithInterval(time.Second),
+		elapsedTrigger:   stopwatch.NewWithInterval(time.Duration(viper.GetInt("tui.refresh")) * time.Millisecond),
 		daemonCmd:        nil,
 		configModel:      ConfigModel(),
 	}
@@ -87,7 +86,6 @@ func (m Model) Init() tea.Cmd {
 	watcher := fs.NewFileWatcher()
 	err := watcher.AddFile(daemon.PidFile)
 	errors.CheckErr(err)
-
 	go func() {
 		err := watcher.Start()
 		errors.CheckErr(err)
