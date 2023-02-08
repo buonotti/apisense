@@ -2,12 +2,11 @@ package tui
 
 import (
 	"fmt"
-	"strconv"
-
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"strconv"
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/validation"
@@ -15,6 +14,7 @@ import (
 
 var (
 	selectedValidatedEndpoint validation.ValidatedEndpoint
+	allowEndpointSelection    bool
 	resultRows                []table.Row
 	updateResultRows          = false
 )
@@ -78,20 +78,22 @@ func (v validationEndpointModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, v.keymap.quit):
 				return v, tea.Quit
 			case key.Matches(msg, v.keymap.choose):
-				i, err := strconv.Atoi(v.table.SelectedRow()[0])
-				errors.CheckErr(err)
-				val, err := getSelectedValidatedEndpoint(selectedReport, i)
-				errors.CheckErr(err)
-				selectedValidatedEndpoint = val
-				resultRows = getResultRows(selectedValidatedEndpoint.TestCaseResults)
-				if choiceReportModel != "validatedEndpointModel" {
-					v.resultModel, cmdModel = v.resultModel.Update(msg)
+				if allowEndpointSelection {
+					i, err := strconv.Atoi(v.table.SelectedRow()[0])
+					errors.CheckErr(err)
+					val, err := getSelectedValidatedEndpoint(selectedReport, i)
+					errors.CheckErr(err)
+					selectedValidatedEndpoint = val
+					resultRows = getResultRows(selectedValidatedEndpoint.TestCaseResults)
+					if choiceReportModel != "validatedEndpointModel" {
+						v.resultModel, cmdModel = v.resultModel.Update(msg)
+						v.table, cmd = v.table.Update(msg)
+						return v, tea.Batch(cmd, cmdModel)
+					}
+					choiceReportModel = "resultModel"
+					updateResultRows = true
 					v.table, cmd = v.table.Update(msg)
-					return v, tea.Batch(cmd, cmdModel)
 				}
-				choiceReportModel = "resultModel"
-				updateResultRows = true
-				v.table, cmd = v.table.Update(msg)
 				return v, cmd
 			}
 		}
@@ -114,6 +116,12 @@ func getValidatedEndpointRows(validatedEndpoint validation.Report) []table.Row {
 	for i, point := range validatedEndpoint.Endpoints {
 		rows = append(rows, table.Row{fmt.Sprintf("%v", i), point.EndpointName})
 	}
+	allowEndpointSelection = true
+	if len(rows) < 1 {
+		rows = append(rows, table.Row{"", "No endpoints found"})
+		allowEndpointSelection = false
+	}
+
 	return rows
 }
 
