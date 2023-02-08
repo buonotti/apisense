@@ -12,7 +12,6 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/stopwatch"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/viper"
 
 	"github.com/buonotti/apisense/daemon"
@@ -28,6 +27,7 @@ var (
 	choiceReportModel  string
 	choiceConfigModel  string
 	reports            []validation.Report
+	terminalHeight     = getTerminalHeight()
 )
 
 type errMsg error
@@ -69,7 +69,7 @@ func TuiModule() Model {
 	return Model{
 		keymap:           DefaultKeyMap,
 		help:             help.New(),
-		flexbox:          stickers.NewFlexBox(0, 0).SetStyle(styleContentCenter.Copy().BorderStyle(lipgloss.RoundedBorder())),
+		flexbox:          stickers.NewFlexBox(0, 0).SetStyle(styleContentCenter.Copy()),
 		listMainMenu:     listMainMenu,
 		listDaemonButton: listDaemonButton,
 		daemonModel:      DaemonModel(),
@@ -102,7 +102,7 @@ func (m Model) Init() tea.Cmd {
 	m.flexbox.AddRows([]*stickers.FlexBoxRow{
 		m.flexbox.NewRow().AddCells(
 			[]*stickers.FlexBoxCell{
-				stickers.NewFlexBoxCell(1, 3).SetStyle(styleContentCenter.Copy().MarginLeft(1).MarginRight(1).MarginTop(3)),
+				stickers.NewFlexBoxCell(1, 4).SetStyle(styleContentCenter.Copy().MarginLeft(1).MarginRight(1).MarginTop(3)),
 			},
 		),
 		m.flexbox.NewRow().AddCells(
@@ -185,6 +185,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
+		terminalHeight = getTerminalHeight()
 		m.flexbox.SetWidth(msg.Width)
 		m.flexbox.SetHeight(msg.Height)
 		m.help.Width = msg.Width
@@ -230,25 +231,29 @@ func (m Model) View() string {
 
 	//Render Title
 	title := figure.NewFigure("API SENSE", "", true)
-	m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(title.String()))
+	if terminalHeight > 25 {
+		m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(title.String()))
+	} else {
+		m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render("APISENSE"))
+	}
 
 	//Act based one main menu changes
 	switch choiceMainMenu {
 	case "Daemon":
 		choiceDaemonButton = ""
-		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(5))
+		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(terminalHeight / 8).MarginLeft(5))
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.daemonModel.View() + docStyle.Render(m.listDaemonButton.View())))
 	case "Report":
 		//Render report option
-		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5))
+		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(terminalHeight / 8))
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.reportModel.View()))
 	case "Config":
 		//Act based one config menu changes
-		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5))
+		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(terminalHeight / 8))
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.configModel.View()))
 	default:
 		//Render main menu
-		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(5).MarginLeft(10))
+		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(terminalHeight / 8).MarginLeft(10))
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.listMainMenu.View()))
 	}
 
