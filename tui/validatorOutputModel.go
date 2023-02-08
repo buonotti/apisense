@@ -84,15 +84,15 @@ func (v validatorOutputModel) View() string {
 	return lipgloss.NewStyle().Render(v.table.View() + "\n")
 }
 
-func getValidatorOutputRows(validatorOutputs []validation.ValidatorOutput) []table.Row {
+func getValidatorOutputRows(validatorOutputs []validation.ValidatorResult) []table.Row {
 	rows := make([]table.Row, 0)
 	for i, output := range validatorOutputs {
-		s := strings.Split(output.Error, ": ")
+		s := strings.Split(output.Message, ": ")
 		if len(s) > 1 {
 			q := util.Join(s[1:], "")
-			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Validator, q, output.Status})
+			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Name, q, output.Status})
 		} else {
-			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Validator, "", output.Status})
+			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Name, "", output.Status})
 		}
 	}
 	return rows

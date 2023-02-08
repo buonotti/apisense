@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"fmt"
 	"github.com/buonotti/apisense/errors"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -46,6 +47,7 @@ func (e editConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			ti.CharLimit = 156
 			ti.Width = 20
 			e.textInput = ti
+			e.textInput.SetValue(viper.GetString(selectedField))
 			updateEditConfigField = false
 		}
 
@@ -64,14 +66,14 @@ func (e editConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				viper.Set(selectedField, e.textInput.Value())
 				err := viper.WriteConfig()
-				errors.HandleError(err)
+				errors.CheckErr(err)
 				updateSelectConfigRows = true
 				return e, cmd
 			}
 
 		case errMsg:
 			e.err = msg
-			errors.HandleError(e.err)
+			errors.CheckErr(e.err)
 		}
 
 		e.textInput, cmd = e.textInput.Update(msg)
@@ -81,5 +83,6 @@ func (e editConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (e editConfigModel) View() string {
-	return lipgloss.NewStyle().PaddingRight(13).PaddingTop(2).MarginLeft(13).Render(e.textInput.View() + "\n")
+	return lipgloss.NewStyle().PaddingRight(13).PaddingTop(2).MarginLeft(13).Render(fmt.Sprintf("%v", selectedField) + "\n" +
+		e.textInput.View() + "\n")
 }
