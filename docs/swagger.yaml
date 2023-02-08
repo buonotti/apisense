@@ -1,0 +1,112 @@
+definitions:
+  controllers.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  validation.Report:
+    properties:
+      endpoints:
+        description: Endpoints is a collection of ValidatedEndpoint holding the validation
+          results
+        items:
+          $ref: '#/definitions/validation.ValidatedEndpoint'
+        type: array
+      id:
+        description: Id is a unique identifier for each report
+        type: string
+      time:
+        description: Time is the timestamp of the report
+        type: string
+    type: object
+  validation.TestCaseResult:
+    properties:
+      url:
+        description: Url is the url of the api call (with query parameters)
+        type: string
+      validatorResults:
+        description: ValidatorResults is the collection of ValidatorResult that describe
+          the result of each validator
+        items:
+          $ref: '#/definitions/validation.ValidatorResult'
+        type: array
+    type: object
+  validation.ValidatedEndpoint:
+    properties:
+      endpointName:
+        description: EndpointName is he name of the endpoint
+        type: string
+      testCaseResults:
+        description: TestCaseResults are the collection of TestCaseResult that describe
+          the result of validating a single api call
+        items:
+          $ref: '#/definitions/validation.TestCaseResult'
+        type: array
+    type: object
+  validation.ValidatorResult:
+    properties:
+      message:
+        description: Message is the error message of the validator
+        type: string
+      name:
+        description: Name is the name of the validator
+        type: string
+      status:
+        description: Status is the status of the validator (success/fail/skipped)
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/health:
+    get:
+      description: Get the health status of the API
+      operationId: health
+      responses:
+        "200":
+          description: OK
+      summary: Health check
+      tags:
+      - health
+  /api/reports:
+    get:
+      description: Connect to this endpoint with the ws:// protocol to instantiate
+        a websocket connection to get updates for new reports
+      operationId: ws
+      responses:
+        "101":
+          description: Switching Protocols
+      summary: Open a websocket connection to receive notifications
+      tags:
+      - reports
+  /api/reports/:id:
+    get:
+      description: Gets a single report identified by his id
+      operationId: report
+      parameters:
+      - description: json
+        in: query
+        name: format
+        type: string
+      - description: qNg8rJX
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/validation.Report'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Get one report
+      tags:
+      - reports
+swagger: "2.0"

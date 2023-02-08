@@ -1,0 +1,62 @@
+version: 3
+
+tasks:
+  default:
+    desc: Default task, builds and runs the project
+    deps:
+      - install
+
+  build:
+    desc: Builds the project
+    cmds:
+      - go-bindata -pkg config -o config/assets.go assets/
+      - go build
+
+  install:
+    desc: Installs the project to $GOPATH
+    deps:
+      - build
+    cmds:
+      - go install
+
+  run:
+    desc: Runs the project
+    deps:
+      - build
+      - install
+    cmds:
+      - apisense {{.CLI_ARGS}}
+
+  dev:
+    desc: Runs the project in dev mode
+    deps:
+      - build
+      - install
+      - clean-all
+    cmds:
+      - apisense {{.CLI_ARGS}}
+
+  docker:
+    desc: Builds a fresh docker image and runs the app in a container
+    deps:
+      - build
+    cmds:
+      - docker build --build-arg BRANCH=dev -t apisense .
+      - docker run -it --rm -p 23232:23232 -p 8080:8080 --name apisense apisense
+
+  clean-all:
+    desc: Cleans the project
+    deps:
+      - clean
+      - clean-cfg
+
+  clean:
+    desc: Cleans the project
+    cmds:
+      - go clean -i
+
+  clean-cfg:
+    desc: Cleans the project configs
+    cmds:
+      - rm -r {{.HOME}}/.config/apisense
+      - rm -r {{.HOME}}/apisense

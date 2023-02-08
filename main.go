@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/buonotti/odh-data-monitor/cmd"
+	"github.com/buonotti/apisense/cmd"
 )
 
 func main() {

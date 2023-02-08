@@ -2,32 +2,40 @@ package config
 
 import (
 	"os"
+
+	"github.com/buonotti/apisense/errors"
 )
 
-const (
-	TEMPLATE = `
-# This is the example configuration file for the ODH Data Monitor.
-
-[log]
-# Set the log level. Valid values are: debug, info, warn, error, fatal, panic
-level = "info"
-
-# Set the log file. Leave empty to log to stdout.
-file = ""
-
-# Enable pretty log output. This will colorize the log output and print it in a readable format.
-# If set to false, the log output will be in JSON format.
-pretty = true
-
-# Set to true to force color logging. Only has an effect if pretty is set to true.
-force-color = true
-`
-)
-
+// create creates the config directory in the user config directory and writes the default config file to it.
 func create() error {
-	err := os.Mkdir(configDir, 0755)
-	if err != nil {
-		return err
+	err := os.Mkdir(Directory, 0755)
+	if err != nil && !os.IsExist(err) {
+		return errors.CannotCreateDirectoryError.Wrap(err, "cannot create config directory")
 	}
-	return os.WriteFile(configPath, []byte(TEMPLATE), os.ModePerm)
+
+	data, err := Asset("assets/config.example.toml")
+	if err != nil {
+		return errors.CannotLoadAssetError.Wrap(err, "cannot load config example asset")
+	}
+
+	err = os.WriteFile(FullPath, data, os.ModePerm)
+	if err != nil {
+		return errors.CannotWriteFileError.Wrap(err, "cannot write config file")
+	}
+
+	return nil
+}
+
+func createEnv() error {
+	data, err := Asset("assets/.env.example")
+	if err != nil {
+		return errors.CannotLoadAssetError.Wrap(err, "cannot load .env example asset")
+	}
+
+	err = os.WriteFile(os.Getenv("HOME")+"/apisense/.env", data, os.ModePerm)
+	if err != nil {
+		return errors.CannotWriteFileError.Wrap(err, "cannot write .env file")
+	}
+
+	return nil
 }
