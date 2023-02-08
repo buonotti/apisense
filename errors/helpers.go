@@ -16,6 +16,7 @@ func WrapF(t *errorx.Type, err error, format string, args ...interface{}) *error
 	return t.Wrap(err, fmt.Sprintf(format, args...))
 }
 
+// SafeWrap is a helper function to wrap an existing error. The function returns nil if the error is nil or a new error of the given type wrapping the given error
 func SafeWrap(t *errorx.Type, err error, message string, args ...interface{}) *errorx.Error {
 	if err != nil {
 		return t.Wrap(err, message, args...)
@@ -23,6 +24,7 @@ func SafeWrap(t *errorx.Type, err error, message string, args ...interface{}) *e
 	return nil
 }
 
+// SafeWrapF does the same thing as SafeWrap but accepts a format string with arguments as message
 func SafeWrapF(t *errorx.Type, err error, format string, args ...interface{}) *errorx.Error {
 	if err != nil {
 		return WrapF(t, err, format, args...)

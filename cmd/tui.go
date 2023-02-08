@@ -12,7 +12,7 @@ var tuiCmd = &cobra.Command{
 	Short: "Start the TUI",
 	Long:  `This command starts the text user interface in the current terminal. Refer to the help menu in the TUI for keybindings and more.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		errors.HandleError(tui.Run())
+		errors.CheckErr(tui.Run())
 	},
 }
 

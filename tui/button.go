@@ -2,10 +2,12 @@ package tui
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/errors"
+	"io"
+
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"io"
+
+	"github.com/buonotti/apisense/errors"
 )
 
 type option struct {
@@ -33,7 +35,7 @@ func (d optionDelegate) Render(w io.Writer, m list.Model, index int, listItem li
 	}
 
 	_, err := fmt.Fprint(w, fn(str))
-	errors.HandleError(err)
+	errors.CheckErr(err)
 }
 
 func (o option) Title() string       { return o.option }

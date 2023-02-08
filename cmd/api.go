@@ -12,7 +12,7 @@ var apiCmd = &cobra.Command{
 	Short: "Start the api server",
 	Long:  `This command starts the api server.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		errors.HandleError(api.Start())
+		errors.CheckErr(api.Start())
 	},
 }
 

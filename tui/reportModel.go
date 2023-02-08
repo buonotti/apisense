@@ -2,14 +2,16 @@ package tui
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/validation"
+	"strconv"
+	"time"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"strconv"
-	"time"
+
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/validation"
 )
 
 var (
@@ -26,7 +28,7 @@ type reportModel struct {
 func ReportModel() tea.Model {
 
 	r, err := validation.Reports()
-	errors.HandleError(err)
+	errors.CheckErr(err)
 	reports = r
 
 	t := table.New(
@@ -70,9 +72,9 @@ func (r reportModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return r, tea.Quit
 			case key.Matches(msg, r.keymap.choose):
 				i, err := strconv.Atoi(r.table.SelectedRow()[0])
-				errors.HandleError(err)
+				errors.CheckErr(err)
 				rep, err := getSelectedReport(reports, i)
-				errors.HandleError(err)
+				errors.CheckErr(err)
 				selectedReport = rep
 				validatedEndpointRows = getValidatedEndpointRows(selectedReport)
 				if choiceReportModel != "reportModel" {

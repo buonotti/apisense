@@ -2,13 +2,15 @@ package tui
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/validation"
+	"strconv"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"strconv"
+
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/validation"
 )
 
 var (
@@ -77,11 +79,11 @@ func (v validationEndpointModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return v, tea.Quit
 			case key.Matches(msg, v.keymap.choose):
 				i, err := strconv.Atoi(v.table.SelectedRow()[0])
-				errors.HandleError(err)
+				errors.CheckErr(err)
 				val, err := getSelectedValidatedEndpoint(selectedReport, i)
-				errors.HandleError(err)
+				errors.CheckErr(err)
 				selectedValidatedEndpoint = val
-				resultRows = getResultRows(selectedValidatedEndpoint.Results)
+				resultRows = getResultRows(selectedValidatedEndpoint.TestCaseResults)
 				if choiceReportModel != "validatedEndpointModel" {
 					v.resultModel, cmdModel = v.resultModel.Update(msg)
 					v.table, cmd = v.table.Update(msg)
@@ -109,7 +111,7 @@ func (v validationEndpointModel) View() string {
 
 func getValidatedEndpointRows(validatedEndpoint validation.Report) []table.Row {
 	rows := make([]table.Row, 0)
-	for i, point := range validatedEndpoint.Results {
+	for i, point := range validatedEndpoint.Endpoints {
 		rows = append(rows, table.Row{fmt.Sprintf("%v", i), point.EndpointName})
 	}
 	return rows
@@ -123,8 +125,8 @@ func getValidatedEndpointColumns() []table.Column {
 }
 
 func getSelectedValidatedEndpoint(report validation.Report, index int) (validation.ValidatedEndpoint, error) {
-	if index > len(report.Results) || index < 0 {
+	if index > len(report.Endpoints) || index < 0 {
 		return validation.ValidatedEndpoint{}, errors.ModelError.New("Index out of range")
 	}
-	return report.Results[index], nil
+	return report.Endpoints[index], nil
 }

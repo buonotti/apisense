@@ -2,10 +2,7 @@ package validation
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
-	"strings"
-	"time"
 
 	"github.com/buonotti/apisense/errors"
 )
@@ -17,38 +14,39 @@ func ReportLocation() string {
 
 // Report is a report of a test run
 type Report struct {
-	Id      string              // Id is a unique identifier for each report
-	Time    ReportTime          // Time is the timestamp of the report
-	Results []ValidatedEndpoint // Results is a collection of ValidatedEndpoint holding the validation results
+	Id        string              `json:"id"`        // Id is a unique identifier for each report
+	Time      ReportTime          `json:"time"`      // Time is the timestamp of the report
+	Endpoints []ValidatedEndpoint `json:"endpoints"` // Endpoints is a collection of ValidatedEndpoint holding the validation results
 }
 
-type ReportTime time.Time
+func GetReport(filename string) (*Report, error) {
+	files, err := os.ReadDir(ReportLocation())
+	errors.CheckErr(err)
 
-//goland:noinspection GoMixedReceiverTypes
-func (t ReportTime) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf("\"%s\"", time.Time(t).Format("2006-01-02T15:04:05.000Z"))), nil
-}
+	for _, file := range files {
+		if !file.IsDir() && file.Name() == filename {
+			fileName := ReportLocation() + "/" + file.Name()
+			content, err := os.ReadFile(fileName)
+			if err != nil {
+				return nil, errors.CannotReadFileError.Wrap(err, "cannot read file:"+fileName)
+			}
 
-//goland:noinspection GoMixedReceiverTypes
-func (t *ReportTime) UnmarshalJSON(b []byte) error {
-	s := strings.Trim(string(b), "\"")
-	tt, err := time.Parse("2006-01-02T15:04:05.000Z", s)
-	if err != nil {
-		return err
+			var report Report
+			err = json.Unmarshal(content, &report)
+			if err != nil {
+				return nil, errors.CannotUnmarshalReportFileError.Wrap(err, "cannot unmarshal file:"+fileName)
+			}
+
+			return &report, nil
+		}
 	}
-	*t = ReportTime(tt)
-	return nil
-}
-
-//goland:noinspection GoMixedReceiverTypes
-func (t ReportTime) String() string {
-	return time.Time(t).Format("2006-01-02T15:04:05.000Z")
+	return nil, errors.CannotFindReportFile.New("cannot find report file: " + filename)
 }
 
 // Reports returns all the reports in the report directory
 func Reports() ([]Report, error) {
 	files, err := os.ReadDir(ReportLocation())
-	errors.HandleError(err)
+	errors.CheckErr(err)
 
 	reports := make([]Report, 0)
 	for _, file := range files {
@@ -74,7 +72,7 @@ func Reports() ([]Report, error) {
 // RawReports return all the reports in the report directory without unmarshalling them
 func RawReports() ([]map[string]any, error) {
 	files, err := os.ReadDir(ReportLocation())
-	errors.HandleError(err)
+	errors.CheckErr(err)
 
 	reports := make([]map[string]any, 0)
 	for _, file := range files {

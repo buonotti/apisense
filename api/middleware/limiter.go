@@ -14,6 +14,7 @@ func Limiter() gin.HandlerFunc {
 		Period: 1 * time.Second,
 		Limit:  2,
 	}
+
 	limiterStore := memory.NewStore()
 	instance := limiter.New(limiterStore, rate)
 	return gmw.NewMiddleware(instance)

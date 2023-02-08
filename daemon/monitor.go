@@ -29,8 +29,9 @@ const (
 func Status() (State, error) {
 	statusString, err := os.ReadFile(StatusFile)
 	if err != nil {
-		return DOWN, errors.CannotReadFileError.Wrap(err, "Cannot read status file")
+		return DOWN, errors.CannotReadFileError.Wrap(err, "cannot read status file")
 	}
+
 	return State(statusString), nil
 }
 
@@ -39,8 +40,9 @@ func Status() (State, error) {
 func Pid() (int, error) {
 	pidString, err := os.ReadFile(PidFile)
 	if err != nil {
-		return 0, errors.CannotReadFileError.Wrap(err, "Cannot read pid file")
+		return 0, errors.CannotReadFileError.Wrap(err, "cannot read pid file")
 	}
+
 	pid, err := strconv.Atoi(string(pidString))
 	return pid, nil
 }
@@ -50,16 +52,19 @@ func Pid() (int, error) {
 func ReloadDaemon() error {
 	pid, err := Pid()
 	if err != nil {
-		return errors.CannotReloadDaemonError.Wrap(err, "Cannot read pid file")
+		return errors.CannotReloadDaemonError.Wrap(err, "cannot read pid file")
 	}
+
 	process, err := os.FindProcess(pid)
 	if err != nil {
-		return errors.CannotReloadDaemonError.Wrap(err, "Cannot find process")
+		return errors.CannotReloadDaemonError.Wrap(err, "cannot find process with pid: "+strconv.Itoa(pid))
 	}
+
 	err = process.Signal(unix.SIGHUP)
 	if err != nil {
-		return errors.CannotReloadDaemonError.Wrap(err, "Cannot send interrupt signal")
+		return errors.CannotReloadDaemonError.Wrap(err, "cannot send interrupt signal to process with pid: "+strconv.Itoa(pid))
 	}
+
 	return nil
 }
 
@@ -68,8 +73,9 @@ func ReloadDaemon() error {
 func writeStatus(state State) error {
 	err := os.WriteFile(StatusFile, []byte(state), 0644)
 	if err != nil {
-		return errors.CannotWriteFileError.Wrap(err, "Cannot write status file")
+		return errors.CannotWriteFileError.Wrap(err, "cannot write status file")
 	}
+
 	return nil
 }
 
@@ -78,8 +84,9 @@ func writeStatus(state State) error {
 func writePid(pid int) error {
 	err := os.WriteFile(PidFile, []byte(strconv.Itoa(pid)), 0644)
 	if err != nil {
-		return errors.CannotWriteFileError.Wrap(err, "Cannot write pid file")
+		return errors.CannotWriteFileError.Wrap(err, "cannot write pid file")
 	}
+
 	return nil
 }
 

@@ -10,7 +10,7 @@ func Values[K comparable, V any](m map[K]V) []V {
 
 func Keys[K comparable, V any](m map[K]V) []K {
 	keys := make([]K, 0)
-	for k, _ := range m {
+	for k := range m {
 		keys = append(keys, k)
 	}
 	return keys

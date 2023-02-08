@@ -1,14 +1,19 @@
 # Apisense
 
+<img src="./logo.svg" style="border-radius: 10px" width="100%" alt="apisense logo" />
+
+![Build](https://github.com/buonotti/apisense/actions/workflows/go.yml/badge.svg)
+![Build](https://github.com/buonotti/apisense/actions/workflows/codeql.yml/badge.svg)
+
 Apisense is a project that is used to monitor given endpoints in the most flexible way and generate reports about the
-state of the returned data.
+state of the returned data. If you want to know more check: [About](./About.md)
 
 ## Installation
 
 Currently, the project is not available on any package manager. You can still install it by cloning the repository and
 building it with go.
 
-```bash
+```shell
 git clone https://github.com/buonotti/apisense
 cd apisense
 go build
@@ -19,7 +24,7 @@ If you have [go-task](https://taskfile.dev) installed you can install the projec
 
 ## Usage
 
-```bash
+```shell
 apisense --help # Get help about the available commands
 apisense help <command> # Get help about a specific command
 ```
@@ -28,7 +33,7 @@ apisense help <command> # Get help about a specific command
 
 The daemon is the main component of the project. It is responsible for monitoring the endpoints and generating reports.
 
-```bash
+```shell
 # Start the daemon
 apisense daemon start
 
@@ -58,7 +63,7 @@ here: [bluetooth.toml](https://github.com/buonotti/apisense/blob/dev/assets/blue
 The TUI is a terminal user interface that allows you to monitor the state daemon and the reports in real time. It also
 provides a streamlined way to edit the daemon's config (See [Configuration](#configuration)).
 
-```bash
+```shell
 # Start the TUI
 apisense tui
 ```
@@ -68,7 +73,7 @@ apisense tui
 The ssh server serves the tui over ssh so that it can be accessed easily from a remote machine. The ssh server also has
 scp server->client enabled so that the reports can be downloaded from the server.
 
-```bash
+```shell
 # Start the ssh server
 apisense ssh
 ```
@@ -111,7 +116,7 @@ There will be made a docker image available soon on [dockerhub](https://hub.dock
 
 Meanwhile, you can build and run the docker image yourself with the following commands:
 
-```bash
+```shell
 # Build the docker image
 docker build -t apisense --build-arg BRANCH=dev .
 
@@ -124,7 +129,8 @@ command with `task docker`.
 
 ## Contribution
 
-Info will be added here soon...
+The project is still in the early stages of development. If you want to contribute or have a issue to report make sure
+you open a [GitHub Issue](https://github.com/buonotti/apisense/issues/new) because we might already be working on it.
 
 ## License
 

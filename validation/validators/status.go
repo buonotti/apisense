@@ -30,13 +30,13 @@ func (v statusValidator) Name() string {
 }
 
 // Validate checks for each item if the status code of the response matches the given status code
-func (v statusValidator) Validate(item validation.PipelineItem) error {
+func (v statusValidator) Validate(item validation.PipelineTestCase) error {
 	if item.Code != v.OkStatus {
 		return errors.ValidationError.New("validation failed for endpoint %s: expected status code 200, got %d", item.Url, item.Code)
 	}
 	return nil
 }
 
-func (v statusValidator) Fatal() bool {
+func (v statusValidator) IsFatal() bool {
 	return true
 }

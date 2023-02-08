@@ -2,21 +2,23 @@ package tui
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation"
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/table"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"net/url"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/table"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/util"
+	"github.com/buonotti/apisense/validation"
 )
 
 var (
-	selectedResult            validation.Result
+	selectedResult            validation.TestCaseResult
 	validatorOutputRows       []table.Row
 	updateValidatorOutputRows = false
 )
@@ -85,11 +87,11 @@ func (r resultModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return r, tea.Quit
 			case key.Matches(msg, r.keymap.choose):
 				i, err := strconv.Atoi(r.table.SelectedRow()[0])
-				errors.HandleError(err)
+				errors.CheckErr(err)
 				res, err := getSelectedResult(selectedValidatedEndpoint, i)
-				errors.HandleError(err)
+				errors.CheckErr(err)
 				selectedResult = res
-				validatorOutputRows = getValidatorOutputRows(selectedResult.ValidatorsOutput)
+				validatorOutputRows = getValidatorOutputRows(selectedResult.ValidatorResults)
 				if choiceReportModel != "resultModel" {
 					r.validatorOutputModel, cmdModel = r.validatorOutputModel.Update(msg)
 					r.table, cmd = r.table.Update(msg)
@@ -115,13 +117,13 @@ func (r resultModel) View() string {
 	return lipgloss.NewStyle().Render(r.table.View() + "\n")
 }
 
-func getResultRows(results []validation.Result) []table.Row {
+func getResultRows(results []validation.TestCaseResult) []table.Row {
 	rows := make([]table.Row, 0)
 	queries := make([][]string, 0)
 	queriesToRender := make([]string, 0)
 	for _, result := range results {
 		u, err := url.Parse(result.Url)
-		errors.HandleError(err)
+		errors.CheckErr(err)
 		query := make([]string, 0)
 		for value := range u.Query() {
 			query = append(query, value+"="+u.Query().Get(value))
@@ -160,9 +162,9 @@ func getResultColumns() []table.Column {
 	}
 }
 
-func getSelectedResult(validatedEndpoint validation.ValidatedEndpoint, index int) (validation.Result, error) {
-	if index > len(validatedEndpoint.Results) || index < 0 {
-		return validation.Result{}, errors.ModelError.New("Index out of range")
+func getSelectedResult(validatedEndpoint validation.ValidatedEndpoint, index int) (validation.TestCaseResult, error) {
+	if index > len(validatedEndpoint.TestCaseResults) || index < 0 {
+		return validation.TestCaseResult{}, errors.ModelError.New("Index out of range")
 	}
-	return validatedEndpoint.Results[index], nil
+	return validatedEndpoint.TestCaseResults[index], nil
 }

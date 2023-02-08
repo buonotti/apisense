@@ -28,126 +28,116 @@ type daemon struct {
 // incoming signals and stop the daemon when a SIGINT is received, and it reloads
 // the configuration when a SIGHUP is received.
 func (d daemon) run(runOnStart bool) error {
-	// write the daemon status to the control file
 	err := writeStatus(UP)
 	if err != nil {
 		return err
 	}
 
-	// write the daemon pid to the control file
 	err = writePid(os.Getpid())
 	if err != nil {
 		return err
 	}
 
-	log.DaemonLogger.Infof("Daemon started")
+	log.DaemonLogger.Infof("daemon started")
 
-	// create a context to be used to stop the daemon
 	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-
-	// create a channel to listen to signals and set the signals the daemon reacts to
+	ctx, contextCancel := context.WithCancel(ctx)
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, unix.SIGINT, unix.SIGHUP, unix.SIGTERM)
 
-	// when the work function ends write the daemon status and pid to the control file and stop listening to signals
-	// and then cancel the context with the cancel function we got upon creating the context
-	defer func() {
-		log.DaemonLogger.Info("Stopping daemon")
-		errors.HandleError(writeStatus(DOWN))
-		errors.HandleError(writePid(-1))
-		signal.Stop(signalChan)
-		cancel()
-	}()
+	defer endRun(signalChan, contextCancel)
 
-	// Start a goroutine that reacts to the incoming signals. The function runs an infinite loop that
-	// reads from the signal channel and reacts to the signals it receives. When a SIGINT is received
-	// it stops the daemon, when a SIGHUP is received it reloads the configuration.
-	// it also reads from the context and if the context is marked as done it exits
-	go func() {
-		for {
-			select {
-			case s := <-signalChan:
-				switch s {
-				case unix.SIGHUP:
-					log.DaemonLogger.Info("Received SIGHUP, reloading configuration")
-					errors.HandleError(d.Pipeline.RefreshItems())
-				case unix.SIGINT:
-					log.DaemonLogger.Info("Received SIGINT, stopping daemon")
-					errors.HandleError(writeStatus(DOWN))
-					errors.HandleError(writePid(-1))
-					cancel()
-					os.Exit(0)
-				case unix.SIGTERM:
-					log.DaemonLogger.Info("Received SIGTERM, stopping daemon")
-					errors.HandleError(writeStatus(DOWN))
-					errors.HandleError(writePid(-1))
-					cancel()
-					os.Exit(0)
-				}
-			case <-ctx.Done():
-				log.DaemonLogger.Infof("Context done, exiting signal handler")
-				errors.HandleError(writeStatus(DOWN))
-				errors.HandleError(writePid(-1))
-				os.Exit(0)
-			}
-		}
-	}()
+	go d.signalListener(signalChan, contextCancel, ctx)
 
 	if runOnStart {
-		log.DaemonLogger.Info("Running work function on start")
-		d.work()()
+		log.DaemonLogger.Info("running work function on start")
+		d.work()
 	}
 
-	// create a new cron scheduler that runs the work function in the preferred interval.
-	// The interval is read from the configuration file
-	// It then runs the scheduler. Run is a blocking function, so it will run until the context is marked as done
-	c := cron.New()
-	id, err := c.AddFunc(viper.GetString("daemon.interval"), d.work())
-	defer c.Remove(id)
-	c.Run()
+	cronScheduler := cron.New()
+	workFunctionId, err := cronScheduler.AddFunc(viper.GetString("daemon.interval"), d.work)
+
+	defer cronScheduler.Remove(workFunctionId)
+
+	cronScheduler.Run()
 	return nil
 }
 
-// work returns a function that runs the validation pipeline and logs the results
-func (d daemon) work() func() {
-	return func() {
-		// refresh the pipeline items to make sure we are using the latest configuration and have the latest data
-		err := d.Pipeline.RefreshItems()
-		errors.HandleError(err)
-
-		// validate the pipeline items
-		result := d.Pipeline.Validate()
-
-		// log the results
-		d.logResults(result)
-
-		// serialize the results to json and write them to the report file with the current timestamp as name
-		reportData, err := conversion.Json().Convert(result)
-		if err != nil {
-			errors.HandleError(errors.CannotSerializeItemError.Wrap(err, "Cannot serialize report"))
+// signalListener listens on the given channel for signals or the end of the
+// given context and then stops the daemon or reloads the config
+func (d daemon) signalListener(signalChan chan os.Signal, cancel context.CancelFunc, ctx context.Context) {
+	for {
+		select {
+		case s := <-signalChan:
+			switch s {
+			case unix.SIGHUP:
+				log.DaemonLogger.Info("received SIGHUP, reloading configuration")
+				errors.CheckErr(d.Pipeline.Reload())
+			case unix.SIGINT:
+				log.DaemonLogger.Info("received SIGINT, stopping daemon")
+				errors.CheckErr(writeStatus(DOWN))
+				errors.CheckErr(writePid(-1))
+				cancel()
+				os.Exit(0)
+			case unix.SIGTERM:
+				log.DaemonLogger.Info("received SIGTERM, stopping daemon")
+				errors.CheckErr(writeStatus(DOWN))
+				errors.CheckErr(writePid(-1))
+				cancel()
+				os.Exit(0)
+			}
+		case <-ctx.Done():
+			log.DaemonLogger.Infof("context done, exiting signal handler")
+			errors.CheckErr(writeStatus(DOWN))
+			errors.CheckErr(writePid(-1))
+			os.Exit(0)
 		}
-
-		reportPath := validation.ReportLocation() + string(filepath.Separator) + time.Now().Format("02-01-2006T15:04:05.000Z") + ".report.json"
-		err = os.WriteFile(reportPath, reportData, 0644)
-		if err != nil {
-			errors.HandleError(errors.CannotWriteFileError.Wrap(err, "Cannot write report to file"))
-		}
-
-		log.DaemonLogger.Infof("Generated report (%s)", reportPath)
 	}
+}
+
+// endRun runs at the end of the work function and cancels the context via the
+// given cancel function and writes the daemon status
+func endRun(signalChan chan os.Signal, cancel context.CancelFunc) {
+	log.DaemonLogger.Info("stopping daemon")
+	errors.CheckErr(writeStatus(DOWN))
+	errors.CheckErr(writePid(-1))
+	signal.Stop(signalChan)
+	cancel()
+}
+
+// work runs the validation pipeline and logs the results
+func (d daemon) work() {
+	err := d.Pipeline.Reload()
+	errors.CheckErr(err)
+
+	result := d.Pipeline.Validate()
+
+	d.logResults(result)
+
+	reportData, err := conversion.Json().Convert(result)
+	if err != nil {
+		errors.CheckErr(errors.CannotSerializeItemError.Wrap(err, "cannot serialize report"))
+	}
+
+	reportPath := validation.ReportLocation() + string(filepath.Separator) + time.Now().Format("02-01-2006T15:04:05.000Z") + ".report.json"
+	err = os.WriteFile(reportPath, reportData, 0644)
+	if err != nil {
+		errors.CheckErr(errors.CannotWriteFileError.Wrap(err, "cannot write report to file"))
+	}
+
+	log.DaemonLogger.Infof("generated report (%s)", reportPath)
 }
 
 // logResults logs the results of the validation pipeline to the output file or stdout using the log.DaemonLogger
 func (d daemon) logResults(report validation.Report) {
-	for _, validatedEndpoint := range report.Results {
-		for _, result := range validatedEndpoint.Results {
-			for _, validatorResult := range result.ValidatorsOutput {
-				log.DaemonLogger.Infof("Validation result for validator '%s' on endpoint %s (%s)", validatorResult.Validator, validatedEndpoint.EndpointName, result.Url)
-				if validatorResult.Error != "" {
-					log.DaemonLogger.Errorf("Error: %s", validatorResult.Error)
+	for _, validatedEndpoint := range report.Endpoints {
+		for _, result := range validatedEndpoint.TestCaseResults {
+			for _, validatorResult := range result.ValidatorResults {
+				log.DaemonLogger.Infof("validation result for validator '%s' on endpoint %s (%s)", validatorResult.Name, validatedEndpoint.EndpointName, result.Url)
+				if validatorResult.Message != "" {
+					log.DaemonLogger.Errorf("error: %s", validatorResult.Message)
 				} else {
-					log.DaemonLogger.Infof("Nothing to report")
+					log.DaemonLogger.Infof("nothing to report")
 				}
 			}
 		}

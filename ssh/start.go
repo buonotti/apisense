@@ -34,50 +34,44 @@ func port() int {
 
 // Start starts the ssh server that listens on the predefined host and port.
 func Start() error {
-	// create the filesystem handler for scp and create the ssh server
 	fsHandler := scp.NewFileSystemHandler(validation.ReportLocation())
 	s, err := wish.NewServer(
-		wish.WithAddress(fmt.Sprintf("%s:%d", host(), port())),               // set the address of the server
-		wish.WithHostKeyPath(os.Getenv("HOME")+"/"+".ssh/term_info_ed25519"), // set the path where the keys should be stored
-		wish.WithMiddleware( // add middleware to the server
-			bm.Middleware(teaHandler),      // add the bubbletea middleware to serve the tui over ssh
-			log.WishMiddleware(),           // add the custom logging middleware
-			activeterm.Middleware(),        // add the activeterm middleware to enforce an active terminal
-			scp.Middleware(fsHandler, nil), // add the scp middleware to allow scp. The CopyFromClientHandler is set to nil to prevent a client to upload files to the server. This is because the root of scp is the reports/ directory, and we use scp only to manage the reports
+		wish.WithAddress(fmt.Sprintf("%s:%d", host(), port())),
+		wish.WithHostKeyPath(os.Getenv("HOME")+"/.ssh/term_info_ed25519"),
+		wish.WithMiddleware(
+			bm.Middleware(teaHandler),
+			log.WishMiddleware(),
+			activeterm.Middleware(),
+			scp.Middleware(fsHandler, nil),
 		),
 	)
 	if err != nil {
-		err = errors.CannotCreateSSHServerError.Wrap(err, "Cannot create SSH server")
+		err = errors.CannotCreateSSHServerError.Wrap(err, "cannot create SSH server")
 		return err
 	}
 
-	log.SSHLogger.Infof("Starting SSH server on %s:%d", host(), port())
+	log.SSHLogger.Infof("starting SSH server on %s:%d", host(), port())
 
-	// make the ssh server listen to signals
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, unix.SIGINT, unix.SIGTERM)
 
-	// start the server in its own goroutine
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
-			log.SSHLogger.Warn(err.Error()) // ListenAndServe always returns an error so we don't panic
+			log.SSHLogger.Warn(err.Error())
 		}
 	}()
 
 	log.SSHLogger.Infof("SSH server started")
 
-	// wait until the done channel receives a SIGINT or SIGTERM. When this happens, stop the server
 	<-done
 
-	// create a context with a timeout of 5 seconds to stop the server
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	log.SSHLogger.Infof("Stopping SSH server")
+	log.SSHLogger.Infof("stopping SSH server")
 
-	// shutdown the server
 	if err := s.Shutdown(ctx); err != nil {
-		err = errors.CannotStopSSHServerError.Wrap(err, "Cannot stop ssh server")
+		err = errors.CannotStopSSHServerError.Wrap(err, "cannot stop ssh server")
 	}
 	return nil
 }

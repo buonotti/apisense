@@ -2,11 +2,12 @@ package tui
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/errors"
 	"io"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+
+	"github.com/buonotti/apisense/errors"
 )
 
 type item struct {
@@ -40,7 +41,7 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 	}
 
 	_, err := fmt.Fprint(w, fn(str))
-	errors.HandleError(err)
+	errors.CheckErr(err)
 }
 
 func (i item) Title() string       { return i.title }

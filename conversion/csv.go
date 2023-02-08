@@ -29,22 +29,21 @@ func (c csvConverter) ConvertMany(reports []validation.Report) ([]byte, error) {
 func (csvConverter) Convert(reports ...validation.Report) ([]byte, error) {
 	lines := strings.Builder{}
 	for _, report := range reports {
-		for _, validatedEndpoint := range report.Results {
-			for _, endpointResult := range validatedEndpoint.Results {
-				for _, validatorOutput := range endpointResult.ValidatorsOutput {
+		for _, validatedEndpoint := range report.Endpoints {
+			for _, endpointResult := range validatedEndpoint.TestCaseResults {
+				for _, validatorOutput := range endpointResult.ValidatorResults {
 					line := fmt.Sprintf("%s;%s;%s;%s;%s;%s\n",
 						report.Time.String(),
 						validatedEndpoint.EndpointName,
 						endpointResult.Url,
-						validatorOutput.Validator,
+						validatorOutput.Name,
 						validatorOutput.Status,
-						validatorOutput.Error,
+						validatorOutput.Message,
 					)
 					lines.Write([]byte(line))
 				}
 			}
 		}
-
 	}
 	return []byte(lines.String()), nil
 }

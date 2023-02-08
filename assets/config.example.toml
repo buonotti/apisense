@@ -16,8 +16,8 @@ ignore-prefix = "_"
 level = "info"
 
 # Set the log file. Leave empty to log to stdout.
-file = "~/apisense/apisense.log"
-#file = ""
+#file = "~/apisense/apisense.log"
+file = ""
 
 # Enable pretty log output. This will colorize the log output and print it in a readable format.
 # If set to false, the log output will be in JSON format.
@@ -43,12 +43,6 @@ smtp-server = "smtp.example.com"
 # Set the SMTP port to use for sending notifications.
 smtp-port = 587
 
-# Set the SMTP username to use for sending notifications.
-smtp-username = "example"
-
-# Set the SMTP password to use for sending notifications.
-smtp-password = "password"
-
 ### SSH CONFIGURATION ###
 [ssh]
 # Set the SSH host. Leave empty to allow any host to connect
@@ -61,5 +55,28 @@ port = 23232
 [tui]
 # Set the filewatcher sleep time
 
+# Set the color scheme. Valid values are: dark, light, latte, frappe, macchiato, mocha
+theme = "mocha"
 
 [api]
+port = 8080
+#[validation]
+#[[validation.external]]
+#name = "data-hole"
+#path = "../data_hole_validator/target/release/data_hole_validator"
+#args = [
+#    "--interval",
+#    "1",
+#    "--unit",
+#    "hour"
+#]
+#read-from-stdin = true
+#fatal = false
+#[[validation.external.exit-codes]]
+#code = 0
+#ok = true
+#description = "passed"
+#[[validation.external.exit-codes]]
+#code = 1
+#ok = false
+#description = "failed"
