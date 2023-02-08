@@ -70,8 +70,9 @@ func EndpointDefinitions() ([]EndpointDefinition, error) {
 		if err != nil {
 			return []EndpointDefinition{}, err
 		}
-
-		definitions = append(definitions, definition)
+		if definition.IsEnabled {
+			definitions = append(definitions, definition)
+		}
 	}
 	return definitions, nil
 }

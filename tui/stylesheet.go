@@ -2,6 +2,7 @@ package tui
 
 import (
 	"github.com/charmbracelet/lipgloss"
+	"github.com/muesli/termenv"
 
 	"github.com/buonotti/apisense/theme"
 )
@@ -32,10 +33,10 @@ var infoStyle = func() lipgloss.Style {
 }()
 
 // COLORS
-var styleHelp = theme.Overlay0().S()
-var stylePrimary = theme.Red().S()
-var styleInfo = theme.Blue().S()
-var styleSuccess = theme.Green().S()
+var styleHelp = lipgloss.NewStyle().Foreground(theme.Ansi2Color(termenv.ANSIWhite))
+var stylePrimary = lipgloss.NewStyle().Foreground(theme.Ansi2Color(termenv.ANSIRed))
+var styleInfo = lipgloss.NewStyle().Foreground(theme.Ansi2Color(termenv.ANSIBlue))
+var styleSuccess = lipgloss.NewStyle().Foreground(theme.Ansi2Color(termenv.ANSIGreen))
 
 // CENTER
 var styleContentCenter = lipgloss.NewStyle().
