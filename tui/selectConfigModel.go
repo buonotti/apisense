@@ -89,8 +89,11 @@ func (s selectConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if allowConfigSelection {
 					i, err := strconv.Atoi(s.table.SelectedRow()[0])
 					errors.CheckErr(err)
-					selectedField = getSelectedFieldName(i)
 
+					if choiceConfigModel == "selectConfigModel" {
+						selectedField = getSelectedFieldName(i)
+					}
+					
 					if choiceConfigModel != "selectConfigModel" {
 						s.editConfigModel, cmdModel = s.editConfigModel.Update(msg)
 						return s, tea.Batch(cmd, cmdModel)

@@ -72,19 +72,21 @@ func (r reportModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, r.keymap.quit):
 				return r, tea.Quit
 			case key.Matches(msg, r.keymap.choose):
-				i, err := strconv.Atoi(r.table.SelectedRow()[0])
-				errors.CheckErr(err)
-				rep, err := getSelectedReport(reports, i)
-				errors.CheckErr(err)
-				selectedReport = rep
-				validatedEndpointRows = getValidatedEndpointRows(selectedReport)
-				if choiceReportModel != "reportModel" {
-					r.validationEndpointModel, cmdModel = r.validationEndpointModel.Update(msg)
+				if allowReportSelection {
+					i, err := strconv.Atoi(r.table.SelectedRow()[0])
+					errors.CheckErr(err)
+					rep, err := getSelectedReport(reports, i)
+					errors.CheckErr(err)
+					selectedReport = rep
+					validatedEndpointRows = getValidatedEndpointRows(selectedReport)
+					if choiceReportModel != "reportModel" {
+						r.validationEndpointModel, cmdModel = r.validationEndpointModel.Update(msg)
+						r.table, cmd = r.table.Update(msg)
+						return r, tea.Batch(cmd, cmdModel)
+					}
+					choiceReportModel = "validatedEndpointModel"
 					r.table, cmd = r.table.Update(msg)
-					return r, tea.Batch(cmd, cmdModel)
 				}
-				choiceReportModel = "validatedEndpointModel"
-				r.table, cmd = r.table.Update(msg)
 				return r, cmd
 			}
 		}
