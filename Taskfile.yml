@@ -4,7 +4,7 @@ tasks:
   default:
     desc: Default task, builds and runs the project
     deps:
-      - run
+      - install
 
   build:
     desc: Builds the project
