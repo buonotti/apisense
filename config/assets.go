@@ -4,6 +4,7 @@
 // assets/bluetooth.toml
 // assets/bluetooth2.toml
 // assets/config.example.toml
+// assets/mocha.toml
 package config
 
 import (
@@ -95,7 +96,7 @@ func assetsEnvExample() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "assets/.env.example", size: 76, mode: os.FileMode(420), modTime: time.Unix(1675864060, 0)}
+	info := bindataFileInfo{name: "assets/.env.example", size: 76, mode: os.FileMode(420), modTime: time.Unix(1675234235, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -115,7 +116,7 @@ func assetsBluetoothToml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "assets/bluetooth.toml", size: 2710, mode: os.FileMode(420), modTime: time.Unix(1675864060, 0)}
+	info := bindataFileInfo{name: "assets/bluetooth.toml", size: 2710, mode: os.FileMode(420), modTime: time.Unix(1674655344, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -135,7 +136,7 @@ func assetsBluetooth2Toml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "assets/bluetooth2.toml", size: 1186, mode: os.FileMode(420), modTime: time.Unix(1675864060, 0)}
+	info := bindataFileInfo{name: "assets/bluetooth2.toml", size: 1186, mode: os.FileMode(420), modTime: time.Unix(1674656375, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -155,7 +156,27 @@ func assetsConfigExampleToml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "assets/config.example.toml", size: 2110, mode: os.FileMode(420), modTime: time.Unix(1675864060, 0)}
+	info := bindataFileInfo{name: "assets/config.example.toml", size: 2110, mode: os.FileMode(420), modTime: time.Unix(1675264211, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
+var _assetsMochaToml = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x4c\xcb\x41\x0a\xc3\x20\x10\x85\xe1\xfd\x9c\x42\xa6\x8b\xac\x0a\x35\x09\xd6\x2c\x72\x98\x51\xdf\xa4\x50\xa3\x20\x0d\xa5\xb7\x2f\x98\x4d\xb6\xdf\x7b\x7f\x91\x1d\x66\x35\xc3\x5e\xe3\x4b\x06\xa2\x20\xf1\xbd\xb5\x7a\x94\x64\x56\xc3\x37\x0b\x8b\x11\x4c\x5a\x1b\x2e\x1c\x53\x72\x3a\x5f\xf9\x2e\xf9\xd3\x27\x17\x9f\x0f\xef\x98\x1a\xce\xab\x4e\x3e\x88\x67\x0a\xf9\x40\x07\xbf\x84\x59\x85\x69\x6b\x40\xe9\x22\x0e\x93\x58\xa6\x1f\x72\xae\xdf\xb3\x5a\x30\x8a\xf2\x3f\x00\x00\xff\xff\x88\xfe\x80\x19\x9e\x00\x00\x00")
+
+func assetsMochaTomlBytes() ([]byte, error) {
+	return bindataRead(
+		_assetsMochaToml,
+		"assets/mocha.toml",
+	)
+}
+
+func assetsMochaToml() (*asset, error) {
+	bytes, err := assetsMochaTomlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "assets/mocha.toml", size: 158, mode: os.FileMode(420), modTime: time.Unix(1675867010, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -216,6 +237,7 @@ var _bindata = map[string]func() (*asset, error){
 	"assets/bluetooth.toml":      assetsBluetoothToml,
 	"assets/bluetooth2.toml":     assetsBluetooth2Toml,
 	"assets/config.example.toml": assetsConfigExampleToml,
+	"assets/mocha.toml":          assetsMochaToml,
 }
 
 // AssetDir returns the file names below a certain
@@ -264,6 +286,7 @@ var _bintree = &bintree{nil, map[string]*bintree{
 		"bluetooth.toml":      &bintree{assetsBluetoothToml, map[string]*bintree{}},
 		"bluetooth2.toml":     &bintree{assetsBluetooth2Toml, map[string]*bintree{}},
 		"config.example.toml": &bintree{assetsConfigExampleToml, map[string]*bintree{}},
+		"mocha.toml":          &bintree{assetsMochaToml, map[string]*bintree{}},
 	}},
 }}
 
