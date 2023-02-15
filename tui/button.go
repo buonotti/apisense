@@ -24,13 +24,30 @@ func (d optionDelegate) Render(w io.Writer, m list.Model, index int, listItem li
 		return
 	}
 
-	str := fmt.Sprintf("╭───╮\n│   │ %s \n╰───╯", styleBold.Render(i.option))
+	var (
+		str string
+		fn  func(string2 string) string
+	)
 
-	fn := styleBase.Render
-	if index == m.Index() {
-		fn = func(s string) string {
-			//Add cursor by modifying the format string
-			return fmt.Sprintf("╭───╮\n│ %s │ %s \n╰───╯", stylePrimary.Render("x"), styleBold.Render(i.option))
+	if terminalHeight < 25 {
+		str = fmt.Sprintf("[   ] %s", styleBold.Render(i.option))
+
+		fn = styleBase.Render
+		if index == m.Index() {
+			fn = func(s string) string {
+				//Add cursor by modifying the format string
+				return fmt.Sprintf("[ %s ] %s", stylePrimary.Render("x"), styleBold.Render(i.option))
+			}
+		}
+	} else {
+		str = fmt.Sprintf("╭───╮\n│   │ %s \n╰───╯", styleBold.Render(i.option))
+
+		fn = styleBase.Render
+		if index == m.Index() {
+			fn = func(s string) string {
+				//Add cursor by modifying the format string
+				return fmt.Sprintf("╭───╮\n│ %s │ %s \n╰───╯", stylePrimary.Render("x"), styleBold.Render(i.option))
+			}
 		}
 	}
 

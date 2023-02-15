@@ -112,9 +112,9 @@ func (r resultModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (r resultModel) View() string {
 	if choiceReportModel != "resultModel" {
-		return lipgloss.NewStyle().Render(r.validatorOutputModel.View() + "\n")
+		return lipgloss.NewStyle().Render(r.validatorOutputModel.View())
 	}
-	return lipgloss.NewStyle().Render(r.table.View() + "\n")
+	return lipgloss.NewStyle().Render(r.table.View())
 }
 
 func getResultRows(results []validation.TestCaseResult) []table.Row {

@@ -81,7 +81,7 @@ func (v validatorOutputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (v validatorOutputModel) View() string {
-	return lipgloss.NewStyle().Render(v.table.View() + "\n")
+	return lipgloss.NewStyle().Render(v.table.View())
 }
 
 func getValidatorOutputRows(validatorOutputs []validation.ValidatorResult) []table.Row {
