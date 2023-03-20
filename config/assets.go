@@ -95,7 +95,7 @@ func assetsEnvExample() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "assets/.env.example", size: 76, mode: os.FileMode(420), modTime: time.Unix(1675234235, 0)}
+	info := bindataFileInfo{name: "assets/.env.example", size: 76, mode: os.FileMode(420), modTime: time.Unix(1675871644, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -115,7 +115,7 @@ func assetsBluetoothToml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "assets/bluetooth.toml", size: 2710, mode: os.FileMode(420), modTime: time.Unix(1675871294, 0)}
+	info := bindataFileInfo{name: "assets/bluetooth.toml", size: 2710, mode: os.FileMode(420), modTime: time.Unix(1675871644, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -135,7 +135,7 @@ func assetsBluetooth2Toml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "assets/bluetooth2.toml", size: 1186, mode: os.FileMode(420), modTime: time.Unix(1674656375, 0)}
+	info := bindataFileInfo{name: "assets/bluetooth2.toml", size: 1186, mode: os.FileMode(420), modTime: time.Unix(1675871644, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -155,7 +155,7 @@ func assetsConfigExampleToml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "assets/config.example.toml", size: 1986, mode: os.FileMode(420), modTime: time.Unix(1675869138, 0)}
+	info := bindataFileInfo{name: "assets/config.example.toml", size: 1986, mode: os.FileMode(420), modTime: time.Unix(1675871644, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -222,11 +222,13 @@ var _bindata = map[string]func() (*asset, error){
 // directory embedded in the file by go-bindata.
 // For example if you run go-bindata on data/... and data contains the
 // following hierarchy:
-//     data/
-//       foo.txt
-//       img/
-//         a.png
-//         b.png
+//
+//	data/
+//	  foo.txt
+//	  img/
+//	    a.png
+//	    b.png
+//
 // then AssetDir("data") would return []string{"foo.txt", "img"}
 // AssetDir("data/img") would return []string{"a.png", "b.png"}
 // AssetDir("foo.txt") and AssetDir("notexist") would return an error

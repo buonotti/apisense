@@ -45,30 +45,19 @@ func (v externalValidator) Validate(item validation.PipelineTestCase) error {
 		cmd.Stdout = outString
 	}
 
+	validatorOut := strings.Builder{}
+	validatorErr := strings.Builder{}
+	cmd.Stdout = &validatorOut
+	cmd.Stderr = &validatorErr
+
 	err = cmd.Run()
 
+	log.DaemonLogger.Infof("external validator %s finished with stdout: %s | stderr: %s", v.Definition.Path, validatorOut.String(), validatorErr.String())
+
 	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			for _, exitCode := range v.Definition.ExitCodes {
-				if exitCode.Code == int64(exitError.ExitCode()) {
-					if exitCode.Ok {
-						return nil
-					}
-					return errors.ValidationError.New("validation failed for endpoint %s: %s: %s", item.Url, exitCode.Description, outString)
-				}
-			}
-			return errors.ValidationError.New("validation failed for endpoint %s: %s: %s", item.Url, err, outString)
-		}
-		return errors.ValidationError.New("validation failed for endpoint %s: %s: %s", item.Url, err, outString)
-	} else {
-		if len(v.Definition.ExitCodes) > 0 {
-			for _, exitCode := range v.Definition.ExitCodes {
-				if exitCode.Code == 0 {
-					if exitCode.Ok {
-						return nil
-					}
-					return errors.ValidationError.New("validation failed for endpoint %s: %s: %s", item.Url, exitCode.Description, outString)
-				}
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			if exitErr.ExitCode() == 1 {
+				return errors.NewF(errors.ValidationError, "validation failed for endpoint %s: %s", item.Url, validatorErr.String())
 			}
 		}
 	}

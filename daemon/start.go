@@ -1,8 +1,6 @@
 package daemon
 
 import (
-	"os/exec"
-
 	lf "github.com/nightlyone/lockfile"
 
 	"github.com/buonotti/apisense/errors"
@@ -13,22 +11,16 @@ import (
 
 // Start starts the daemon. If the daemon is already running it returns an
 // *errors.CannotLockFileError because the already running daemon has the lock on
-// the file. The background parameters controls whether the daemon should be run
-// in the foreground or not.
-func Start(background bool, runOnStart bool) (*exec.Cmd, error) {
-	if background {
-		cmd := exec.Command("apisense", "daemon", "start")
-		return cmd, cmd.Start()
-	}
-
+// the file.
+func Start(runOnStart bool) error {
 	lock, err := lockfile()
 	if err != nil {
-		return nil, errors.CannotReadLockFileError.Wrap(err, "cannot create lock file")
+		return errors.CannotReadLockFileError.Wrap(err, "cannot create lock file")
 	}
 
 	err = lock.TryLock()
 	if err != nil {
-		return nil, errors.CannotLockFileError.Wrap(err, "cannot acquire lock file")
+		return errors.CannotLockFileError.Wrap(err, "cannot acquire lock file")
 	}
 
 	defer func(lock lf.Lockfile) {
@@ -41,13 +33,13 @@ func Start(background bool, runOnStart bool) (*exec.Cmd, error) {
 
 	pipeline, err := NewPipeline()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	d := daemon{
 		Pipeline: pipeline,
 	}
-	return nil, d.run(runOnStart)
+	return d.run(runOnStart)
 }
 
 func NewPipeline() (*validation.Pipeline, error) {
