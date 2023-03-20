@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/validation"
 	"github.com/buonotti/apisense/validation/external"
 )
@@ -39,7 +38,6 @@ func (v externalValidator) Validate(item validation.PipelineTestCase) error {
 		return errors.CannotSerializeItemError.Wrap(err, "cannot serialize item: %s", err)
 	}
 	cmd := exec.Command(v.Definition.Path, v.Definition.Args...)
-	log.DaemonLogger.Infof("running external validator %s with args %v", v.Definition.Path, v.Definition.Args)
 	if v.Definition.ReadFromStdin {
 		cmd.Stdin = strings.NewReader(string(jsonString))
 		cmd.Stdout = outString
@@ -52,12 +50,10 @@ func (v externalValidator) Validate(item validation.PipelineTestCase) error {
 
 	err = cmd.Run()
 
-	log.DaemonLogger.Infof("external validator %s finished with stdout: %s | stderr: %s", v.Definition.Path, validatorOut.String(), validatorErr.String())
-
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			if exitErr.ExitCode() == 1 {
-				return errors.NewF(errors.ValidationError, "validation failed for endpoint %s: %s", item.Url, validatorErr.String())
+				return errors.NewF(errors.ValidationError, "validation failed for endpoint %s: %s", item.EndpointName, validatorErr.String())
 			}
 		}
 	}

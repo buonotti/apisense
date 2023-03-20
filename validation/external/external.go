@@ -58,10 +58,10 @@ func Parse() ([]ValidatorDefinition, error) {
 	return validators, nil
 }
 
-func parseArgs(i interface{}) ([]string, error) {
-	arr, isArray := i.([]interface{})
+func parseArgs(obj interface{}) ([]string, error) {
+	arr, isArray := obj.([]interface{})
 	if !isArray {
-		return nil, errors.ExternalValidatorParseError.New("cannot parse external validator. expected []interface{}, got %T", i)
+		return nil, errors.ExternalValidatorParseError.New("cannot parse external validator. expected []interface{}, got %T", obj)
 	}
 
 	if len(arr) == 0 {
@@ -69,11 +69,11 @@ func parseArgs(i interface{}) ([]string, error) {
 	}
 
 	args := make([]string, len(arr))
-	for _, elem := range arr {
+	for i, elem := range arr {
 		if _, isString := elem.(string); !isString {
 			return nil, errors.ExternalValidatorParseError.New("cannot parse external validator. expected []string, got []%T", elem)
 		}
-		args = append(args, elem.(string))
+		args[i] = elem.(string)
 	}
 
 	return args, nil
