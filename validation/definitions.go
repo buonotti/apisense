@@ -71,13 +71,11 @@ func EndpointDefinitions() ([]EndpointDefinition, error) {
 		if err != nil {
 			return []EndpointDefinition{}, err
 		}
-		if definition.IsEnabled {
-			if !validateDefinition(definitions, definition) {
-				log.DaemonLogger.Errorf("validation failed for definition %s (%s). skipping", definition.Name, definition.FileName)
-				continue
-			}
-			definitions = append(definitions, definition)
+		if !validateDefinition(definitions, definition) {
+			log.DaemonLogger.Errorf("validation failed for definition %s (%s). skipping", definition.Name, definition.FileName)
+			continue
 		}
+		definitions = append(definitions, definition)
 	}
 	return definitions, nil
 }
