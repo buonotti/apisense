@@ -56,6 +56,5 @@ tasks:
     desc: Builds the release binaries
     cmds:
       - go-bindata -pkg config -o config/assets.go assets/
-      - gox -osarch="linux/amd64" -output="release/{{.Dir}}_{{.OS}}_{{.Arch}}"
-      - gox -osarch="darwin/amd64" -output="release/{{.Dir}}_{{.OS}}_{{.Arch}}"
-      - gox -osarch="windows/amd64" -output="release/{{.Dir}}_{{.OS}}_{{.Arch}}.exe"
+      - rm -rf release/
+      - go build -o release/apisense-linux-amd64
