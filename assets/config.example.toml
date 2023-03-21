@@ -27,6 +27,14 @@ pretty = true
 # Set to true to force color logging. Only has an effect if pretty is set to true.
 force-color = true
 
+# Set the discard times of reports. Reports older than this will be discarded.
+[daemon.discard]
+# Enable discarding of reports
+enabled = true
+
+# Set the discard interval. Reports older than this will be discarded.
+interval = "30d"
+
 [daemon.notification]
 # Set whether the daemon should send notifications.
 enabled = false

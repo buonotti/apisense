@@ -150,9 +150,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					switch choiceDaemonButton {
 					case "Start daemon":
 						if !running {
-							daemonCmd, err := daemon.Start(true, viper.GetBool("daemon.validate-on-startup"))
-							m.daemonCmd = daemonCmd
-							errors.CheckErr(err)
+							//daemonCmd, err := daemon.Start(true, viper.GetBool("daemon.validate-on-startup"))
+							//m.daemonCmd = daemonCmd
+							//errors.CheckErr(err)
 						}
 					case "Stop daemon":
 						if running {

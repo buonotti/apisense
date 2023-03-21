@@ -15,6 +15,7 @@ type PipelineTestCase struct {
 	SchemaEntries      []response.SchemaEntry `json:"schemaEntries"`      // SchemaEntries are the schema definitions of every field in the items Data
 	Data               map[string]any         `json:"data"`               // Data is the raw response data mapped in a map
 	Url                string                 `json:"url"`                // Url is the request url of the item
+	EndpointName       string                 `json:"endpointName"`       // EndpointName is the name of the endpoint in the definition file
 	Code               int                    `json:"code"`               // Code is the response code of the request
 	ExcludedValidators []string               `json:"excludedValidators"` // ExcludedValidators is a list of validators that should be excluded from the validation
 }
@@ -185,6 +186,8 @@ func (p *Pipeline) validateTestCase(item PipelineTestCase) []ValidatorResult {
 			validatorResults = append(validatorResults, validatorResult)
 			if validator.IsFatal() {
 				break
+			} else {
+				continue
 			}
 		}
 
@@ -215,6 +218,7 @@ func loadTestCases(definition EndpointDefinition) ([]PipelineTestCase, error) {
 			Url:                resp.Url,
 			Code:               resp.StatusCode,
 			ExcludedValidators: definition.ExcludedValidators,
+			EndpointName:       definition.Name,
 		})
 	}
 

@@ -8,12 +8,11 @@ import (
 
 // ValidatorDefinition is the definition of an external validator
 type ValidatorDefinition struct {
-	Name          string     // Name is the name of the validator
-	Path          string     // Path is the path to the executable
-	Args          []string   // Args are the arguments to pass to the executable
-	ReadFromStdin bool       // ReadFromStdin controls whether the validator expects the item to validate on stdin
-	Fatal         bool       // Fatal controls whether the validator is fatal or not that is if it fails the pipeline should stop
-	ExitCodes     []ExitCode // ExitCodes are the definitions of all possible exit codes
+	Name          string   // Name is the name of the validator
+	Path          string   // Path is the path to the executable
+	Args          []string // Args are the arguments to pass to the executable
+	ReadFromStdin bool     // ReadFromStdin controls whether the validator expects the item to validate on stdin
+	Fatal         bool     // Fatal controls whether the validator is fatal or not that is if it fails the pipeline should stop
 }
 
 // ExitCode is the definition of an exit code
@@ -43,11 +42,6 @@ func Parse() ([]ValidatorDefinition, error) {
 			return nil, errors.ExternalValidatorParseError.New("cannot parse external validators. Expected map[string]any, got %T", arrayEntry)
 		}
 
-		exitCodes, err := parseExitCodes(obj["exit-codes"])
-		if err != nil {
-			return nil, err
-		}
-
 		args, err := parseArgs(obj["args"])
 		if err != nil {
 			return nil, err
@@ -59,16 +53,15 @@ func Parse() ([]ValidatorDefinition, error) {
 			Args:          args,
 			ReadFromStdin: obj["read-from-stdin"].(bool),
 			Fatal:         obj["fatal"].(bool),
-			ExitCodes:     exitCodes,
 		}
 	}
 	return validators, nil
 }
 
-func parseArgs(i interface{}) ([]string, error) {
-	arr, isArray := i.([]interface{})
+func parseArgs(obj interface{}) ([]string, error) {
+	arr, isArray := obj.([]interface{})
 	if !isArray {
-		return nil, errors.ExternalValidatorParseError.New("cannot parse external validator. expected []interface{}, got %T", i)
+		return nil, errors.ExternalValidatorParseError.New("cannot parse external validator. expected []interface{}, got %T", obj)
 	}
 
 	if len(arr) == 0 {
@@ -76,38 +69,12 @@ func parseArgs(i interface{}) ([]string, error) {
 	}
 
 	args := make([]string, len(arr))
-	for _, elem := range arr {
+	for i, elem := range arr {
 		if _, isString := elem.(string); !isString {
 			return nil, errors.ExternalValidatorParseError.New("cannot parse external validator. expected []string, got []%T", elem)
 		}
-		args = append(args, elem.(string))
+		args[i] = elem.(string)
 	}
 
 	return args, nil
-}
-
-// parseExitCodes is a helper function to parse the exit codes from the config
-// file. It takes in an interface{} and returns a slice of ExitCode
-func parseExitCodes(object interface{}) ([]ExitCode, error) {
-	arr, isArray := object.([]interface{})
-	if !isArray {
-		return nil, errors.ExternalValidatorParseError.New("cannot parse external validators. Expected []any, got %T", object)
-	}
-
-	exitCodes := make([]ExitCode, len(arr))
-
-	for i, arrayEntry := range arr {
-		obj, isStringMap := arrayEntry.(map[string]interface{})
-		if !isStringMap {
-			return nil, errors.ExternalValidatorParseError.New("cannot parse external validators. Expected map[string]any, got %T", arrayEntry)
-		}
-
-		exitCodes[i] = ExitCode{
-			Code:        obj["code"].(int64),
-			Ok:          obj["ok"].(bool),
-			Description: obj["description"].(string),
-		}
-	}
-
-	return exitCodes, nil
 }
