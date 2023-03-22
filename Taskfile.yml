@@ -57,4 +57,4 @@ tasks:
     cmds:
       - go-bindata -pkg config -o config/assets.go assets/
       - rm -rf release/
-      - go build -o release/apisense-linux-amd64
+      - go build -o release/apisense-v.0.2.0-linux-amd64
