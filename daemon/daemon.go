@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/robfig/cron/v3"
@@ -126,6 +127,39 @@ func (d daemon) work() {
 	}
 
 	log.DaemonLogger.Infof("generated report (%s)", reportPath)
+
+	errors.CheckErr(d.cleanupReports())
+}
+
+func (d daemon) cleanupReports() error {
+	if !viper.GetBool("daemon.discard.enabled") {
+		return nil
+	}
+
+	log.DaemonLogger.Info("cleaning up reports")
+	files, err := os.ReadDir(validation.ReportLocation())
+	errors.CheckErr(err)
+	for _, file := range files {
+		fName := file.Name()
+		if !strings.HasSuffix(fName, ".report.json") {
+			continue
+		}
+		fName = strings.TrimSuffix(fName, ".report.json")
+		fTime, err := time.Parse("02-01-2006T15:04:05.000Z", fName)
+		if err != nil {
+			log.DaemonLogger.Warnf("cannot parse report name %s, skipping", file.Name())
+			return nil
+		}
+		maxTime := viper.GetDuration("daemon.discard.interval")
+		if time.Since(fTime) > maxTime {
+			err = os.Remove(validation.ReportLocation() + string(filepath.Separator) + file.Name())
+			if err != nil {
+				return errors.CannotRemoveFileError.Wrap(err, "cannot remove report file")
+			}
+			log.DaemonLogger.Infof("removed report %s because it was too old", file.Name())
+		}
+	}
+	return nil
 }
 
 // logResults logs the results of the validation pipeline to the output file or stdout using the log.DaemonLogger

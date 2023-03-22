@@ -17,4 +17,4 @@ var CannotFindReportFile = FileSystemErrors.NewType("cannot_find_report_file", f
 var CannotWriteConfigError = FileSystemErrors.NewType("cannot_write_config", fatalTrait)
 var CannotCreateFileError = FileSystemErrors.NewType("cannot_create_file", fatalTrait)
 var CannotReadDirectoryError = FileSystemErrors.NewType("cannot_read_directory", fatalTrait)
-var CannotUnmarshalThemeError = FileSystemErrors.NewType("cannot_unmarshal_theme", fatalTrait)
+var CannotRemoveFileError = FileSystemErrors.NewType("cannot_remove_file", fatalTrait)

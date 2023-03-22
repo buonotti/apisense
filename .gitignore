@@ -11,6 +11,8 @@ apisense
 .ssh/
 .ssh/*
 
+release/
+
 # Test binary, built with `go test -c`
 *.test
 
