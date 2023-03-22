@@ -61,6 +61,24 @@ func (r reportModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmdModel tea.Cmd
 	if choiceReportModel != "" {
+		if directoryUpdate {
+			t := table.New(
+				table.WithColumns(getReportColumns()),
+				table.WithRows(getReportRows(reports)),
+				table.WithFocused(true),
+				table.WithHeight(7),
+			)
+
+			s := table.DefaultStyles()
+			s.Selected = s.Selected.
+				Foreground(lipgloss.Color("#F38BA8")).
+				Background(lipgloss.Color("#1e1e2e")).
+				Bold(false)
+			t.SetStyles(s)
+			r.table = t
+			directoryUpdate = false
+		}
+
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch {
@@ -100,9 +118,9 @@ func (r reportModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (r reportModel) View() string {
 	if choiceReportModel != "reportModel" {
-		return styleContentCenter.Copy().MarginLeft(1).MarginRight(1).BorderStyle(lipgloss.RoundedBorder()).Render(r.validationEndpointModel.View() + "\n")
+		return styleContentCenter.Copy().MarginLeft(1).MarginRight(1).BorderStyle(lipgloss.RoundedBorder()).Render(r.validationEndpointModel.View())
 	}
-	return styleContentCenter.Copy().MarginLeft(1).MarginRight(1).BorderStyle(lipgloss.RoundedBorder()).Render(r.table.View() + "\n")
+	return styleContentCenter.Copy().MarginLeft(1).MarginRight(1).BorderStyle(lipgloss.RoundedBorder()).Render(r.table.View())
 }
 
 func getReportRows(reports []validation.Report) []table.Row {
@@ -113,7 +131,7 @@ func getReportRows(reports []validation.Report) []table.Row {
 
 	allowReportSelection = true
 	if len(rows) < 1 {
-		rows = append(rows, table.Row{"", "No reports found", ""})
+		rows = append(rows, table.Row{"", "No reports", "found. Make sure the deamon is running correctly"})
 		allowReportSelection = false
 	}
 

@@ -78,4 +78,5 @@ func (d daemonModel) View() string {
 		PaddingLeft(4).
 		PaddingRight(4).
 		Render(sPid+"\n\n"+sStatus+"\n\n") + "\n"
+
 }

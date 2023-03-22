@@ -18,7 +18,7 @@ var definitionsEnableCmd = &cobra.Command{
 	Long:  `Enable a definition`, // TODO: Add more info
 	Run: func(cmd *cobra.Command, args []string) {
 		fileName := args[0]
-		fullPath := validation.DefinitionsLocation() + "/" + fileName
+		fullPath := validation.DefinitionsLocation() + "/" + viper.GetString("daemon.ignore-prefix") + fileName
 		if _, err := os.Stat(fullPath); err == nil {
 			errors.CheckErr(os.Rename(fullPath, validation.DefinitionsLocation()+"/"+strings.TrimPrefix(fileName, viper.GetString("daemon.ignore-prefix"))))
 			fmt.Println("Definition enabled: " + fullPath)
