@@ -105,6 +105,11 @@ func (p *Pipeline) Reload() error {
 		return err
 	}
 
+	if len(definitions) == 0 {
+		log.DaemonLogger.Warnf("No endpoint definitions found.")
+		return nil
+	}
+
 	for _, definition := range definitions {
 		items, err := loadTestCases(definition)
 		if err != nil {
@@ -213,7 +218,7 @@ func loadTestCases(definition EndpointDefinition) ([]PipelineTestCase, error) {
 
 	for _, resp := range responses {
 		testCases = append(testCases, PipelineTestCase{
-			SchemaEntries:      definition.ResultSchema.Entries,
+			SchemaEntries:      definition.ResultSchema,
 			Data:               resp.RawData,
 			Url:                resp.Url,
 			Code:               resp.StatusCode,

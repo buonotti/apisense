@@ -25,7 +25,7 @@ WORKDIR /apisense
 ENV PATH="$PATH:/root/go/bin:/usr/local/go/bin"
 RUN /usr/local/go/bin/go get -u github.com/go-bindata/go-bindata/...
 RUN /usr/local/go/bin/go install github.com/go-bindata/go-bindata/...
-RUN go-bindata -o assets.go assets/
+RUN go-bindata -o examples.go examples/
 RUN go build
 RUN go install
 

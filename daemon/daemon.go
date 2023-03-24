@@ -150,7 +150,7 @@ func (d daemon) cleanupReports() error {
 			log.DaemonLogger.Warnf("cannot parse report name %s, skipping", file.Name())
 			return nil
 		}
-		maxTime := viper.GetDuration("daemon.discard.interval")
+		maxTime := viper.GetDuration("daemon.discard.max_lifetime")
 		if time.Since(fTime) > maxTime {
 			err = os.Remove(validation.ReportLocation() + string(filepath.Separator) + file.Name())
 			if err != nil {

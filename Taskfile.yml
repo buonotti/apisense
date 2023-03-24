@@ -9,7 +9,7 @@ tasks:
   build:
     desc: Builds the project
     cmds:
-      - go-bindata -pkg config -o config/assets.go assets/
+      # - go-bindata -pkg config -o config/examples.go examples/
       - go build
 
   install:
@@ -55,6 +55,6 @@ tasks:
   release:
     desc: Builds the release binaries
     cmds:
-      - go-bindata -pkg config -o config/assets.go assets/
+      # - go-bindata -pkg config -o config/examples.go examples/
       - rm -rf release/
       - go build -o release/apisense-v.0.2.0-linux-amd64

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 func GinLogger() gin.HandlerFunc {
@@ -17,7 +17,7 @@ func GinLogger() gin.HandlerFunc {
 		t := time.Now()
 		c.Next()
 		elapsed := time.Since(t)
-		ApiLogger.WithFields(logrus.Fields{
+		ApiLogger.WithFields(log.Fields{
 			"time":   fmt.Sprintf("%dms", elapsed.Milliseconds()),
 			"status": c.Writer.Status(),
 			"method": c.Request.Method,

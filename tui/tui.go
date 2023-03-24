@@ -134,7 +134,7 @@ func (m Model) Init() tea.Cmd {
 
 // Update Reacts to given I/O and updates the ui values accordingly. Also triggers rendering for given sup models based on menu choices
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	//Cmds that force rendering of given component
+	// Cmds that force rendering of given component
 	var cmdMainMenu tea.Cmd
 	var cmdReportModel tea.Cmd
 	var cmdElapsedTrigger tea.Cmd
@@ -215,14 +215,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // View Redraws the UI after every Update
 func (m Model) View() string {
 
-	//Handle ErrorMsg received during Update()
+	// Handle ErrorMsg received during Update()
 	if m.err != nil {
 		errors.CheckErr(errors.UnknownError.Wrap(m.err, "Unknown error"))
 	}
 
-	//Render Title
+	// Render Title
 	title := figure.NewFigure("API SENSE", "", true)
-	//Resize flexbox based on the current terminalHeight. This value change whenever a WindowSizeMsg is caught
+	// Resize flexbox based on the current terminalHeight. This value change whenever a WindowSizeMsg is caught
 	if terminalHeight > 25 {
 		m.flexbox.Row(0).UpdateCellWithIndex(0, stickers.NewFlexBoxCell(1, 4).SetStyle(styleContentCenter.Copy().MarginLeft(1).MarginRight(1).MarginTop(3)))
 		m.flexbox.Row(2).UpdateCellWithIndex(0, stickers.NewFlexBoxCell(1, 2).SetStyle(styleContentCenter.Copy().MarginLeft(3)))
@@ -233,26 +233,26 @@ func (m Model) View() string {
 		m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(""))
 	}
 
-	//Act based one main menu changes
+	// Act based one main menu changes
 	switch choiceMainMenu {
 	case "Daemon":
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(terminalHeight / 8))
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.daemonModel.View()))
 	case "Report":
-		//Render report option
+		// Render report option
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(terminalHeight / 8))
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.reportModel.View()))
 	case "Config":
-		//Act based one config menu changes
+		// Act based one config menu changes
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(terminalHeight / 8))
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.configModel.View()))
 	default:
-		//Render main menu
+		// Render main menu
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(terminalHeight / 8))
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.listMainMenu.View()))
 	}
 
-	//Render help menu
+	// Render help menu
 	m.flexbox.Row(2).Cell(0).SetContent(m.help.View(m.keymap))
 	return m.flexbox.Render()
 

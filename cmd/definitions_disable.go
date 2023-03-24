@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
+	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -19,10 +19,10 @@ var definitionsDisableCmd = &cobra.Command{
 		fileName := args[0]
 		fullPath := validation.DefinitionsLocation() + "/" + fileName
 		if _, err := os.Stat(fullPath); err == nil {
-			errors.CheckErr(os.Rename(fullPath, validation.DefinitionsLocation()+"/"+viper.GetString("daemon.ignore-prefix")+fileName))
-			fmt.Println("Definition disabled: " + fullPath)
+			errors.CheckErr(os.Rename(fullPath, validation.DefinitionsLocation()+"/"+viper.GetString("daemon.ignore_prefix")+fileName))
+			log.CliLogger.Infof("Definition disabled: %s", fullPath)
 		} else {
-			fmt.Println("Definition not found: " + fullPath)
+			log.CliLogger.Infof("Definition not found: %s", fullPath)
 		}
 	},
 	ValidArgsFunction: validEnabledDefinitionFunc(),

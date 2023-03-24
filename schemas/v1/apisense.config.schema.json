@@ -1,0 +1,191 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "additionalProperties": false,
+  "description": "YAML Schema for the Apisense config file https://github.com/buonotti/apisense",
+  "properties": {
+    "log": {
+      "description": "Log configuration",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "level": {
+          "description": "Log level",
+          "type": "string",
+          "default": "info",
+          "enum": [
+            "debug",
+            "info",
+            "warning",
+            "error",
+            "critical"
+          ]
+        },
+        "file": {
+          "description": "Log file",
+          "default": "",
+          "type": "string"
+        }
+      }
+    },
+    "daemon": {
+      "description": "Daemon configuration",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "interval": {
+          "description": "Interval in which the daemon runs as a cron expression",
+          "type": "string",
+          "default": "* * * * *",
+          "pattern": "^\\*\\s\\*\\s\\*\\s\\*\\s\\*$"
+        },
+        "run_on_startup": {
+          "description": "Run the daemon on startup",
+          "type": "boolean",
+          "default": true
+        },
+        "ignore_prefix": {
+          "description": "Prefix of a definition file to ignore",
+          "type": "string"
+        },
+        "discard": {
+          "description": "Configures the discard times of reports",
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "description": "Enable the discard feature",
+              "type": "boolean",
+              "default": true
+            },
+            "max_lifetime": {
+              "description": "Set the max lifetime of a report in a golang duration format",
+              "type": "string",
+              "default": "720h",
+              "pattern": "^\\d+[smhd]$"
+            }
+          }
+        },
+        "notification": {
+          "description": "Configures the notification system",
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "description": "Enable the notification feature",
+              "type": "boolean",
+              "default": false
+            },
+            "only_on_error": {
+              "description": "Send a notification only if the report has an error",
+              "type": "boolean",
+              "default": true
+            },
+            "receiver": {
+              "description": "The receiver of the notification",
+              "type": "string"
+            },
+            "smtp_server": {
+              "description": "The SMTP server to use to send the notification",
+              "type": "string"
+            },
+            "smtp_port": {
+              "description": "The SMTP port to use to send the notification",
+              "type": "integer",
+              "default": 587
+            }
+          }
+        }
+      }
+    },
+    "ssh": {
+      "description": "SSH configuration",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "host": {
+          "description": "SSH host to listen on",
+          "type": "string",
+          "default": ""
+        },
+        "port": {
+          "description": "SSH port to listen on",
+          "type": "integer",
+          "default": 23232
+        }
+      }
+    },
+    "tui": {
+      "description": "TUI configuration",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "refresh": {
+          "description": "TUI refresh interval in milliseconds",
+          "type": "integer",
+          "default": 10
+        }
+      }
+    },
+    "api": {
+      "description": "API configuration",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "host": {
+          "description": "API host to listen on",
+          "type": "string",
+          "default": ""
+        },
+        "port": {
+          "description": "API port to listen on",
+          "type": "integer",
+          "default": 8080
+        }
+      }
+    },
+    "validation": {
+      "description": "Validation configuration",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "external_validators": {
+          "description": "External validators to use",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "description": "Name of the validator",
+                "type": "string"
+              },
+              "path": {
+                "description": "Path to the validator",
+                "type": "string"
+              },
+              "args": {
+                "description": "Arguments to pass to the validator",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "fatal": {
+                "description": "If the validator is fatal or not",
+                "type": "boolean",
+                "default": false
+              }
+            }
+          }
+        },
+        "excluded_builtin_validators": {
+          "description": "Builtin validators to exclude",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

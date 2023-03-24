@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -26,7 +25,7 @@ var configSetCmd = &cobra.Command{
 		viper.Set(key, value)
 		err := viper.WriteConfig()
 		cobra.CheckErr(errors.SafeWrap(errors.CannotWriteConfigError, err, "cannot write to config file"))
-		fmt.Println("Config Updated!")
+		log.CliLogger.Infof("Set config value: %s", key)
 		printConfigValue(key, len(key))
 	},
 }

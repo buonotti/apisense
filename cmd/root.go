@@ -26,6 +26,9 @@ daemon. For more info check each commands description.`,
 		cobra.CheckErr(config.Setup())
 		cobra.CheckErr(log.Setup())
 	},
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		cobra.CheckErr(log.CloseLogFile())
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

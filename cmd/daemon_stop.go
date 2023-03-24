@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
 
 	"github.com/buonotti/apisense/daemon"
@@ -15,7 +14,7 @@ var daemonStopCmd = &cobra.Command{
 	Long:  `This command stops a running daemon. If there is no daemon running the command does nothing.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		errors.CheckErr(daemon.Stop())
-		fmt.Printf("Daemon stopped")
+		log.CliLogger.Infof("Daemon stopped")
 	},
 }
 
