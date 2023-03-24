@@ -3,47 +3,39 @@ package log
 import (
 	"os"
 
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
+	"github.com/apex/log"
 	"github.com/spf13/viper"
-
-	"github.com/buonotti/apisense/util"
 )
+
+func hasLogFile() bool {
+	return logFile != nil
+}
+
+var logFile *os.File
+
+func CloseLogFile() error {
+	if logFile != nil {
+		err := logFile.Close()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 // Setup reads the config and configures log level and log output of all loggers
 func Setup() error {
-	doPrettyLog := viper.GetBool("daemon.log.pretty")
-	forceColorLog := viper.GetBool("daemon.log.force-color")
-	logLevel := viper.GetString("daemon.log.level")
-	logFileName := viper.GetString("daemon.log.file")
-
-	hasLogFile := logFileName != ""
-
-	if doPrettyLog {
-		logrus.SetFormatter(&logrus.TextFormatter{
-			ForceColors:   forceColorLog,
-			DisableColors: hasLogFile,
-			PadLevelText:  true,
-		})
-	} else {
-		logrus.SetFormatter(&logrus.JSONFormatter{})
+	logFilePath := viper.GetString("log.file")
+	if logFilePath != "" {
+		osFile, err := os.OpenFile(viper.GetString("log.file"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		if err != nil {
+			return err
+		}
+		logFile = osFile
 	}
 
-	lvl, err := logrus.ParseLevel(logLevel)
-	if err != nil {
-		return err
-	}
-
-	logrus.SetLevel(lvl)
-
-	if hasLogFile {
-		path := logFileName
-		util.ExpandHome(&path)
-		logFile, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		cobra.CheckErr(err) // TODO find better fix
-
-		logrus.SetOutput(logFile)
-	}
+	log.SetHandler(newHandler())
+	log.SetLevelFromString(viper.GetString("log.level"))
 
 	return nil
 }

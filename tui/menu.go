@@ -35,7 +35,7 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 	fn := styleBase.Render
 	if index == m.Index() {
 		fn = func(s string) string {
-			//Add cursor by modifying the format string
+			// Add cursor by modifying the format string
 			return stylePrimary.Render(fmt.Sprintf("│ %s \n│ %s \n", styleBold.Render(i.title), i.desc))
 		}
 	}

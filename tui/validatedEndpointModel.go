@@ -106,9 +106,9 @@ func (v validationEndpointModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (v validationEndpointModel) View() string {
 	if choiceReportModel != "validatedEndpointModel" {
-		return lipgloss.NewStyle().Render(v.resultModel.View() + "\n")
+		return lipgloss.NewStyle().Render(v.resultModel.View())
 	}
-	return lipgloss.NewStyle().Render(v.table.View() + "\n")
+	return lipgloss.NewStyle().Render(v.table.View())
 }
 
 func getValidatedEndpointRows(validatedEndpoint validation.Report) []table.Row {

@@ -24,7 +24,7 @@ type ExitCode struct {
 
 // Parse parses the external validators in the config file and returns a slice containing all validators to later use in the pipeline
 func Parse() ([]ValidatorDefinition, error) {
-	object := viper.Get("validation.external")
+	object := viper.Get("validation.external_validators")
 	if object == nil {
 		return []ValidatorDefinition{}, nil
 	}
@@ -48,11 +48,10 @@ func Parse() ([]ValidatorDefinition, error) {
 		}
 
 		validators[i] = ValidatorDefinition{
-			Name:          obj["name"].(string),
-			Path:          obj["path"].(string),
-			Args:          args,
-			ReadFromStdin: obj["read-from-stdin"].(bool),
-			Fatal:         obj["fatal"].(bool),
+			Name:  obj["name"].(string),
+			Path:  obj["path"].(string),
+			Args:  args,
+			Fatal: obj["fatal"].(bool),
 		}
 	}
 	return validators, nil

@@ -1,0 +1,163 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "queryParameter": {
+      "title": "A url query parameter",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "title": "The name of the parameter",
+          "type": "string"
+        },
+        "value": {
+          "title": "The value of the parameter",
+          "type": "string"
+        }
+      }
+    },
+    "variable": {
+      "title": "A variable to use in the url or query params",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "name",
+        "constant",
+        "values"
+      ],
+      "properties": {
+        "name": {
+          "title": "The name of the variable",
+          "type": "string"
+        },
+        "constant": {
+          "title": "Whether the variable is constant or not",
+          "type": "boolean"
+        },
+        "values": {
+          "title": "The values of the variable. Only one if constant",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "resultEntry": {
+      "title": "Single field of the result",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "name",
+        "type",
+        "required",
+        "fields"
+      ],
+      "properties": {
+        "name": {
+          "title": "The name of the field",
+          "type": "string"
+        },
+        "type": {
+          "title": "The type of the field",
+          "type": "string",
+          "enum": [
+            "number",
+            "string",
+            "boolean",
+            "array",
+            "object"
+          ]
+        },
+        "min": {
+          "title": "The min value of the field",
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string",
+              "enum": ["none"]
+            }
+          ]
+        },
+        "max": {
+          "title": "The max value of the field",
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string",
+              "enum": ["none"]
+            }
+          ]
+        },
+        "required": {
+          "title": "If the field is required",
+          "type": "boolean"
+        },
+        "fields": {
+          "title": "The fields of the entry, only for array and object",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/resultEntry"
+          }
+        }
+      }
+    }
+  },
+  "description": "YAML Schema for an Apisense definition from https://github.com/buonotti/apisense",
+  "properties": {
+    "name": {
+      "title": "The name of the definition, must be unique",
+      "type": "string"
+    },
+    "format": {
+      "title": "The format of the API response",
+      "type": "string",
+      "enum": [
+        "json",
+        "xml"
+      ]
+    },
+    "base_url": {
+      "title": "The base url to send the request to",
+      "type": "string"
+    },
+    "excluded_validators": {
+      "title": "Validators to exclude",
+      "type": "array",
+      "items": {
+        "title": "Validator name",
+        "type": "string"
+      }
+    },
+    "query_parameters": {
+      "title": "The query parameters to add to the request",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/queryParameter"
+      }
+    },
+    "variables": {
+      "title": "The variables to interpolate",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/variable"
+      }
+    },
+    "result": {
+      "title": "The schema of the result",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/resultEntry"
+      }
+    }
+  }
+}

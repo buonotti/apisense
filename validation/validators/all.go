@@ -6,11 +6,21 @@ import (
 )
 
 var allValidators = map[string]validation.Validator{
-	"status": statusValidator{OkStatus: 200},
-	"range":  rangeValidator{},
-	"schema": schemaValidator{},
+	"status": NewStatusValidatorC(200),
+	"range":  NewRangeValidator(),
+	"schema": NewSchemaValidator(),
 }
 
 func All() []validation.Validator {
 	return util.Values(allValidators)
+}
+
+func Without(names ...string) []validation.Validator {
+	var validators []validation.Validator
+	for _, validator := range All() {
+		if !util.Contains(names, validator.Name()) {
+			validators = append(validators, validator)
+		}
+	}
+	return validators
 }

@@ -2,6 +2,7 @@ package daemon
 
 import (
 	lf "github.com/nightlyone/lockfile"
+	"github.com/spf13/viper"
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/validation"
@@ -44,8 +45,12 @@ func Start(runOnStart bool) error {
 
 func NewPipeline() (*validation.Pipeline, error) {
 	pipeline, err := validation.NewPipelineWithValidators(
-		validators.All()...,
+		validators.Without(viper.GetStringSlice("validation.excluded_builtin_validators")...)...,
 	)
+
+	if err != nil {
+		return nil, err
+	}
 
 	externalValidators, err := external.Parse()
 	if err != nil {

@@ -72,7 +72,7 @@ func validateSchema(schemaEntries []response.SchemaEntry, data map[string]any) e
 			// item in the array using the schema in the children property of the current
 			// schema schemaEntry
 			for _, item := range arr {
-				err := validateSchema(schemaEntry.ChildEntries, item.(map[string]any))
+				err := validateSchema(schemaEntry.Fields, item.(map[string]any))
 				if err != nil {
 					return err
 				}
@@ -84,7 +84,7 @@ func validateSchema(schemaEntries []response.SchemaEntry, data map[string]any) e
 
 			// do the similar thing as above for arrays but for objects (that means we do the
 			// same thing, we just check only one value instead of an array)
-			err := validateSchema(schemaEntry.ChildEntries, value.(map[string]any))
+			err := validateSchema(schemaEntry.Fields, value.(map[string]any))
 			if err != nil {
 				return err
 			}

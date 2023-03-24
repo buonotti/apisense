@@ -34,16 +34,16 @@ func Start() error {
 	router.Use(gin.Recovery())
 	router.Use(middleware.Limiter())
 
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	api := router.Group("/api")
 	api.GET("/health", controllers.GetHealth)
 	api.GET("/reports", controllers.AllReports)
 	api.GET("/reports/:id", controllers.Report)
 	api.GET("/ws", controllers.Ws)
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", viper.GetInt("api.port")),
+		Addr:    fmt.Sprintf("%s:%d", viper.GetString("api.host"), viper.GetInt("api.port")),
 		Handler: router,
 	}
 

@@ -12,8 +12,7 @@ var docStyle = lipgloss.NewStyle().Margin(1, 2)
 
 // BASE STYLE FOR KEYMAP DESCRIPTIONS
 var styleHotkey = styleHelp.Copy().
-	Bold(true).
-	MarginLeft(2)
+	Bold(true)
 
 // BASE STYLES FOR MENU RENDERING
 var styleBase = lipgloss.NewStyle()

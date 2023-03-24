@@ -14,10 +14,10 @@ var daemonStartCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		force, err := cmd.Flags().GetBool("force")
 		if err != nil {
-			cobra.CheckErr(errors.CannotGetFlagValueError.Wrap(err, "cannot get value of flag: force"))
+			errors.CheckErr(errors.CannotGetFlagValueError.Wrap(err, "cannot get value of flag: force"))
 		}
 		err = daemon.Start(force)
-		cobra.CheckErr(err)
+		errors.CheckErr(err)
 	},
 }
 

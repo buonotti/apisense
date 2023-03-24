@@ -1,7 +1,6 @@
 package tui
 
 import (
-	"os/exec"
 	"time"
 
 	"github.com/76creates/stickers"
@@ -20,32 +19,31 @@ import (
 )
 
 var (
-	fileUpdate         = false
-	choiceMainMenu     string
-	choiceDaemonButton string
-	choiceReportModel  string
-	choiceConfigModel  string
-	reports            []validation.Report
-	terminalHeight     = getTerminalHeight()
+	fileUpdate        bool                  = false // fileUpdate True whenever the pid in the daemon.pid file changes
+	directoryUpdate   bool                  = false // directoryUpdate True whenever a new report is generated
+	choiceMainMenu    string                        // choiceMainMenu Saves the user choice made on the listMainMenu
+	choiceReportModel string                        // choiceReportModel Saves the user choice made in the reportModel view
+	choiceConfigModel string                        // choiceConfigModel Saves the user choice made in the configModel view
+	reports           []validation.Report           // reports Existing reports
+	terminalHeight    = getTerminalHeight()         // terminalHeight Terminal height, updates whenever a WindowSizeMsg is triggered
 )
 
 type errMsg error
 
 type Model struct {
-	help             help.Model
-	keymap           keymap
-	flexbox          *stickers.FlexBox
-	elapsedTrigger   stopwatch.Model
-	quitting         bool
-	err              error
-	listMainMenu     list.Model
-	listDaemonButton list.Model
-	daemonModel      tea.Model
-	reportModel      tea.Model
-	configModel      tea.Model
-	daemonCmd        *exec.Cmd
+	help           help.Model
+	keymap         keymap
+	flexbox        *stickers.FlexBox
+	elapsedTrigger stopwatch.Model
+	quitting       bool
+	err            error
+	listMainMenu   list.Model
+	daemonModel    tea.Model
+	reportModel    tea.Model
+	configModel    tea.Model
 }
 
+// TuiModule Creates the initial parent model and sets the rendering interval based on the tui.refresh config value
 func TuiModule() Model {
 	listMainMenu.SetShowFilter(false)
 	listMainMenu.SetShowTitle(false)
@@ -66,34 +64,51 @@ func TuiModule() Model {
 	listDaemonButton.SetShowStatusBar(false)
 
 	return Model{
-		keymap:           DefaultKeyMap,
-		help:             help.New(),
-		flexbox:          stickers.NewFlexBox(0, 0).SetStyle(styleContentCenter.Copy()),
-		listMainMenu:     listMainMenu,
-		listDaemonButton: listDaemonButton,
-		daemonModel:      DaemonModel(),
-		reportModel:      ReportModel(),
-		elapsedTrigger:   stopwatch.NewWithInterval(time.Duration(viper.GetInt("tui.refresh")) * time.Millisecond),
-		daemonCmd:        nil,
-		configModel:      ConfigModel(),
+		keymap:         DefaultKeyMap,
+		help:           help.New(),
+		flexbox:        stickers.NewFlexBox(0, 0).SetStyle(styleContentCenter.Copy()),
+		listMainMenu:   listMainMenu,
+		elapsedTrigger: stopwatch.NewWithInterval(time.Duration(viper.GetInt("tui.refresh")) * time.Millisecond),
+		configModel:    ConfigModel(),
+		reportModel:    ReportModel(),
+		daemonModel:    DaemonModel(),
 	}
 }
 
+// Init Initializes the fileWatcher which monitors the daemons state and starts the renderingTrigger
 func (m Model) Init() tea.Cmd {
-	m.daemonModel.Init()
 	m.reportModel.Init()
 	m.configModel.Init()
-	watcher := fs.NewFileWatcher()
-	err := watcher.AddFile(daemon.PidFile)
+	fileWatcher := fs.NewFileWatcher()
+	err := fileWatcher.AddFile(daemon.PidFile)
+	errors.CheckErr(err)
+
+	directoryWatcher := fs.NewDirectoryWatcher()
+	err = directoryWatcher.SetDirectory(validation.ReportLocation())
 	errors.CheckErr(err)
 	go func() {
-		err := watcher.Start()
+		err := fileWatcher.Start()
+		errors.CheckErr(err)
+	}()
+
+	go func() {
+		err := directoryWatcher.Start()
 		errors.CheckErr(err)
 	}()
 
 	go func() {
 		for {
-			fileUpdate = <-watcher.Events
+			fileUpdate = <-fileWatcher.Events
+		}
+	}()
+
+	go func() {
+		for {
+			<-directoryWatcher.Events
+			directoryUpdate = true
+			r, err := validation.Reports()
+			errors.CheckErr(err)
+			reports = r
 		}
 	}()
 
@@ -117,14 +132,13 @@ func (m Model) Init() tea.Cmd {
 	return m.elapsedTrigger.Start()
 }
 
+// Update Reacts to given I/O and updates the ui values accordingly. Also triggers rendering for given sup models based on menu choices
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	//Cmds that force rendering of given component
+	// Cmds that force rendering of given component
 	var cmdMainMenu tea.Cmd
-	var cmdDaemonButton tea.Cmd
 	var cmdReportModel tea.Cmd
 	var cmdElapsedTrigger tea.Cmd
 	var cmdConfigModel tea.Cmd
-	m.listDaemonButton, cmdDaemonButton = m.listDaemonButton.Update(msg)
 	m.reportModel, cmdReportModel = m.reportModel.Update(msg)
 	m.listMainMenu, cmdMainMenu = m.listMainMenu.Update(msg)
 	m.elapsedTrigger, cmdElapsedTrigger = m.elapsedTrigger.Update(msg)
@@ -141,36 +155,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		case key.Matches(msg, m.keymap.choose):
 			i, okMainMenu := m.listMainMenu.SelectedItem().(item)
-			j, okDaemonButton := m.listDaemonButton.SelectedItem().(option)
 			if okMainMenu && choiceMainMenu == "" {
 				choiceMainMenu = i.title
-			} else {
-				if okDaemonButton && choiceDaemonButton == "" && choiceMainMenu == "Daemon" {
-					choiceDaemonButton = j.option
-					switch choiceDaemonButton {
-					case "Start daemon":
-						if !running {
-							//daemonCmd, err := daemon.Start(true, viper.GetBool("daemon.validate-on-startup"))
-							//m.daemonCmd = daemonCmd
-							//errors.CheckErr(err)
-						}
-					case "Stop daemon":
-						if running {
-							err := daemon.Stop()
-							errors.CheckErr(err)
-							if m.daemonCmd != nil {
-								err = m.daemonCmd.Wait()
-								errors.CheckErr(err)
-								m.daemonCmd = nil
-							}
-						}
-					}
-				}
 			}
 		case key.Matches(msg, m.keymap.up):
-			return m, tea.Batch(cmdMainMenu, cmdDaemonButton)
+			return m, cmdMainMenu
 		case key.Matches(msg, m.keymap.down):
-			return m, tea.Batch(cmdMainMenu, cmdDaemonButton)
+			return m, cmdMainMenu
 		case key.Matches(msg, m.keymap.back):
 			if choiceMainMenu != "Report" && choiceMainMenu != "Config" {
 				if choiceMainMenu != "" {
@@ -221,41 +212,47 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 }
 
+// View Redraws the UI after every Update
 func (m Model) View() string {
 
+	// Handle ErrorMsg received during Update()
 	if m.err != nil {
 		errors.CheckErr(errors.UnknownError.Wrap(m.err, "Unknown error"))
 	}
 
-	//Render Title
+	// Render Title
 	title := figure.NewFigure("API SENSE", "", true)
+	// Resize flexbox based on the current terminalHeight. This value change whenever a WindowSizeMsg is caught
 	if terminalHeight > 25 {
+		m.flexbox.Row(0).UpdateCellWithIndex(0, stickers.NewFlexBoxCell(1, 4).SetStyle(styleContentCenter.Copy().MarginLeft(1).MarginRight(1).MarginTop(3)))
+		m.flexbox.Row(2).UpdateCellWithIndex(0, stickers.NewFlexBoxCell(1, 2).SetStyle(styleContentCenter.Copy().MarginLeft(3)))
 		m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(title.String()))
 	} else {
-		m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render("APISENSE"))
+		m.flexbox.Row(0).UpdateCellWithIndex(0, stickers.NewFlexBoxCell(1, 1).SetStyle(styleContentCenter.Copy().MarginLeft(1).MarginRight(1).MarginTop(3)))
+		m.flexbox.Row(2).UpdateCellWithIndex(0, stickers.NewFlexBoxCell(1, 4).SetStyle(styleContentCenter.Copy().MarginLeft(3)))
+		m.flexbox.Row(0).Cell(0).SetContent(stylePrimary.Render(""))
 	}
 
-	//Act based one main menu changes
+	// Act based one main menu changes
 	switch choiceMainMenu {
 	case "Daemon":
-		choiceDaemonButton = ""
-		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(terminalHeight / 8).MarginLeft(5))
-		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.daemonModel.View() + docStyle.Render(m.listDaemonButton.View())))
+		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(terminalHeight / 8))
+		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.daemonModel.View()))
 	case "Report":
-		//Render report option
+		// Render report option
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(terminalHeight / 8))
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.reportModel.View()))
 	case "Config":
-		//Act based one config menu changes
+		// Act based one config menu changes
 		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(terminalHeight / 8))
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.configModel.View()))
 	default:
-		//Render main menu
-		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(terminalHeight / 8).MarginLeft(10))
+		// Render main menu
+		m.flexbox.Row(1).Cell(0).SetStyle(styleContentCenter.Copy().MarginTop(terminalHeight / 8))
 		m.flexbox.Row(1).Cell(0).SetContent(docStyle.Render(m.listMainMenu.View()))
 	}
 
-	//Render help menu
+	// Render help menu
 	m.flexbox.Row(2).Cell(0).SetContent(m.help.View(m.keymap))
 	return m.flexbox.Render()
 
