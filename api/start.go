@@ -12,7 +12,6 @@ import (
 	"github.com/spf13/viper"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"golang.org/x/sys/unix"
 
 	"github.com/buonotti/apisense/api/controllers"
 	"github.com/buonotti/apisense/api/middleware"
@@ -49,7 +48,7 @@ func Start() error {
 	}
 
 	done := make(chan os.Signal, 1)
-	signal.Notify(done, unix.SIGINT, unix.SIGTERM)
+	signal.Notify(done, os.Interrupt, os.Kill)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
