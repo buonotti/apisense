@@ -4,8 +4,6 @@ import (
 	"os"
 	"strconv"
 
-	"golang.org/x/sys/unix"
-
 	"github.com/buonotti/apisense/errors"
 )
 
@@ -25,7 +23,7 @@ func Stop() error {
 		return errors.CannotGetProcessInfoError.Wrap(err, "cannot get process info for pid "+strconv.Itoa(pid))
 	}
 
-	err = proc.Signal(unix.SIGINT)
+	err = proc.Signal(os.Interrupt)
 	if err != nil {
 		return errors.CannotSendSignalError.Wrap(err, "cannot send signal SIGINT to process "+strconv.Itoa(pid))
 	}

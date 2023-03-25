@@ -1,11 +1,11 @@
 package daemon
 
 import (
+	"net/rpc"
 	"os"
 	"strconv"
 
 	lf "github.com/nightlyone/lockfile"
-	"golang.org/x/sys/unix"
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/files"
@@ -48,21 +48,14 @@ func Pid() (int, error) {
 // ReloadDaemon sends a SIGHUP to the daemon to force it to reload its configuration.
 // If an error occurs the error will be of type *errors.CannotReloadDaemonError.
 func ReloadDaemon() error {
-	pid, err := Pid()
-	if err != nil {
-		return errors.CannotReloadDaemonError.Wrap(err, "cannot read pid file")
+	client, err := rpc.DialHTTP("tcp", "127.0.0.1:1234")
+	errors.CheckErr(err)
+	var reply int
+	err = client.Call("RpcDaemonManager.ReloadDaemon", 0, &reply)
+	errors.CheckErr(err)
+	if reply != 0 {
+		return errors.CannotReloadDaemonError.New("cannot reload daemon")
 	}
-
-	process, err := os.FindProcess(pid)
-	if err != nil {
-		return errors.CannotReloadDaemonError.Wrap(err, "cannot find process with pid: "+strconv.Itoa(pid))
-	}
-
-	err = process.Signal(unix.SIGHUP)
-	if err != nil {
-		return errors.CannotReloadDaemonError.Wrap(err, "cannot send interrupt signal to process with pid: "+strconv.Itoa(pid))
-	}
-
 	return nil
 }
 
