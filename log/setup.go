@@ -33,8 +33,9 @@ func Setup() error {
 		}
 		logFile = osFile
 	}
-
+	
 	log.SetHandler(newHandler())
+	
 	log.SetLevelFromString(viper.GetString("log.level"))
 
 	return nil

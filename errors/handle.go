@@ -5,6 +5,7 @@ import (
 
 	"github.com/joomcode/errorx"
 
+	apexlog "github.com/apex/log"
 	"github.com/buonotti/apisense/log"
 )
 
@@ -25,10 +26,18 @@ func CheckErr(err error) {
 func handleErrorxError(err *errorx.Error) {
 	if err != nil {
 		if err.HasTrait(fatalTrait) {
-			log.DefaultLogger.Error(err.Error())
+			if log.DefaultLogger.Level == apexlog.DebugLevel {
+				log.DefaultLogger.Errorf("%+v", err)
+			} else {
+				log.DefaultLogger.Error(err.Error())
+			}
 			os.Exit(1)
 		} else {
-			log.DefaultLogger.Warn(err.Error())
+			if log.DefaultLogger.Level == apexlog.DebugLevel {
+				log.DefaultLogger.Warnf("%+v", err)
+			} else {
+				log.DefaultLogger.Warn(err.Error())
+			}
 		}
 	}
 }
