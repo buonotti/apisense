@@ -44,11 +44,11 @@ func validateSchema(schemaEntries []definitions.SchemaEntry, data map[string]any
 				return errors.ValidationError.New("validation failed for field %s: expected type %s, got string", schemaEntry.Name, schemaEntry.Type)
 			}
 		case int:
-			if schemaEntry.Type != "int" {
+			if schemaEntry.Type != "number" && schemaEntry.Type != "integer" {
 				return errors.ValidationError.New("validation failed for field %s: expected type %s, got int", schemaEntry.Name, schemaEntry.Type)
 			}
 		case float64:
-			if schemaEntry.Type != "float" && schemaEntry.Type != "integer" {
+			if schemaEntry.Type != "number" {
 				return errors.ValidationError.New("validation failed for field %s: expected type %s, got float", schemaEntry.Name, schemaEntry.Type)
 			}
 		case bool:

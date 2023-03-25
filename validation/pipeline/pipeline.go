@@ -105,13 +105,14 @@ func (p *Pipeline) RemoveValidator(name string) {
 
 // Reload re-populates the Pipeline.TestCases collection
 func (p *Pipeline) Reload() error {
+	log.DaemonLogger.Infof("reloading pipeline...")
 	definitions, err := definitions.Endpoints()
 	if err != nil {
 		return err
 	}
 
 	if len(definitions) == 0 {
-		log.DaemonLogger.Warnf("No endpoint definitions found.")
+		log.DaemonLogger.Warnf("no endpoint definitions found.")
 		return nil
 	}
 

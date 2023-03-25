@@ -1,6 +1,7 @@
 package daemon
 
 import (
+	"net/http"
 	"os"
 
 	lf "github.com/nightlyone/lockfile"
@@ -52,6 +53,13 @@ func Start(runOnStart bool) error {
 	d := daemon{
 		Pipeline: pipeline,
 	}
+
+	go func() {
+		err := startRpcServer(&d)
+		if err != nil && err != http.ErrServerClosed {
+			errors.CheckErr(err)
+		}
+	}()
 
 	return d.run(runOnStart)
 }

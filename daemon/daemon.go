@@ -10,7 +10,6 @@ import (
 
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/viper"
-	"golang.org/x/sys/unix"
 
 	"github.com/buonotti/apisense/conversion"
 	"github.com/buonotti/apisense/errors"
@@ -45,7 +44,7 @@ func (d daemon) run(runOnStart bool) error {
 	ctx := context.Background()
 	ctx, contextCancel := context.WithCancel(ctx)
 	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, unix.SIGINT, unix.SIGHUP, unix.SIGTERM)
+	signal.Notify(signalChan, os.Interrupt)
 
 	defer endRun(signalChan, contextCancel)
 
@@ -75,9 +74,6 @@ func (d daemon) signalListener(signalChan chan os.Signal, cancel context.CancelF
 		select {
 		case s := <-signalChan:
 			switch s {
-			case unix.SIGHUP:
-				log.DaemonLogger.Info("received SIGHUP, reloading configuration")
-				errors.CheckErr(d.Pipeline.Reload())
 			case os.Interrupt:
 				log.DaemonLogger.Info("received SIGINT, stopping daemon")
 				errors.CheckErr(writeStatus(DownStatus))

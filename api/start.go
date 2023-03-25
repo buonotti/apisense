@@ -48,11 +48,15 @@ func Start() error {
 	}
 
 	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, os.Kill)
+	signal.Notify(done, os.Interrupt)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
-			log.ApiLogger.Error(err.Error())
+			if err != http.ErrServerClosed {
+				log.ApiLogger.WithError(err).Error("cannot start api service")
+			} else {
+				log.ApiLogger.Info("api service stopped")
+			}
 		}
 	}()
 

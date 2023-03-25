@@ -36,9 +36,9 @@ func WishMiddleware() wish.Middleware {
 			ct := time.Now()
 			hpk := s.PublicKey() != nil
 			pty, _, _ := s.Pty()
-			SSHLogger.Infof("%s connect %s %v %v %s %v %v\n", s.User(), s.RemoteAddr().String(), hpk, s.Command(), pty.Term, pty.Window.Width, pty.Window.Height)
+			SSHLogger.Infof("%s connect %s %v %v %s %v %v", s.User(), s.RemoteAddr().String(), hpk, s.Command(), pty.Term, pty.Window.Width, pty.Window.Height)
 			sh(s)
-			SSHLogger.Infof("%s disconnect %s\n", s.RemoteAddr().String(), time.Since(ct))
+			SSHLogger.Infof("%s disconnect %s", s.RemoteAddr().String(), time.Since(ct))
 		}
 	}
 }

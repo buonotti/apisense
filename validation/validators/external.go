@@ -133,7 +133,11 @@ func (v externalValidator) Validate(item fetcher.TestCase) error {
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			if exitErr.ExitCode() == 1 {
 				return errors.NewF(errors.ValidationError, "validation failed for endpoint %s: %s", item.EndpointName, validatorErr.String())
+			} else {
+				return errors.NewF(errors.ValidationError, "validation failed: unexpected exit code from external validator: %d", exitErr.ExitCode())
 			}
+		} else {
+			return errors.WrapF(errors.ValidationError, err, "validation failed: unexpected error from external validator")
 		}
 	}
 	return nil
