@@ -2,12 +2,14 @@ package cmd
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 
 	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/validation/definitions"
 )
 
 var definitionsListCmd = &cobra.Command{
@@ -16,7 +18,7 @@ var definitionsListCmd = &cobra.Command{
 	Short:   "List definitions",
 	Long:    `List definitions`, // TODO: Add more info
 	Run: func(cmd *cobra.Command, args []string) {
-		definitions, err := validation.EndpointDefinitions()
+		definitions, err := definitions.Endpoints()
 		errors.CheckErr(err)
 		concise := cmd.Flag("concise").Value.String() == "true"
 
@@ -30,20 +32,20 @@ var definitionsListCmd = &cobra.Command{
 	},
 }
 
-func printDefinitionVerbose(definition validation.EndpointDefinition) {
+func printDefinitionVerbose(definition definitions.Endpoint) {
 	keyStyle := lipgloss.NewStyle().Bold(true)
 	fmt.Printf("%s: %s\n", keyStyle.Render("Filename"), definition.Name)
 	fmt.Printf("%s: %v\n", keyStyle.Render("Enabled"), definition.IsEnabled)
-	fmt.Printf("%s: %s\n", keyStyle.Render("Full path"), validation.DefinitionsLocation()+"/"+definition.Name)
+	fmt.Printf("%s: %s\n", keyStyle.Render("Full path"), filepath.FromSlash(definition.FullPath))
 	fmt.Printf("%s: %s\n", keyStyle.Render("Base url"), definition.BaseUrl)
 	fmt.Println()
 }
 
-func printDefinition(definition validation.EndpointDefinition, concise bool) {
+func printDefinition(definition definitions.Endpoint, concise bool) {
 	if !concise {
 		printDefinitionVerbose(definition)
 	} else {
-		fmt.Printf("%s (%s/%s)\n", definition.Name, validation.DefinitionsLocation(), definition.FileName)
+		fmt.Printf("%s (%s/%s)\n", definition.Name, filepath.FromSlash(directories.DefinitionsDirectory()), definition.FileName)
 	}
 }
 

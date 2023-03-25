@@ -11,12 +11,12 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/pipeline"
 )
 
 var (
 	validatedEndpointRows []table.Row
-	selectedReport        validation.Report
+	selectedReport        pipeline.Report
 	allowReportSelection  bool
 )
 
@@ -28,7 +28,7 @@ type reportModel struct {
 
 func ReportModel() tea.Model {
 
-	r, err := validation.Reports()
+	r, err := pipeline.Reports()
 	errors.CheckErr(err)
 	reports = r
 
@@ -123,7 +123,7 @@ func (r reportModel) View() string {
 	return styleContentCenter.Copy().MarginLeft(1).MarginRight(1).BorderStyle(lipgloss.RoundedBorder()).Render(r.table.View())
 }
 
-func getReportRows(reports []validation.Report) []table.Row {
+func getReportRows(reports []pipeline.Report) []table.Row {
 	rows := make([]table.Row, 0)
 	for i, report := range reports {
 		rows = append(rows, table.Row{fmt.Sprintf("%v", i), report.Id, fmt.Sprintf("%v", time.Time(report.Time).Format("2006-01-02 15:04:05"))})
@@ -146,9 +146,9 @@ func getReportColumns() []table.Column {
 	}
 }
 
-func getSelectedReport(reports []validation.Report, index int) (validation.Report, error) {
+func getSelectedReport(reports []pipeline.Report, index int) (pipeline.Report, error) {
 	if index > len(reports) || index < 0 {
-		return validation.Report{}, errors.ModelError.New("Index out of range")
+		return pipeline.Report{}, errors.ModelError.New("Index out of range")
 	}
 	return reports[index], nil
 }

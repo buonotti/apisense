@@ -2,13 +2,14 @@ package cmd
 
 import (
 	"os"
+	"path/filepath"
 
+	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/validation"
 )
 
 var definitionsDisableCmd = &cobra.Command{
@@ -17,9 +18,9 @@ var definitionsDisableCmd = &cobra.Command{
 	Long:  `Disable a definition`, // TODO: Add more info
 	Run: func(cmd *cobra.Command, args []string) {
 		fileName := args[0]
-		fullPath := validation.DefinitionsLocation() + "/" + fileName
+		fullPath := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + fileName)
 		if _, err := os.Stat(fullPath); err == nil {
-			errors.CheckErr(os.Rename(fullPath, validation.DefinitionsLocation()+"/"+viper.GetString("daemon.ignore_prefix")+fileName))
+			errors.CheckErr(os.Rename(fullPath, filepath.FromSlash(directories.DefinitionsDirectory()+"/"+viper.GetString("daemon.ignore_prefix")+fileName)))
 			log.CliLogger.Infof("Definition disabled: %s", fullPath)
 		} else {
 			log.CliLogger.Infof("Definition not found: %s", fullPath)

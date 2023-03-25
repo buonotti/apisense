@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -17,9 +18,9 @@ import (
 	"golang.org/x/sys/unix"
 
 	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/tui"
-	"github.com/buonotti/apisense/validation"
 )
 
 // host returns the host value from the config
@@ -34,7 +35,7 @@ func port() int {
 
 // Start starts the ssh server that listens on the predefined host and port.
 func Start() error {
-	fsHandler := scp.NewFileSystemHandler(validation.ReportLocation())
+	fsHandler := scp.NewFileSystemHandler(filepath.FromSlash(directories.ReportsDirectory()))
 	s, err := wish.NewServer(
 		wish.WithAddress(fmt.Sprintf("%s:%d", host(), port())),
 		wish.WithHostKeyPath(os.Getenv("HOME")+"/.ssh/term_info_ed25519"),

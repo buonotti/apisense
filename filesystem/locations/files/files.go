@@ -1,0 +1,11 @@
+package files
+
+import (
+	"path/filepath"
+
+	"github.com/buonotti/apisense/filesystem/locations/directories"
+)
+
+func DotenvFile() string {
+	return filepath.FromSlash(directories.AppDirectory() + "/.env")
+}

@@ -14,3 +14,4 @@ var CannotGetProcessInfoError = DaemonErrors.NewType("cannot_get_process_info", 
 var CannotSendSignalError = DaemonErrors.NewType("cannot_send_signal")
 var DaemonNotRunningError = DaemonErrors.NewType("daemon_not_running")
 var DuplicateDefinitionError = DaemonErrors.NewType("duplicate_definition", fatalTrait)
+var CannotAddWorkFunctionToCronSchedulerError = DaemonErrors.NewType("cannot_add_work_function_to_cron_scheduler", fatalTrait)

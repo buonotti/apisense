@@ -10,7 +10,7 @@ import (
 //	@ID				health
 //	@Tags			health
 //	@Success		200
-//	@Router			/api/health [get]
+//	@Router			/health [get]
 func GetHealth(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "ok"})
 }

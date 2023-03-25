@@ -1,4 +1,4 @@
-package fs
+package filesystem
 
 import (
 	"os"
@@ -11,7 +11,6 @@ type FileWatcher struct {
 	content string
 	file    string
 	Events  chan bool
-	test    int
 }
 
 func NewFileWatcher() FileWatcher {

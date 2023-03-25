@@ -1,10 +1,22 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "Api specification for the Apisense API",
+        "title": "Apisense API",
+        "contact": {
+            "name": "buonotti",
+            "url": "https://github.com/buonotti/apisense/issues"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0"
     },
+    "host": "localhost:8080",
+    "basePath": "/api",
     "paths": {
-        "/api/health": {
+        "/health": {
             "get": {
                 "description": "Get the health status of the API",
                 "tags": [
@@ -19,22 +31,48 @@
                 }
             }
         },
-        "/api/reports": {
+        "/reports": {
             "get": {
-                "description": "Connect to this endpoint with the ws:// protocol to instantiate a websocket connection to get updates for new reports",
+                "description": "Gets a list of all reports that can be filtered with a query",
                 "tags": [
                     "reports"
                 ],
-                "summary": "Open a websocket connection to receive notifications",
-                "operationId": "ws",
+                "summary": "Get all the reports",
+                "operationId": "all-reports",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Query in the format: field.op.value (optional)",
+                        "name": "where",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Return format: json or csv (default: json)",
+                        "name": "format",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
-                    "101": {
-                        "description": "Switching Protocols"
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/validation.Report"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
                     }
                 }
             }
         },
-        "/api/reports/:id": {
+        "/reports/:id": {
             "get": {
                 "description": "Gets a single report identified by his id",
                 "tags": [
@@ -75,6 +113,21 @@
                         "schema": {
                             "$ref": "#/definitions/controllers.ErrorResponse"
                         }
+                    }
+                }
+            }
+        },
+        "/ws": {
+            "get": {
+                "description": "Connect to this endpoint with the ws:// protocol to instantiate a websocket connection to get updates for new reports",
+                "tags": [
+                    "reports"
+                ],
+                "summary": "Open a websocket connection to receive notifications",
+                "operationId": "ws",
+                "responses": {
+                    "101": {
+                        "description": "Switching Protocols"
                     }
                 }
             }

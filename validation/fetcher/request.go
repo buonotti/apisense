@@ -1,4 +1,4 @@
-package validation
+package fetcher
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation/variables"
+	"github.com/buonotti/apisense/validation/definitions"
 )
 
 // rest return the rest client with the set headers
@@ -43,50 +43,31 @@ func requestData(definition endpointRequest) (endpointResponse, error) {
 
 	resp, err := rest().R().SetQueryParams(definition.QueryParameters).Get(definition.Url)
 	if err != nil {
-		return endpointResponse{
-			RawData:    nil,
-			StatusCode: -1,
-			Url:        "",
-		}, errors.CannotRequestDataError.Wrap(err, "cannot request data from "+definition.Url)
+		return endpointResponse{}, errors.CannotRequestDataError.Wrap(err, "cannot request data from "+definition.Url)
 	}
 
 	loc := resp.RawResponse.Request.URL.String()
 	log.DaemonLogger.Infof("sent request to %s", resp.Request.URL)
 
 	if resp.StatusCode() != 200 {
-		return endpointResponse{
-			RawData:    nil,
-			StatusCode: resp.StatusCode(),
-			Url:        loc,
-		}, errors.NewF(errors.CannotRequestDataError, "cannot send request to: %s (status code %d)", definition.Url, resp.StatusCode())
+		return endpointResponse{}, errors.NewF(errors.CannotRequestDataError, "cannot send request to: %s (status code %d)", definition.Url, resp.StatusCode())
 	}
 
 	switch definition.ResponseFormat {
 	case "json":
 		err = json.Unmarshal(resp.Body(), &data)
 		if err != nil {
-			return endpointResponse{
-				RawData:    nil,
-				StatusCode: -1,
-				Url:        loc,
-			}, errors.CannotParseDataError.Wrap(err, "cannot parse data from: "+definition.Url)
+			return endpointResponse{}, errors.CannotParseDataError.Wrap(err, "cannot parse data from: "+definition.Url)
 		}
 	case "xml":
 		err = xml.Unmarshal(resp.Body(), &data)
 		if err != nil {
-			return endpointResponse{
-				RawData:    nil,
-				StatusCode: -1,
-				Url:        loc,
-			}, errors.CannotParseDataError.Wrap(err, "cannot parse data from: "+definition.Url)
+			return endpointResponse{}, errors.CannotParseDataError.Wrap(err, "cannot parse data from: "+definition.Url)
 		}
 	default:
-		return endpointResponse{
-			RawData:    nil,
-			StatusCode: -1,
-			Url:        loc,
-		}, errors.UnknownFormatError.Wrap(err, "unknown format: "+definition.ResponseFormat)
+		return endpointResponse{}, errors.UnknownFormatError.Wrap(err, "unknown format: "+definition.ResponseFormat)
 	}
+
 	return endpointResponse{
 		RawData:    data,
 		StatusCode: resp.StatusCode(),
@@ -95,9 +76,9 @@ func requestData(definition endpointRequest) (endpointResponse, error) {
 }
 
 // normalizeVariables converts all given variables in the definition of an endpoint to a collection of variables.EndpointParameter
-func normalizeVariables(definition EndpointDefinition) ([]variables.EndpointParameter, error) {
+func normalizeVariables(definition definitions.Endpoint) ([]EndpointParameter, error) {
 	// get the length of the first non-constant element of the variables. if there are only constants the valueCount is 1
-	firstVariableVar := util.FindFirst(definition.Variables, func(param variables.Definition) bool { return !param.IsConstant })
+	firstVariableVar := util.FindFirst(definition.Variables, func(param definitions.Variable) bool { return !param.IsConstant })
 	valueCount := 1
 	if firstVariableVar != nil {
 		valueCount = len(firstVariableVar.Values)
@@ -113,19 +94,19 @@ func normalizeVariables(definition EndpointDefinition) ([]variables.EndpointPara
 	// create a new variables.EndpointParameter for each variable. a constant
 	// parameter is created for constants and a variable parameter for variable
 	// values
-	var params []variables.EndpointParameter
+	var params []EndpointParameter
 	for _, param := range definition.Variables {
 		if param.IsConstant {
-			params = append(params, variables.NewConstantEndpointParameter(param.Values[0]))
+			params = append(params, NewConstantEndpointParameter(param.Values[0]))
 		} else {
-			params = append(params, variables.NewVariableEndpointParameter(param.Values))
+			params = append(params, NewVariableEndpointParameter(param.Values))
 		}
 	}
 	return params, nil
 }
 
 // parseRequests reads in the definition of an endpoint and returns a list of requests that need to be sent
-func parseRequests(definition EndpointDefinition) ([]endpointRequest, error) {
+func parseRequests(definition definitions.Endpoint) ([]endpointRequest, error) {
 	var requests []endpointRequest
 
 	// normalize the variables
@@ -135,7 +116,7 @@ func parseRequests(definition EndpointDefinition) ([]endpointRequest, error) {
 	}
 
 	// get the length of the first non-constant element of the variables. if there are only constants the valueCount is 1
-	firstVariableVar := util.FindFirst(definition.Variables, func(param variables.Definition) bool { return !param.IsConstant })
+	firstVariableVar := util.FindFirst(definition.Variables, func(param definitions.Variable) bool { return !param.IsConstant })
 	valueCount := 1
 	if firstVariableVar != nil {
 		valueCount = len(firstVariableVar.Values)
@@ -146,7 +127,7 @@ func parseRequests(definition EndpointDefinition) ([]endpointRequest, error) {
 		// create a variable map where the key is the name of the variable and the value
 		// is retrieved from the variables.EndpointParameter where the index is the
 		// current cycle
-		variableMap := variables.VariableMap(make(map[string]any))
+		variableMap := VariableMap(make(map[string]any))
 		for varIndex, variable := range vars {
 			variableMap[definition.Variables[varIndex].Name] = variable.Value(valueCycle)
 		}

@@ -1,4 +1,4 @@
-package validation
+package pipeline
 
 import (
 	"time"
@@ -7,7 +7,10 @@ import (
 
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/util"
+	"github.com/buonotti/apisense/validation/definitions"
+	"github.com/buonotti/apisense/validation/fetcher"
 	"github.com/buonotti/apisense/validation/response"
+	"github.com/buonotti/apisense/validation/validators"
 )
 
 // PipelineTestCase represents an item in the validation pipeline
@@ -22,8 +25,9 @@ type PipelineTestCase struct {
 
 // Pipeline represents the validation pipeline
 type Pipeline struct {
-	TestCases  map[string][]PipelineTestCase `json:"testCases"`  // TestCases are the collection of PipelineTestCase for each endpoint (definition file)
-	Validators []Validator                   `json:"validators"` // Validators are the validators that will be applied to the items in the pipeline
+	TestCases  map[string][]fetcher.TestCase `json:"testCases"`  // TestCases are the collection of PipelineTestCase for each endpoint (definition file)
+	Validators []validators.Validator        `json:"validators"` // Validators are the validators that will be applied to the items in the pipeline
+	fetcher    fetcher.Fetcher               // fetcher is the fetcher that will be used to fetch the items in the pipeline
 }
 
 // ValidatedEndpoint is the collection of results for each endpoint (definition)
@@ -48,7 +52,7 @@ type ValidatorResult struct {
 }
 
 // NewPipelineWithValidators creates a new validation pipeline with the given validators already added
-func NewPipelineWithValidators(validators ...Validator) (Pipeline, error) {
+func NewPipelineWithValidators(validators ...validators.Validator) (Pipeline, error) {
 	pipeline, err := NewPipeline()
 	if err != nil {
 		return Pipeline{}, err
@@ -60,20 +64,21 @@ func NewPipelineWithValidators(validators ...Validator) (Pipeline, error) {
 
 // NewPipeline creates a new validation pipeline without any validators
 func NewPipeline() (Pipeline, error) {
-	definitions, err := EndpointDefinitions()
+	allDefinitions, err := definitions.Endpoints()
 	if err != nil {
 		return Pipeline{}, err
 	}
 
 	pipeline := Pipeline{
-		TestCases:  make(map[string][]PipelineTestCase),
-		Validators: make([]Validator, 0),
+		TestCases:  make(map[string][]fetcher.TestCase),
+		Validators: make([]validators.Validator, 0),
+		fetcher:    fetcher.New(),
 	}
 
-	enabledDefinitions := util.Where(definitions, func(d EndpointDefinition) bool { return d.IsEnabled })
+	enabledDefinitions := util.Where(allDefinitions, func(d definitions.Endpoint) bool { return d.IsEnabled })
 
 	for _, definition := range enabledDefinitions {
-		items, err := loadTestCases(definition)
+		items, err := pipeline.fetcher.Fetch(definition)
 		if err != nil {
 			return Pipeline{}, err
 		}
@@ -85,7 +90,7 @@ func NewPipeline() (Pipeline, error) {
 }
 
 // AddValidator adds a validator to the end of the validation pipeline
-func (p *Pipeline) AddValidator(validator Validator) {
+func (p *Pipeline) AddValidator(validator validators.Validator) {
 	p.Validators = append(p.Validators, validator)
 }
 
@@ -100,7 +105,7 @@ func (p *Pipeline) RemoveValidator(name string) {
 
 // Reload re-populates the Pipeline.TestCases collection
 func (p *Pipeline) Reload() error {
-	definitions, err := EndpointDefinitions()
+	definitions, err := definitions.Endpoints()
 	if err != nil {
 		return err
 	}
@@ -111,7 +116,7 @@ func (p *Pipeline) Reload() error {
 	}
 
 	for _, definition := range definitions {
-		items, err := loadTestCases(definition)
+		items, err := p.fetcher.Fetch(definition)
 		if err != nil {
 			return err
 		}
@@ -150,7 +155,7 @@ func (p *Pipeline) Validate() Report {
 }
 
 // testCaseResults validates a collection of items and returns the results
-func (p *Pipeline) testCaseResults(items []PipelineTestCase) []TestCaseResult {
+func (p *Pipeline) testCaseResults(items []fetcher.TestCase) []TestCaseResult {
 	testCaseResults := make([]TestCaseResult, 0)
 
 	// testCaseResults each single item and append to the results
@@ -166,7 +171,7 @@ func (p *Pipeline) testCaseResults(items []PipelineTestCase) []TestCaseResult {
 }
 
 // validateTestCase validates a single item and returns the result of the validators
-func (p *Pipeline) validateTestCase(item PipelineTestCase) []ValidatorResult {
+func (p *Pipeline) validateTestCase(item fetcher.TestCase) []ValidatorResult {
 	validatorResults := make([]ValidatorResult, 0)
 
 	for _, validator := range p.Validators {
@@ -200,32 +205,4 @@ func (p *Pipeline) validateTestCase(item PipelineTestCase) []ValidatorResult {
 	}
 
 	return validatorResults
-}
-
-// loadTestCases parses the definition files and populates the Pipeline.TestCases collection
-func loadTestCases(definition EndpointDefinition) ([]PipelineTestCase, error) {
-	log.DaemonLogger.Infof("loading pipeline test-cases for %s", definition.Name)
-	var testCases []PipelineTestCase
-	requests, err := parseRequests(definition)
-	if err != nil {
-		return nil, err
-	}
-
-	responses, err := send(requests)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, resp := range responses {
-		testCases = append(testCases, PipelineTestCase{
-			SchemaEntries:      definition.ResultSchema,
-			Data:               resp.RawData,
-			Url:                resp.Url,
-			Code:               resp.StatusCode,
-			ExcludedValidators: definition.ExcludedValidators,
-			EndpointName:       definition.Name,
-		})
-	}
-
-	return testCases, nil
 }

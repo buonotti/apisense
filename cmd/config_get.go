@@ -40,9 +40,9 @@ func printConfigValue(key string, maxKeyLength int) {
 
 	styledKey := lipgloss.NewStyle().Bold(true).Render(fmt.Sprintf("%s = ", key))
 	styledVal := yellowStyle().Render(fmt.Sprintf("%v", val))
-	switch val.(type) {
+	switch val := val.(type) {
 	case bool:
-		if val.(bool) {
+		if val {
 			styledVal = greenStyle().Render(fmt.Sprintf("%v", val))
 		} else {
 			styledVal = redStyle().Render(fmt.Sprintf("%v", val))
@@ -52,7 +52,7 @@ func printConfigValue(key string, maxKeyLength int) {
 	case float64:
 		styledVal = blueStyle().Render(fmt.Sprintf("%v", val))
 	case string:
-		if val.(string) == "" {
+		if val == "" {
 			val = "<empty>"
 			styledVal = greyedOutStyle().Italic(true).Render(fmt.Sprintf("%v", val))
 		}

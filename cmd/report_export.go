@@ -8,7 +8,7 @@ import (
 	"github.com/buonotti/apisense/conversion"
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/pipeline"
 )
 
 var reportExportCmd = &cobra.Command{
@@ -22,22 +22,24 @@ var reportExportCmd = &cobra.Command{
 		all, err := cmd.Flags().GetBool("all")
 		errors.CheckErr(errors.SafeWrap(errors.CannotGetFlagValueError, err, "cannot get value for flag: all"))
 
-		reports, err := validation.Reports()
+		reports, err := pipeline.Reports()
 		errors.CheckErr(err)
 
 		var ids []string
 		if all {
-			ids = util.Map(reports, func(r validation.Report) string { return r.Id })
+			ids = util.Map(reports, func(r pipeline.Report) string { return r.Id })
 		} else {
 			ids = args
 		}
 
 		for _, arg := range ids {
-			report := util.FindFirst(reports, func(report validation.Report) bool {
+			report := util.FindFirst(reports, func(report pipeline.Report) bool {
 				return report.Id == arg
 			})
-			if report != nil {
+
+			if report == nil {
 				errors.CheckErr(errors.NewF(errors.UnknownReportError, "unknown report: %s", arg))
+				return
 			}
 
 			converter := conversion.Get(format)

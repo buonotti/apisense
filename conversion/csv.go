@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/pipeline"
 )
 
 func Csv() Converter {
@@ -13,7 +13,7 @@ func Csv() Converter {
 
 type csvConverter struct{}
 
-func (c csvConverter) ConvertMany(reports []validation.Report) ([]byte, error) {
+func (c csvConverter) ConvertMany(reports []pipeline.Report) ([]byte, error) {
 	lines := strings.Builder{}
 	for _, r := range reports {
 		d, err := c.Convert(r)
@@ -26,7 +26,7 @@ func (c csvConverter) ConvertMany(reports []validation.Report) ([]byte, error) {
 	return []byte(lines.String()), nil
 }
 
-func (csvConverter) Convert(reports ...validation.Report) ([]byte, error) {
+func (csvConverter) Convert(reports ...pipeline.Report) ([]byte, error) {
 	lines := strings.Builder{}
 	for _, report := range reports {
 		for _, validatedEndpoint := range report.Endpoints {

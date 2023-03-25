@@ -1,12 +1,14 @@
 package daemon
 
 import (
+	"os"
+
 	lf "github.com/nightlyone/lockfile"
 	"github.com/spf13/viper"
 
 	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/validation"
-	"github.com/buonotti/apisense/validation/external"
+	"github.com/buonotti/apisense/filesystem/locations/files"
+	"github.com/buonotti/apisense/validation/pipeline"
 	"github.com/buonotti/apisense/validation/validators"
 )
 
@@ -14,6 +16,16 @@ import (
 // *errors.CannotLockFileError because the already running daemon has the lock on
 // the file.
 func Start(runOnStart bool) error {
+	file, err := os.Create(files.DaemonStatusFile())
+	if err != nil {
+		return errors.CannotCreateFileError.Wrap(err, "cannot create status file")
+	}
+
+	err = file.Close()
+	if err != nil {
+		return errors.CannotCloseFileError.Wrap(err, "cannot close status file")
+	}
+
 	lock, err := lockfile()
 	if err != nil {
 		return errors.CannotReadLockFileError.Wrap(err, "cannot create lock file")
@@ -40,11 +52,12 @@ func Start(runOnStart bool) error {
 	d := daemon{
 		Pipeline: pipeline,
 	}
+
 	return d.run(runOnStart)
 }
 
-func NewPipeline() (*validation.Pipeline, error) {
-	pipeline, err := validation.NewPipelineWithValidators(
+func NewPipeline() (*pipeline.Pipeline, error) {
+	pipeline, err := pipeline.NewPipelineWithValidators(
 		validators.Without(viper.GetStringSlice("validation.excluded_builtin_validators")...)...,
 	)
 
@@ -52,13 +65,11 @@ func NewPipeline() (*validation.Pipeline, error) {
 		return nil, err
 	}
 
-	externalValidators, err := external.Parse()
-	if err != nil {
-		return nil, err
-	}
+	externalValidators, err := validators.LoadExternalValidators()
 
 	for _, externalValidator := range externalValidators {
-		pipeline.AddValidator(validators.NewExternalValidator(externalValidator))
+		pipeline.AddValidator(externalValidator)
 	}
+
 	return &pipeline, err
 }

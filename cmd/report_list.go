@@ -8,7 +8,7 @@ import (
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/pipeline"
 )
 
 var reportListCmd = &cobra.Command{
@@ -19,9 +19,9 @@ var reportListCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		verbose, err := cmd.Flags().GetBool("verbose")
 		errors.CheckErr(err)
-		reports, err := validation.Reports()
+		reports, err := pipeline.Reports()
 		errors.CheckErr(err)
-		reportIds := util.Map(reports, func(in validation.Report) string {
+		reportIds := util.Map(reports, func(in pipeline.Report) string {
 			if verbose {
 				return fmt.Sprintf("%s --- %s with %d result(s)", in.Id, time.Time(in.Time).Format("2006-01-02 at 15-04-05.000Z"), len(in.Endpoints))
 			}

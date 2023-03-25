@@ -18,3 +18,4 @@ var CannotWriteConfigError = FileSystemErrors.NewType("cannot_write_config", fat
 var CannotCreateFileError = FileSystemErrors.NewType("cannot_create_file", fatalTrait)
 var CannotReadDirectoryError = FileSystemErrors.NewType("cannot_read_directory", fatalTrait)
 var CannotRemoveFileError = FileSystemErrors.NewType("cannot_remove_file", fatalTrait)
+var CannotCloseFileError = FileSystemErrors.NewType("cannot_close_file", fatalTrait)

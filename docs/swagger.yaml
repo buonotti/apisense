@@ -1,3 +1,4 @@
+basePath: /api
 definitions:
   controllers.ErrorResponse:
     properties:
@@ -55,10 +56,19 @@ definitions:
         description: Status is the status of the validator (success/fail/skipped)
         type: string
     type: object
+host: localhost:8080
 info:
-  contact: {}
+  contact:
+    name: buonotti
+    url: https://github.com/buonotti/apisense/issues
+  description: Api specification for the Apisense API
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Apisense API
+  version: "1.0"
 paths:
-  /api/health:
+  /health:
     get:
       description: Get the health status of the API
       operationId: health
@@ -68,18 +78,34 @@ paths:
       summary: Health check
       tags:
       - health
-  /api/reports:
+  /reports:
     get:
-      description: Connect to this endpoint with the ws:// protocol to instantiate
-        a websocket connection to get updates for new reports
-      operationId: ws
+      description: Gets a list of all reports that can be filtered with a query
+      operationId: all-reports
+      parameters:
+      - description: 'Query in the format: field.op.value (optional)'
+        in: query
+        name: where
+        type: string
+      - description: 'Return format: json or csv (default: json)'
+        in: query
+        name: format
+        type: string
       responses:
-        "101":
-          description: Switching Protocols
-      summary: Open a websocket connection to receive notifications
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/validation.Report'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Get all the reports
       tags:
       - reports
-  /api/reports/:id:
+  /reports/:id:
     get:
       description: Gets a single report identified by his id
       operationId: report
@@ -107,6 +133,17 @@ paths:
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
       summary: Get one report
+      tags:
+      - reports
+  /ws:
+    get:
+      description: Connect to this endpoint with the ws:// protocol to instantiate
+        a websocket connection to get updates for new reports
+      operationId: ws
+      responses:
+        "101":
+          description: Switching Protocols
+      summary: Open a websocket connection to receive notifications
       tags:
       - reports
 swagger: "2.0"

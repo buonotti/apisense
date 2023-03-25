@@ -140,8 +140,7 @@ func getSelectedFieldName(i int) string {
 func getSelectConfigRows() []table.Row {
 
 	rows := make([]table.Row, 0)
-	strings := make([]string, 0)
-	strings = viper.AllKeys()
+	strings := viper.AllKeys()
 	sort.Strings(strings)
 
 	sortedStrings = make([][]string, 5)

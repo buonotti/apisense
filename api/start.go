@@ -23,18 +23,19 @@ import (
 
 func Start() error {
 	docs.SwaggerInfo.BasePath = "/api"
-	docs.SwaggerInfo.Title = "apisense"
-	docs.SwaggerInfo.Version = "1.0.0"
 
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
-	router.Use(middleware.CORS())
-	router.Use(log.GinLogger())
 	router.Use(gin.Recovery())
-	router.Use(middleware.Limiter())
+	router.Use(log.GinMiddleware())
+	router.Use(middleware.CORS())
+	// router.Use(middleware.Limiter())
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/swagger/index.html")
+	})
 
 	api := router.Group("/api")
 	api.GET("/health", controllers.GetHealth)

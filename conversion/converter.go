@@ -2,11 +2,11 @@ package conversion
 
 import (
 	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/pipeline"
 )
 
 type Converter interface {
-	Convert(report ...validation.Report) ([]byte, error)
+	Convert(report ...pipeline.Report) ([]byte, error)
 }
 
 var convMap = map[string]Converter{

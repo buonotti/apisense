@@ -14,11 +14,11 @@ import (
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/pipeline"
 )
 
 var (
-	selectedResult            validation.TestCaseResult
+	selectedResult            pipeline.TestCaseResult
 	validatorOutputRows       []table.Row
 	updateValidatorOutputRows = false
 )
@@ -117,7 +117,7 @@ func (r resultModel) View() string {
 	return lipgloss.NewStyle().Render(r.table.View())
 }
 
-func getResultRows(results []validation.TestCaseResult) []table.Row {
+func getResultRows(results []pipeline.TestCaseResult) []table.Row {
 	rows := make([]table.Row, 0)
 	queries := make([][]string, 0)
 	queriesToRender := make([]string, 0)
@@ -162,9 +162,9 @@ func getResultColumns() []table.Column {
 	}
 }
 
-func getSelectedResult(validatedEndpoint validation.ValidatedEndpoint, index int) (validation.TestCaseResult, error) {
+func getSelectedResult(validatedEndpoint pipeline.ValidatedEndpoint, index int) (pipeline.TestCaseResult, error) {
 	if index > len(validatedEndpoint.TestCaseResults) || index < 0 {
-		return validation.TestCaseResult{}, errors.ModelError.New("Index out of range")
+		return pipeline.TestCaseResult{}, errors.ModelError.New("Index out of range")
 	}
 	return validatedEndpoint.TestCaseResults[index], nil
 }

@@ -2,18 +2,19 @@ package tui
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"strconv"
 
 	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/pipeline"
 )
 
 var (
-	selectedValidatedEndpoint validation.ValidatedEndpoint
+	selectedValidatedEndpoint pipeline.ValidatedEndpoint
 	allowEndpointSelection    bool
 	resultRows                []table.Row
 	updateResultRows          = false
@@ -111,7 +112,7 @@ func (v validationEndpointModel) View() string {
 	return lipgloss.NewStyle().Render(v.table.View())
 }
 
-func getValidatedEndpointRows(validatedEndpoint validation.Report) []table.Row {
+func getValidatedEndpointRows(validatedEndpoint pipeline.Report) []table.Row {
 	rows := make([]table.Row, 0)
 	for i, point := range validatedEndpoint.Endpoints {
 		rows = append(rows, table.Row{fmt.Sprintf("%v", i), point.EndpointName})
@@ -132,9 +133,9 @@ func getValidatedEndpointColumns() []table.Column {
 	}
 }
 
-func getSelectedValidatedEndpoint(report validation.Report, index int) (validation.ValidatedEndpoint, error) {
+func getSelectedValidatedEndpoint(report pipeline.Report, index int) (pipeline.ValidatedEndpoint, error) {
 	if index > len(report.Endpoints) || index < 0 {
-		return validation.ValidatedEndpoint{}, errors.ModelError.New("Index out of range")
+		return pipeline.ValidatedEndpoint{}, errors.ModelError.New("Index out of range")
 	}
 	return report.Endpoints[index], nil
 }

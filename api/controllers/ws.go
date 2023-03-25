@@ -2,14 +2,16 @@ package controllers
 
 import (
 	"net/http"
+	"path/filepath"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
 	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/fs"
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/filesystem"
+	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/validation/pipeline"
 )
 
 var wsUpgrader = websocket.Upgrader{
@@ -33,7 +35,7 @@ type wsResponse struct {
 //	@ID				ws
 //	@Tags			reports
 //	@Success		101
-//	@Router			/api/reports [get]
+//	@Router			/ws [get]
 func Ws(c *gin.Context) {
 	// we have to handle the errors because the upgrade hijacks the response writer
 	// so we cant use the context to write the response to the client
@@ -46,7 +48,7 @@ func Ws(c *gin.Context) {
 		errors.CheckErr(err)
 	}()
 
-	watcher, err := fs.NewDirectoryWatcherWithFiles(validation.ReportLocation())
+	watcher, err := filesystem.NewDirectoryWatcherWithFiles(filepath.FromSlash(directories.ReportsDirectory()))
 	errors.CheckErr(err)
 
 	go func() {
@@ -56,7 +58,7 @@ func Ws(c *gin.Context) {
 
 	for {
 		newFileName := <-watcher.Events
-		report, err := validation.GetReport(newFileName)
+		report, err := pipeline.GetReport(newFileName)
 		errors.CheckErr(err)
 		err = conn.WriteJSON(wsResponse{
 			Timestamp: time.Now(),

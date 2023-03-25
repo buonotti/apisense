@@ -2,18 +2,18 @@ package validators
 
 import (
 	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/fetcher"
 )
 
 // NewStatusValidator returns a new status validator that checks for status codes other than 200
-func NewStatusValidator() validation.Validator {
+func NewStatusValidator() Validator {
 	return statusValidator{
 		OkStatus: 200,
 	}
 }
 
 // NewStatusValidatorC returns a new status validator that checks for status codes other than the given code
-func NewStatusValidatorC(code int) validation.Validator {
+func NewStatusValidatorC(code int) Validator {
 	return statusValidator{
 		OkStatus: code,
 	}
@@ -30,7 +30,7 @@ func (v statusValidator) Name() string {
 }
 
 // Validate checks for each item if the status code of the response matches the given status code
-func (v statusValidator) Validate(item validation.PipelineTestCase) error {
+func (v statusValidator) Validate(item fetcher.TestCase) error {
 	if item.Code != v.OkStatus {
 		return errors.ValidationError.New("validation failed for endpoint %s: expected status code 200, got %d", item.Url, item.Code)
 	}

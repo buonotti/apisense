@@ -1,4 +1,4 @@
-package validation
+package pipeline
 
 import (
 	"encoding/json"
