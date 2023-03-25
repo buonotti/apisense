@@ -15,7 +15,6 @@ import (
 	bm "github.com/charmbracelet/wish/bubbletea"
 	"github.com/charmbracelet/wish/scp"
 	"github.com/spf13/viper"
-	"golang.org/x/sys/unix"
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/directories"
@@ -54,7 +53,7 @@ func Start() error {
 	log.SSHLogger.Infof("starting SSH server on %s:%d", host(), port())
 
 	done := make(chan os.Signal, 1)
-	signal.Notify(done, unix.SIGINT, unix.SIGTERM)
+	signal.Notify(done, os.Interrupt)
 
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
