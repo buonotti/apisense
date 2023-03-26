@@ -10,8 +10,15 @@ state of the returned data. If you want to know more check: [About](./About.md)
 
 ## Installation
 
-Currently, the project is not available on any package manager. You can still install it by cloning the repository and
+Currently, the project is not available on any package manager. You can still install it by using the go package manager or cloning the repository and
 building it with go.
+
+### Install with go install
+```shell
+go install github.com/buonotti/apisense@latest
+```
+
+### Build from source
 
 ```shell
 git clone https://github.com/buonotti/apisense
@@ -20,7 +27,7 @@ go build
 go install # make sure you add $GOPATH/bin to your $PATH (in most cases it's ~/go/bin)
 ```
 
-If you have [go-task](https://taskfile.dev) installed you can install the project with `task install`.
+If you have [go-task](https://taskfile.dev) installed you can install the project with `task install` or `go-task install`.
 
 ## Usage
 
@@ -105,8 +112,8 @@ the [gjson](https://github.com/tidwall/gjson) format.
 
 ## Configuration
 
-The daemon can be configured by editing the config file (`~/.config/apisense/config.toml`). The config file if not
-present will be added upon first start of the app (daemon or not).
+The daemon can be configured by editing the config file (`~/.config/apisense/apisense.config.yml` or `~\AppData\Local\apisense\apisense.config.yml`).
+The config file if not present will be added upon first start of the app (daemon or not).
 The example config file can be found
 here: [config.toml](https://github.com/buonotti/apisense/blob/dev/assets/config.example.toml)
 
