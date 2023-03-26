@@ -2,15 +2,12 @@ package pipeline
 
 import (
 	"encoding/json"
+	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"os"
+	"path/filepath"
 
 	"github.com/buonotti/apisense/errors"
 )
-
-// ReportLocation returns the output directory where all reports are stored
-func ReportLocation() string {
-	return os.Getenv("HOME") + "/apisense/reports"
-}
 
 // Report is a report of a test run
 type Report struct {
@@ -20,12 +17,12 @@ type Report struct {
 }
 
 func GetReport(filename string) (*Report, error) {
-	files, err := os.ReadDir(ReportLocation())
+	files, err := os.ReadDir(filepath.FromSlash(directories.ReportsDirectory()))
 	errors.CheckErr(err)
 
 	for _, file := range files {
 		if !file.IsDir() && file.Name() == filename {
-			fileName := ReportLocation() + "/" + file.Name()
+			fileName := filepath.FromSlash(directories.ReportsDirectory() + "/" + file.Name())
 			content, err := os.ReadFile(fileName)
 			if err != nil {
 				return nil, errors.CannotReadFileError.Wrap(err, "cannot read file:"+fileName)
@@ -45,13 +42,13 @@ func GetReport(filename string) (*Report, error) {
 
 // Reports returns all the reports in the report directory
 func Reports() ([]Report, error) {
-	files, err := os.ReadDir(ReportLocation())
+	files, err := os.ReadDir(filepath.FromSlash(directories.ReportsDirectory()))
 	errors.CheckErr(err)
 
 	reports := make([]Report, 0)
 	for _, file := range files {
 		if !file.IsDir() {
-			fileName := ReportLocation() + "/" + file.Name()
+			fileName := filepath.FromSlash(directories.ReportsDirectory() + "/" + file.Name())
 			content, err := os.ReadFile(fileName)
 			if err != nil {
 				return nil, errors.CannotReadFileError.Wrap(err, "cannot read file:"+fileName)
@@ -71,13 +68,13 @@ func Reports() ([]Report, error) {
 
 // RawReports return all the reports in the report directory without unmarshalling them
 func RawReports() ([]map[string]any, error) {
-	files, err := os.ReadDir(ReportLocation())
+	files, err := os.ReadDir(filepath.FromSlash(directories.ReportsDirectory()))
 	errors.CheckErr(err)
 
 	reports := make([]map[string]any, 0)
 	for _, file := range files {
 		if !file.IsDir() {
-			fileName := ReportLocation() + "/" + file.Name()
+			fileName := filepath.FromSlash(directories.ReportsDirectory() + "/" + file.Name())
 			content, err := os.ReadFile(fileName)
 			if err != nil {
 				return nil, errors.CannotReadFileError.Wrap(err, "cannot read file:"+fileName)

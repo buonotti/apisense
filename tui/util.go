@@ -1,14 +1,10 @@
 package tui
 
 import (
-	"os"
-
-	"github.com/buonotti/apisense/errors"
-	"golang.org/x/term"
+	tSize "github.com/kopoli/go-terminal-size"
 )
 
 func getTerminalHeight() int {
-	_, terminalHeight, err := term.GetSize(int(os.Stdin.Fd()))
-	errors.CheckErr(err)
-	return terminalHeight
+	s, _ := tSize.GetSize()
+	return s.Height
 }

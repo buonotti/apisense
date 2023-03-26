@@ -13,6 +13,7 @@ import (
 type option struct {
 	option, description string
 }
+
 type optionDelegate struct{}
 
 func (d optionDelegate) Height() int                               { return 1 }
@@ -64,4 +65,5 @@ var optionsDaemonMenu = []list.Item{
 	option{option: "Start daemon", description: "Starts a new daemon"},
 	option{option: "Stop daemon", description: "Stops the current daemon"},
 }
+
 var listDaemonButton = list.New(optionsDaemonMenu, optionDelegate{}, defaultWidth, defaultListHeight)

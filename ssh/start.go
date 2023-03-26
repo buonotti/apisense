@@ -53,7 +53,7 @@ func Start() error {
 	log.SSHLogger.Infof("starting SSH server on %s:%d", host(), port())
 
 	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt)
+	signal.Notify(done, os.Kill)
 
 	go func() {
 		if err := s.ListenAndServe(); err != nil {

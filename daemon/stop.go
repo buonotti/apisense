@@ -23,7 +23,7 @@ func Stop() error {
 		return errors.CannotGetProcessInfoError.Wrap(err, "cannot get process info for pid "+strconv.Itoa(pid))
 	}
 
-	err = proc.Signal(os.Interrupt)
+	err = proc.Signal(os.Kill)
 	if err != nil {
 		return errors.CannotSendSignalError.Wrap(err, "cannot send signal SIGINT to process "+strconv.Itoa(pid))
 	}

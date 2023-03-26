@@ -28,7 +28,6 @@ type selectConfigModel struct {
 }
 
 func SelectConfigModel() tea.Model {
-
 	t := table.New(
 		table.WithColumns(getSelectConfigColumns()),
 		table.WithFocused(true),
@@ -93,7 +92,7 @@ func (s selectConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					if choiceConfigModel == "selectConfigModel" {
 						selectedField = getSelectedFieldName(i)
 					}
-					
+
 					if choiceConfigModel != "selectConfigModel" {
 						s.editConfigModel, cmdModel = s.editConfigModel.Update(msg)
 						return s, tea.Batch(cmd, cmdModel)

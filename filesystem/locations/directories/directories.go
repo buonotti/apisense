@@ -6,7 +6,8 @@ import (
 )
 
 func AppDirectory() string {
-	return filepath.ToSlash(os.Getenv("HOME")) + "/apisense"
+	home, _ := os.UserHomeDir()
+	return filepath.ToSlash(home) + "/apisense"
 }
 
 func ConfigDirectory() string {

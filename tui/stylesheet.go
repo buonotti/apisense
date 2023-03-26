@@ -19,17 +19,17 @@ var styleBase = lipgloss.NewStyle()
 var styleBold = lipgloss.NewStyle().Bold(true)
 
 // BASE STYLES FOR THE CONFIG VIEWPORT RENDERING
-var titleStyle = func() lipgloss.Style {
+func titleStyle() lipgloss.Style {
 	b := lipgloss.RoundedBorder()
 	b.Right = "├"
 	return lipgloss.NewStyle().BorderStyle(b).Padding(0, 1)
-}()
+}
 
-var infoStyle = func() lipgloss.Style {
+func infoStyle() lipgloss.Style {
 	b := lipgloss.RoundedBorder()
 	b.Left = "┤"
-	return titleStyle.Copy().BorderStyle(b)
-}()
+	return titleStyle().Copy().BorderStyle(b)
+}
 
 // COLORS
 var styleHelp = lipgloss.NewStyle().Foreground(theme.Ansi2Color(termenv.ANSIWhite))

@@ -16,7 +16,7 @@ type dynamicHandler struct {
 
 func newHandler() log.Handler {
 	w := getWriter()
-	
+
 	cliHandler := cli.New(w)
 	cliHandler.Padding = 0
 

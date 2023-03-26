@@ -10,7 +10,7 @@ import (
 
 // Setup creates the daemon directory and writes the default files to it.
 func Setup() error {
-	if home, ok := os.LookupEnv("HOME"); !ok && home == "" {
+	if _, err := os.UserHomeDir(); err != nil {
 		return errors.CannotCreateDirectoryError.Wrap(nil, "cannot setup environment: $HOME is not set")
 	}
 

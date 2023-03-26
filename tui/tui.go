@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"path/filepath"
 	"time"
 
 	"github.com/76creates/stickers"
@@ -84,7 +86,7 @@ func (m Model) Init() tea.Cmd {
 	errors.CheckErr(err)
 
 	directoryWatcher := filesystem.NewDirectoryWatcher()
-	err = directoryWatcher.SetDirectory(pipeline.ReportLocation())
+	err = directoryWatcher.SetDirectory(filepath.FromSlash(directories.ReportsDirectory()))
 	errors.CheckErr(err)
 	go func() {
 		err := fileWatcher.Start()

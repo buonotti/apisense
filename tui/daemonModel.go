@@ -22,7 +22,6 @@ type daemonModel struct {
 }
 
 func DaemonModel() tea.Model {
-
 	p, pe := daemon.Pid()
 	s, se := daemon.Status()
 	running = s == daemon.UpStatus

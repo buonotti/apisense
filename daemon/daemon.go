@@ -44,7 +44,7 @@ func (d daemon) run(runOnStart bool) error {
 	ctx := context.Background()
 	ctx, contextCancel := context.WithCancel(ctx)
 	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, os.Interrupt)
+	signal.Notify(signalChan, os.Kill)
 
 	defer endRun(signalChan, contextCancel)
 
@@ -74,8 +74,8 @@ func (d daemon) signalListener(signalChan chan os.Signal, cancel context.CancelF
 		select {
 		case s := <-signalChan:
 			switch s {
-			case os.Interrupt:
-				log.DaemonLogger.Info("received SIGINT, stopping daemon")
+			case os.Kill:
+				log.DaemonLogger.Info("received SIGKILL, stopping daemon")
 				errors.CheckErr(writeStatus(DownStatus))
 				errors.CheckErr(writePid(-1))
 				cancel()
@@ -114,13 +114,17 @@ func (d daemon) work() {
 		errors.CheckErr(errors.CannotSerializeItemError.Wrap(err, "cannot serialize report"))
 	}
 
-	reportPath := filepath.FromSlash(directories.ReportsDirectory() + "/" + time.Now().Format("02-01-2006T15:04:05.000Z") + ".report.json")
-	err = os.WriteFile(reportPath, reportData, 0644)
-	if err != nil {
-		errors.CheckErr(errors.CannotWriteFileError.Wrap(err, "cannot write report to file"))
-	}
+	if len(result.Endpoints) > 0 {
+		reportPath := filepath.FromSlash(directories.ReportsDirectory() + "/" + time.Now().Format(pipeline.ReportTimeFormat) + ".report.json")
+		err = os.WriteFile(reportPath, reportData, 0644)
+		if err != nil {
+			errors.CheckErr(errors.CannotWriteFileError.Wrap(err, "cannot write report to file"))
+		}
 
-	log.DaemonLogger.Infof("generated report (%s)", reportPath)
+		log.DaemonLogger.Infof("generated report (%s)", reportPath)
+	} else {
+		log.DaemonLogger.Info("no endpoints to validate")
+	}
 
 	errors.CheckErr(d.cleanupReports())
 }
@@ -139,7 +143,7 @@ func (d daemon) cleanupReports() error {
 			continue
 		}
 		fName = strings.TrimSuffix(fName, ".report.json")
-		fTime, err := time.Parse("02-01-2006T15:04:05.000Z", fName)
+		fTime, err := time.Parse(pipeline.ReportTimeFormat, fName)
 		if err != nil {
 			log.DaemonLogger.Warnf("cannot parse report name %s, skipping", file.Name())
 			return nil

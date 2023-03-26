@@ -48,7 +48,7 @@ func Start() error {
 	}
 
 	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt)
+	signal.Notify(done, os.Kill)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {

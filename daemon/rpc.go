@@ -32,7 +32,11 @@ func (mgr *RpcDaemonManager) ReloadDaemon(retries *int, reply *int) error {
 
 func startRpcServer(daemon *daemon) error {
 	manager := &RpcDaemonManager{daemon: daemon}
-	rpc.Register(manager)
+	err := rpc.Register(manager)
+	if err != nil {
+		log.DaemonLogger.WithError(err).Error("cannot register daemon rpc server")
+		return err
+	}
 	rpc.HandleHTTP()
 	l, err := net.Listen("tcp", "127.0.0.1:1234")
 	if err != nil {
