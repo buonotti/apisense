@@ -20,7 +20,7 @@ import (
 //	@Tags			reports
 //	@Param			where	query		string	false	"Query in the format: field.op.value (optional)"
 //	@Param			format	query		string	false	"Return format: json or csv (default: json)"
-//	@Success		200		array		validation.Report
+//	@Success		200		array		pipeline.Report
 //	@Failure		500		{object}	ErrorResponse
 //	@Router			/reports [get]
 func AllReports(c *gin.Context) {
@@ -49,7 +49,7 @@ func AllReports(c *gin.Context) {
 //	@Tags			reports
 //	@Param			format	query		string	false	"json"
 //	@Param			id		path		string	true	"qNg8rJX"
-//	@Success		200		{object}	validation.Report
+//	@Success		200		{object}	pipeline.Report
 //	@Failure		404		{object}	ErrorResponse
 //	@Failure		500		{object}	ErrorResponse
 //	@Router			/reports/:id [get]

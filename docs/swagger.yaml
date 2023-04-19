@@ -5,13 +5,97 @@ definitions:
       message:
         type: string
     type: object
-  validation.Report:
+  definitions.Endpoint:
+    properties:
+      baseUrl:
+        description: BaseUrl is the base path of the endpoint
+        type: string
+      excludedValidators:
+        description: ExcludedValidators is a list of validators that should not be
+          used for this endpoint
+        items:
+          type: string
+        type: array
+      fileName:
+        description: FileName is the name of the file that contains the definition
+        type: string
+      format:
+        description: Format is the response format of the
+        type: string
+      fullPath:
+        description: FullPath is the full path of the file that contains the definition
+        type: string
+      isEnabled:
+        description: IsEnabled is a boolean that indicates if the endpoint is enabled
+          (not contained in the definition)
+        type: boolean
+      name:
+        description: Name is the name of the endpoint
+        type: string
+      queryParameters:
+        description: QueryParameters are all the query parameters that should be added
+          to the call
+        items:
+          $ref: '#/definitions/query.Definition'
+        type: array
+      resultSchema:
+        description: ResultSchema describes how the response should look like
+        items:
+          $ref: '#/definitions/definitions.SchemaEntry'
+        type: array
+      variables:
+        description: Variables are all the variables that should be interpolated in
+          the base url and the query parameters
+        items:
+          $ref: '#/definitions/definitions.Variable'
+        type: array
+    type: object
+  definitions.SchemaEntry:
+    properties:
+      fields:
+        description: Fields describe the children of this field if the field is an
+          object or array
+        items:
+          $ref: '#/definitions/definitions.SchemaEntry'
+        type: array
+      isRequired:
+        description: Required is true if the field is required (not null or not empty
+          in case of an array)
+        type: boolean
+      maximum:
+        description: Maximum is the maximum allowed value of the field
+      minimum:
+        description: Minimum is the minimum allowed value of the field
+      name:
+        description: Name is the name of the field
+        type: string
+      type:
+        description: Type is the type of the field
+        type: string
+    type: object
+  definitions.Variable:
+    properties:
+      isConstant:
+        description: IsConstant is true if the value of the variable is constant or
+          else false
+        type: boolean
+      name:
+        description: Name is the name of the variable
+        type: string
+      values:
+        description: Values are all the possible values of the variable (only 1 in
+          case of a constant)
+        items:
+          type: string
+        type: array
+    type: object
+  pipeline.Report:
     properties:
       endpoints:
         description: Endpoints is a collection of ValidatedEndpoint holding the validation
           results
         items:
-          $ref: '#/definitions/validation.ValidatedEndpoint'
+          $ref: '#/definitions/pipeline.ValidatedEndpoint'
         type: array
       id:
         description: Id is a unique identifier for each report
@@ -20,7 +104,7 @@ definitions:
         description: Time is the timestamp of the report
         type: string
     type: object
-  validation.TestCaseResult:
+  pipeline.TestCaseResult:
     properties:
       url:
         description: Url is the url of the api call (with query parameters)
@@ -29,10 +113,10 @@ definitions:
         description: ValidatorResults is the collection of ValidatorResult that describe
           the result of each validator
         items:
-          $ref: '#/definitions/validation.ValidatorResult'
+          $ref: '#/definitions/pipeline.ValidatorResult'
         type: array
     type: object
-  validation.ValidatedEndpoint:
+  pipeline.ValidatedEndpoint:
     properties:
       endpointName:
         description: EndpointName is he name of the endpoint
@@ -41,10 +125,10 @@ definitions:
         description: TestCaseResults are the collection of TestCaseResult that describe
           the result of validating a single api call
         items:
-          $ref: '#/definitions/validation.TestCaseResult'
+          $ref: '#/definitions/pipeline.TestCaseResult'
         type: array
     type: object
-  validation.ValidatorResult:
+  pipeline.ValidatorResult:
     properties:
       message:
         description: Message is the error message of the validator
@@ -54,6 +138,15 @@ definitions:
         type: string
       status:
         description: Status is the status of the validator (success/fail/skipped)
+        type: string
+    type: object
+  query.Definition:
+    properties:
+      name:
+        description: Name is the name of the query parameter
+        type: string
+      value:
+        description: Value is the value of the query parameter
         type: string
     type: object
 host: localhost:8080
@@ -68,6 +161,50 @@ info:
   title: Apisense API
   version: "1.0"
 paths:
+  /definitions:
+    get:
+      description: Gets a list of all definitions
+      operationId: all-definitions
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/definitions.Endpoint'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Get all the definitions
+      tags:
+      - definitions
+  /definitions/:name:
+    get:
+      description: Gets a single definition identified by his endpoint name
+      operationId: definition
+      parameters:
+      - description: Bluetooth
+        in: path
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/definitions.Endpoint'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Get one definition
+      tags:
+      - definitions
   /health:
     get:
       description: Get the health status of the API
@@ -96,7 +233,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/validation.Report'
+              $ref: '#/definitions/pipeline.Report'
             type: array
         "500":
           description: Internal Server Error
@@ -123,7 +260,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/validation.Report'
+            $ref: '#/definitions/pipeline.Report'
         "404":
           description: Not Found
           schema:

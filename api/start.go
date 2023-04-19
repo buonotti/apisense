@@ -40,10 +40,14 @@ func Start() error {
 	api.GET("/health", controllers.GetHealth)
 	api.GET("/reports", controllers.AllReports)
 	api.GET("/reports/:id", controllers.Report)
+	api.GET("/definitions", controllers.AllDefinitions)
+	api.GET("/definitions/:id", controllers.Definition)
 	api.GET("/ws", controllers.Ws)
 
+	addr := fmt.Sprintf("%s:%d", viper.GetString("api.host"), viper.GetInt("api.port"))
+
 	srv := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", viper.GetString("api.host"), viper.GetInt("api.port")),
+		Addr:    addr,
 		Handler: router,
 	}
 
@@ -60,7 +64,7 @@ func Start() error {
 		}
 	}()
 
-	log.ApiLogger.Info("api service started")
+	log.ApiLogger.Infof("api service started listening on http://localhost:%v", viper.GetInt("api.port"))
 
 	<-done
 
