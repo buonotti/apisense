@@ -43,14 +43,21 @@ func requestData(definition endpointRequest) (endpointResponse, error) {
 
 	resp, err := rest().R().SetQueryParams(definition.QueryParameters).Get(definition.Url)
 	if err != nil {
-		return endpointResponse{}, errors.CannotRequestDataError.Wrap(err, "cannot request data from "+definition.Url)
+		err = errors.SafeWrapF(errors.CannotRequestDataError, err, "cannot request data from: %s", definition.Url)
+		errors.CheckErr(err)
+
+		return endpointResponse{
+			StatusCode: 500,
+		}, nil
 	}
 
 	loc := resp.RawResponse.Request.URL.String()
 	log.DaemonLogger.Infof("sent request to %s", resp.Request.URL)
 
 	if resp.StatusCode() != 200 {
-		return endpointResponse{}, errors.NewF(errors.CannotRequestDataError, "cannot send request to: %s (status code %d)", definition.Url, resp.StatusCode())
+		return endpointResponse{
+			StatusCode: resp.StatusCode(),
+		}, nil
 	}
 
 	switch definition.ResponseFormat {

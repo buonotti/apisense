@@ -40,7 +40,7 @@ variables:
       - "2"
 
 # The expected result
-result:
+response_schema:
   # The name of the field that contains the data
   - name: "offset"
     # The type of the field (integer, string, array, object)

@@ -115,7 +115,7 @@ func (d daemon) work() {
 	}
 
 	if len(result.Endpoints) > 0 {
-		reportPath := filepath.FromSlash(directories.ReportsDirectory() + "/" + time.Now().Format(pipeline.ReportTimeFormat) + ".report.json")
+		reportPath := filepath.FromSlash(directories.ReportsDirectory() + "/" + time.Time(result.Time).Format(pipeline.ReportTimeFormat) + ".report.json")
 		err = os.WriteFile(reportPath, reportData, 0644)
 		if err != nil {
 			errors.CheckErr(errors.CannotWriteFileError.Wrap(err, "cannot write report to file"))
@@ -146,7 +146,7 @@ func (d daemon) cleanupReports() error {
 		fTime, err := time.Parse(pipeline.ReportTimeFormat, fName)
 		if err != nil {
 			log.DaemonLogger.Warnf("cannot parse report name %s, skipping", file.Name())
-			return nil
+			continue
 		}
 		maxTime := viper.GetDuration("daemon.discard.max_lifetime")
 		if time.Since(fTime) > maxTime {

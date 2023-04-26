@@ -45,13 +45,13 @@ func Start(runOnStart bool) error {
 		}
 	}(lock)
 
-	pipeline, err := NewPipeline()
+	validationPipeline, err := NewPipeline()
 	if err != nil {
 		return err
 	}
 
 	d := daemon{
-		Pipeline: pipeline,
+		Pipeline: validationPipeline,
 	}
 
 	go func() {
@@ -65,7 +65,7 @@ func Start(runOnStart bool) error {
 }
 
 func NewPipeline() (*pipeline.Pipeline, error) {
-	pipeline, err := pipeline.NewPipelineWithValidators(
+	pipelineWithValidators, err := pipeline.NewPipelineWithValidators(
 		validators.Without(viper.GetStringSlice("validation.excluded_builtin_validators")...)...,
 	)
 
@@ -76,8 +76,8 @@ func NewPipeline() (*pipeline.Pipeline, error) {
 	externalValidators, err := validators.LoadExternalValidators()
 
 	for _, externalValidator := range externalValidators {
-		pipeline.AddValidator(externalValidator)
+		pipelineWithValidators.AddValidator(externalValidator)
 	}
 
-	return &pipeline, err
+	return &pipelineWithValidators, err
 }

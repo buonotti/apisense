@@ -36,7 +36,7 @@ type Endpoint struct {
 	QueryParameters    []query.Definition `yaml:"query_parameters" json:"queryParameters"`       // QueryParameters are all the query parameters that should be added to the call
 	Format             string             `yaml:"format" json:"format"`                          // Format is the response format of the
 	Variables          []Variable         `yaml:"variables" json:"variables"`                    // Variables are all the variables that should be interpolated in the base url and the query parameters
-	ResultSchema       []SchemaEntry      `yaml:"result" json:"result"`                          // ResultSchema describes how the response should look like
+	ResponseSchema     []SchemaEntry      `yaml:"response_schema" json:"responseSchema"`         // ResponseSchema describes how the response should look like
 }
 
 // parseDefinition reads a given file and returns and EndpointDefinition.
@@ -81,7 +81,7 @@ func validateDefinition(definitions []Endpoint, definition Endpoint) bool {
 		log.DaemonLogger.Errorf("definition %s (%s) has an invalid format: %s. Found %s expected either 'json' or 'xml'\n", definition.Name, definition.FileName, definition.Format, definition.Format)
 		return false
 	}
-	if len(definition.ResultSchema) == 0 {
+	if len(definition.ResponseSchema) == 0 {
 		log.DaemonLogger.Errorf("schema has no entries\n")
 		return false
 	}

@@ -256,7 +256,7 @@ const docTemplate = `{
                     }
                 },
                 "resultSchema": {
-                    "description": "ResultSchema describes how the response should look like",
+                    "description": "ResponseSchema describes how the response should look like",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/definitions.SchemaEntry"

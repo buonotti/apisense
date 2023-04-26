@@ -36,7 +36,7 @@ func (f *defaultFetcher) Fetch(definition definitions.Endpoint) ([]TestCase, err
 
 	for _, resp := range responses {
 		testCases = append(testCases, TestCase{
-			SchemaEntries:      definition.ResultSchema,
+			SchemaEntries:      definition.ResponseSchema,
 			Data:               resp.RawData,
 			Url:                resp.Url,
 			Code:               resp.StatusCode,

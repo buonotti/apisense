@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/validation/fetcher"
 	"github.com/spf13/viper"
 )
@@ -117,10 +118,8 @@ func (v externalValidator) Validate(item fetcher.TestCase) error {
 		return errors.CannotSerializeItemError.Wrap(err, "cannot serialize item: %s", err)
 	}
 	cmd := exec.Command(v.Definition.Path, v.Definition.Args...)
-	if v.Definition.ReadFromStdin {
-		cmd.Stdin = strings.NewReader(string(jsonString))
-		cmd.Stdout = outString
-	}
+	cmd.Stdin = strings.NewReader(string(jsonString))
+	cmd.Stdout = outString
 
 	validatorOut := strings.Builder{}
 	validatorErr := strings.Builder{}
@@ -128,6 +127,9 @@ func (v externalValidator) Validate(item fetcher.TestCase) error {
 	cmd.Stderr = &validatorErr
 
 	err = cmd.Run()
+
+	log.DaemonLogger.Debugf("validator external.%s output: %s", v.Definition.Name, validatorOut.String())
+	log.DaemonLogger.Debugf("validator external.%s error: %s", v.Definition.Name, validatorErr.String())
 
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {

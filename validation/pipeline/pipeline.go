@@ -13,8 +13,8 @@ import (
 	"github.com/buonotti/apisense/validation/validators"
 )
 
-// PipelineTestCase represents an item in the validation pipeline
-type PipelineTestCase struct {
+// TestCase represents an item in the validation pipeline
+type TestCase struct {
 	SchemaEntries      []response.SchemaEntry `json:"schemaEntries"`      // SchemaEntries are the schema definitions of every field in the items Data
 	Data               map[string]any         `json:"data"`               // Data is the raw response data mapped in a map
 	Url                string                 `json:"url"`                // Url is the request url of the item
@@ -25,7 +25,7 @@ type PipelineTestCase struct {
 
 // Pipeline represents the validation pipeline
 type Pipeline struct {
-	TestCases  map[string][]fetcher.TestCase `json:"testCases"`  // TestCases are the collection of PipelineTestCase for each endpoint (definition file)
+	TestCases  map[string][]fetcher.TestCase `json:"testCases"`  // TestCases are the collection of TestCase for each endpoint (definition file)
 	Validators []validators.Validator        `json:"validators"` // Validators are the validators that will be applied to the items in the pipeline
 	fetcher    fetcher.Fetcher               // fetcher is the fetcher that will be used to fetch the items in the pipeline
 }
@@ -106,17 +106,17 @@ func (p *Pipeline) RemoveValidator(name string) {
 // Reload re-populates the Pipeline.TestCases collection
 func (p *Pipeline) Reload() error {
 	log.DaemonLogger.Infof("reloading pipeline...")
-	definitions, err := definitions.Endpoints()
+	defs, err := definitions.Endpoints()
 	if err != nil {
 		return err
 	}
 
-	if len(definitions) == 0 {
+	if len(defs) == 0 {
 		log.DaemonLogger.Warnf("no endpoint definitions found.")
 		return nil
 	}
 
-	for _, definition := range definitions {
+	for _, definition := range defs {
 		items, err := p.fetcher.Fetch(definition)
 		if err != nil {
 			return err
@@ -140,7 +140,7 @@ func (p *Pipeline) Validate() Report {
 		})
 	}
 
-	currentTime := time.Now()
+	currentTime := time.Now().UTC()
 	hashIDData := hashids.NewData()
 	hashIDData.Salt = "apisense"
 	hashIDData.MinLength = 5
