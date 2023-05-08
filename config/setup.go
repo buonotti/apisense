@@ -34,11 +34,9 @@ func Setup() error {
 
 	err = viper.MergeInConfig()
 
-	if _, ok := err.(viper.ConfigFileNotFoundError); err != nil && !ok {
-		return errors.CannotReadFileError.Wrap(err, "cannot read config file")
+	if _, ok := err.(viper.ConfigFileNotFoundError); err == nil && ok {
+		viper.WatchConfig()
 	}
-
-	viper.WatchConfig()
 
 	return nil
 }

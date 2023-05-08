@@ -27,7 +27,7 @@ func (d optionDelegate) Render(w io.Writer, m list.Model, index int, listItem li
 
 	var (
 		str string
-		fn  func(string2 string) string
+		fn  func(strings ...string) string
 	)
 
 	if terminalHeight < 25 {
@@ -35,8 +35,8 @@ func (d optionDelegate) Render(w io.Writer, m list.Model, index int, listItem li
 
 		fn = styleBase.Render
 		if index == m.Index() {
-			fn = func(s string) string {
-				//Add cursor by modifying the format string
+			fn = func(s ...string) string {
+				// Add cursor by modifying the format string
 				return fmt.Sprintf("[ %s ] %s", stylePrimary.Render("x"), styleBold.Render(i.option))
 			}
 		}
@@ -45,8 +45,8 @@ func (d optionDelegate) Render(w io.Writer, m list.Model, index int, listItem li
 
 		fn = styleBase.Render
 		if index == m.Index() {
-			fn = func(s string) string {
-				//Add cursor by modifying the format string
+			fn = func(s ...string) string {
+				// Add cursor by modifying the format string
 				return fmt.Sprintf("╭───╮\n│ %s │ %s \n╰───╯", stylePrimary.Render("x"), styleBold.Render(i.option))
 			}
 		}

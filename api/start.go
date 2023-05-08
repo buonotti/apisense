@@ -20,7 +20,7 @@ import (
 	"github.com/buonotti/apisense/log"
 )
 
-func Start() error {
+func Start(host string, port int) error {
 	docs.SwaggerInfo.BasePath = "/api"
 
 	gin.SetMode(gin.ReleaseMode)
@@ -44,7 +44,17 @@ func Start() error {
 	api.GET("/definitions/:id", controllers.Definition)
 	api.GET("/ws", controllers.Ws)
 
-	addr := fmt.Sprintf("%s:%d", viper.GetString("api.host"), viper.GetInt("api.port"))
+	apiHost := host
+	if apiHost == "" && viper.GetString("api.host") != "" {
+		apiHost = viper.GetString("api.host")
+	}
+
+	apiPort := port
+	if apiPort == 8080 && viper.GetInt("api.port") != 0 {
+		apiPort = viper.GetInt("api.port")
+	}
+
+	addr := fmt.Sprintf("%s:%d", apiHost, apiPort)
 
 	srv := &http.Server{
 		Addr:    addr,
@@ -64,7 +74,7 @@ func Start() error {
 		}
 	}()
 
-	log.ApiLogger.Infof("api service started listening on http://localhost:%v", viper.GetInt("api.port"))
+	log.ApiLogger.Infof("api service started listening on http://localhost:%v", apiPort)
 
 	<-done
 

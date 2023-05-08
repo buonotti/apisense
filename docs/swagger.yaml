@@ -10,25 +10,19 @@ definitions:
       baseUrl:
         description: BaseUrl is the base path of the endpoint
         type: string
+      enabled:
+        description: IsEnabled is a boolean that indicates if the endpoint is enabled
+          (not contained in the definition)
+        type: boolean
       excludedValidators:
         description: ExcludedValidators is a list of validators that should not be
           used for this endpoint
         items:
           type: string
         type: array
-      fileName:
-        description: FileName is the name of the file that contains the definition
-        type: string
       format:
         description: Format is the response format of the
         type: string
-      fullPath:
-        description: FullPath is the full path of the file that contains the definition
-        type: string
-      isEnabled:
-        description: IsEnabled is a boolean that indicates if the endpoint is enabled
-          (not contained in the definition)
-        type: boolean
       name:
         description: Name is the name of the endpoint
         type: string
@@ -38,8 +32,8 @@ definitions:
         items:
           $ref: '#/definitions/query.Definition'
         type: array
-      resultSchema:
-        description: ResultSchema describes how the response should look like
+      responseSchema:
+        description: ResponseSchema describes how the response should look like
         items:
           $ref: '#/definitions/definitions.SchemaEntry'
         type: array
@@ -58,24 +52,24 @@ definitions:
         items:
           $ref: '#/definitions/definitions.SchemaEntry'
         type: array
-      isRequired:
-        description: Required is true if the field is required (not null or not empty
-          in case of an array)
-        type: boolean
-      maximum:
+      max:
         description: Maximum is the maximum allowed value of the field
-      minimum:
+      min:
         description: Minimum is the minimum allowed value of the field
       name:
         description: Name is the name of the field
         type: string
+      required:
+        description: Required is true if the field is required (not null or not empty
+          in case of an array)
+        type: boolean
       type:
         description: Type is the type of the field
         type: string
     type: object
   definitions.Variable:
     properties:
-      isConstant:
+      constant:
         description: IsConstant is true if the value of the variable is constant or
           else false
         type: boolean

@@ -221,6 +221,10 @@ const docTemplate = `{
                     "description": "BaseUrl is the base path of the endpoint",
                     "type": "string"
                 },
+                "enabled": {
+                    "description": "IsEnabled is a boolean that indicates if the endpoint is enabled (not contained in the definition)",
+                    "type": "boolean"
+                },
                 "excludedValidators": {
                     "description": "ExcludedValidators is a list of validators that should not be used for this endpoint",
                     "type": "array",
@@ -228,21 +232,9 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
-                "fileName": {
-                    "description": "FileName is the name of the file that contains the definition",
-                    "type": "string"
-                },
                 "format": {
                     "description": "Format is the response format of the",
                     "type": "string"
-                },
-                "fullPath": {
-                    "description": "FullPath is the full path of the file that contains the definition",
-                    "type": "string"
-                },
-                "isEnabled": {
-                    "description": "IsEnabled is a boolean that indicates if the endpoint is enabled (not contained in the definition)",
-                    "type": "boolean"
                 },
                 "name": {
                     "description": "Name is the name of the endpoint",
@@ -255,7 +247,7 @@ const docTemplate = `{
                         "$ref": "#/definitions/query.Definition"
                     }
                 },
-                "resultSchema": {
+                "responseSchema": {
                     "description": "ResponseSchema describes how the response should look like",
                     "type": "array",
                     "items": {
@@ -281,19 +273,19 @@ const docTemplate = `{
                         "$ref": "#/definitions/definitions.SchemaEntry"
                     }
                 },
-                "isRequired": {
-                    "description": "Required is true if the field is required (not null or not empty in case of an array)",
-                    "type": "boolean"
-                },
-                "maximum": {
+                "max": {
                     "description": "Maximum is the maximum allowed value of the field"
                 },
-                "minimum": {
+                "min": {
                     "description": "Minimum is the minimum allowed value of the field"
                 },
                 "name": {
                     "description": "Name is the name of the field",
                     "type": "string"
+                },
+                "required": {
+                    "description": "Required is true if the field is required (not null or not empty in case of an array)",
+                    "type": "boolean"
                 },
                 "type": {
                     "description": "Type is the type of the field",
@@ -304,7 +296,7 @@ const docTemplate = `{
         "definitions.Variable": {
             "type": "object",
             "properties": {
-                "isConstant": {
+                "constant": {
                     "description": "IsConstant is true if the value of the variable is constant or else false",
                     "type": "boolean"
                 },

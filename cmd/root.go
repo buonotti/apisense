@@ -12,11 +12,9 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "apisense",
-	Short: "apisense is a tool to monitor data from the Open Data Hub",
-	Long: `This program provides multiple ways to interface with the daemon that is monitoring the Open Data Hub apis.
-In the first place this CLI can be used to start the daemon itself. It also provides a TUI to manage the daemon and its configs
-in a more user friendly way. The program can also start an SSH-Server that serves the tui over SSH and automatically starts the
-daemon. For more info check each commands description.`,
+	Short: "apisense is a tool to monitor data from a REST web service",
+	Long: `This cli is used to start and interface with the apisense daemon. The daemon is used to monitor data from a REST web service.
+There are multiple subcommands that can be used to interact with the daemon. For more information about a specific subcommand use the --help flag.`,
 	Version: "1.0.0",
 	Run: func(cmd *cobra.Command, args []string) {
 		cobra.CheckErr(cmd.Help())
