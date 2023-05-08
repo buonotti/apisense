@@ -1,6 +1,7 @@
 <!--?xml version="1.0" encoding="UTF-8" standalone="no"?-->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg633798" viewBox="0 0 1024 768"
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1024 768"
      height="768px" width="1024px" version="1.1">
+    <rect width="100%" height="100%" fill="white"/>
     <linearGradient spreadMethod="pad" y2="30%" x2="-10%" y1="120%" x1="30%"
                     id="3d_gradient2-logo-9e1fa6d7-1130-404d-8ea3-39f9876bba4c">
         <stop id="stop633779" stop-opacity="1" stop-color="#ffffff" offset="0%">

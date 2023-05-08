@@ -6,8 +6,8 @@ import (
 	"github.com/buonotti/apisense/errors"
 )
 
-var definitionsCmd = &cobra.Command{
-	Use:   "definitions",
+var definitionCmd = &cobra.Command{
+	Use:   "definition",
 	Short: "Manage definitions",
 	Long:  `Manage definitions`, // TODO: Add more info
 	Run: func(cmd *cobra.Command, args []string) {
@@ -16,5 +16,5 @@ var definitionsCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(definitionsCmd)
+	rootCmd.AddCommand(definitionCmd)
 }

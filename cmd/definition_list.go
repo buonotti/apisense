@@ -12,7 +12,7 @@ import (
 	"github.com/buonotti/apisense/validation/definitions"
 )
 
-var definitionsListCmd = &cobra.Command{
+var definitionListCmd = &cobra.Command{
 	Use:     "list",
 	Aliases: []string{"ls"},
 	Short:   "List definitions",
@@ -50,7 +50,7 @@ func printDefinition(definition definitions.Endpoint, concise bool) {
 }
 
 func init() {
-	definitionsListCmd.Flags().BoolP("concise", "c", false, "Print less information")
+	definitionListCmd.Flags().BoolP("concise", "c", false, "Print less information")
 
-	definitionsCmd.AddCommand(definitionsListCmd)
+	definitionCmd.AddCommand(definitionListCmd)
 }

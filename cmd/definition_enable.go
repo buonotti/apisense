@@ -13,7 +13,7 @@ import (
 	"github.com/buonotti/apisense/errors"
 )
 
-var definitionsEnableCmd = &cobra.Command{
+var definitionEnableCmd = &cobra.Command{
 	Use:   "enable [DEFINITION]",
 	Short: "Enable a definition",
 	Long:  `Enable a definition`, // TODO: Add more info
@@ -32,5 +32,5 @@ var definitionsEnableCmd = &cobra.Command{
 }
 
 func init() {
-	definitionsCmd.AddCommand(definitionsEnableCmd)
+	definitionCmd.AddCommand(definitionEnableCmd)
 }
