@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/buonotti/apisense/daemon"
@@ -21,10 +22,9 @@ type daemonModel struct {
 }
 
 func DaemonModel() tea.Model {
-
 	p, pe := daemon.Pid()
 	s, se := daemon.Status()
-	running = s == daemon.UP
+	running = s == daemon.UpStatus
 
 	return daemonModel{
 		status:  string(s),
@@ -43,7 +43,7 @@ func (d daemonModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	p, pe := daemon.Pid()
 	s, se := daemon.Status()
-	running = s == daemon.UP
+	running = s == daemon.UpStatus
 
 	d.pid = p
 	d.ePid = pe
@@ -62,7 +62,7 @@ func (d daemonModel) View() string {
 		sPid = "pid:    " + stylePrimary.Render("unknown")
 	}
 	if d.eStatus == nil {
-		if d.status == string(daemon.UP) {
+		if d.status == string(daemon.UpStatus) {
 			sStatus = "status: " + styleSuccess.Render(d.status)
 		} else {
 			sStatus = "status: " + stylePrimary.Render(d.status)
@@ -78,5 +78,4 @@ func (d daemonModel) View() string {
 		PaddingLeft(4).
 		PaddingRight(4).
 		Render(sPid+"\n\n"+sStatus+"\n\n") + "\n"
-
 }

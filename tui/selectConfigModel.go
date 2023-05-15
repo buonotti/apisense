@@ -28,7 +28,6 @@ type selectConfigModel struct {
 }
 
 func SelectConfigModel() tea.Model {
-
 	t := table.New(
 		table.WithColumns(getSelectConfigColumns()),
 		table.WithFocused(true),
@@ -93,7 +92,7 @@ func (s selectConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					if choiceConfigModel == "selectConfigModel" {
 						selectedField = getSelectedFieldName(i)
 					}
-					
+
 					if choiceConfigModel != "selectConfigModel" {
 						s.editConfigModel, cmdModel = s.editConfigModel.Update(msg)
 						return s, tea.Batch(cmd, cmdModel)
@@ -140,8 +139,7 @@ func getSelectedFieldName(i int) string {
 func getSelectConfigRows() []table.Row {
 
 	rows := make([]table.Row, 0)
-	strings := make([]string, 0)
-	strings = viper.AllKeys()
+	strings := viper.AllKeys()
 	sort.Strings(strings)
 
 	sortedStrings = make([][]string, 5)

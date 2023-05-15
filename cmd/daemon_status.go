@@ -20,7 +20,7 @@ var daemonStatusCmd = &cobra.Command{
 		pid, err := daemon.Pid()
 		errors.CheckErr(err)
 		var styledStatus string
-		if status == daemon.UP {
+		if status == daemon.UpStatus {
 			styledStatus = greenStyle().Bold(true).Render(string(status))
 		} else {
 			styledStatus = redStyle().Bold(true).Render(string(status))

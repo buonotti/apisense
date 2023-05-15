@@ -9,13 +9,14 @@ import (
 
 	"github.com/buonotti/apisense/conversion"
 	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/definitions"
+	"github.com/buonotti/apisense/validation/pipeline"
 )
 
 func validReportsFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		reports, _ := validation.Reports()
-		return util.Map(reports, func(r validation.Report) string {
+		reports, _ := pipeline.Reports()
+		return util.Map(reports, func(r pipeline.Report) string {
 			return fmt.Sprintf("%s\t%s with %d result(s)", r.Id, time.Time(r.Time).Format("2006-01-02 at 15-04-05.000Z"), len(r.Endpoints))
 		}), cobra.ShellCompDirectiveNoFileComp
 	}
@@ -36,8 +37,8 @@ func validFormatsFunc() func(cmd *cobra.Command, args []string, toComplete strin
 
 func validDefinitionsFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		definitions, _ := validation.EndpointDefinitions()
-		return util.Map(definitions, func(d validation.EndpointDefinition) string {
+		endpointDefinitions, _ := definitions.Endpoints()
+		return util.Map(endpointDefinitions, func(d definitions.Endpoint) string {
 			return fmt.Sprintf("%s\t%s", d.FileName, d.Name)
 		}), cobra.ShellCompDirectiveNoFileComp
 	}
@@ -45,8 +46,8 @@ func validDefinitionsFunc() func(cmd *cobra.Command, args []string, toComplete s
 
 func validEnabledDefinitionFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		definitions, _ := validation.EndpointDefinitions()
-		mappedDefinitions := util.Map(definitions, func(d validation.EndpointDefinition) string {
+		endpointDefinitions, _ := definitions.Endpoints()
+		mappedDefinitions := util.Map(endpointDefinitions, func(d definitions.Endpoint) string {
 			if d.IsEnabled {
 				return fmt.Sprintf("%s\t%s", d.FileName, d.Name)
 			}
@@ -60,8 +61,8 @@ func validEnabledDefinitionFunc() func(cmd *cobra.Command, args []string, toComp
 
 func validDisabledDefinitionFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		definitions, _ := validation.EndpointDefinitions()
-		mappedDefinitions := util.Map(definitions, func(d validation.EndpointDefinition) string {
+		endpointDefinitions, _ := definitions.Endpoints()
+		mappedDefinitions := util.Map(endpointDefinitions, func(d definitions.Endpoint) string {
 			if !d.IsEnabled {
 				return fmt.Sprintf("%s%s\t%s", viper.GetString("daemon.ignore-prefix"), d.FileName, d.Name)
 			}

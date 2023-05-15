@@ -2,13 +2,14 @@ package tui
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/pipeline"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"strings"
 )
 
 type validatorOutputModel struct {
@@ -84,7 +85,7 @@ func (v validatorOutputModel) View() string {
 	return lipgloss.NewStyle().Render(v.table.View())
 }
 
-func getValidatorOutputRows(validatorOutputs []validation.ValidatorResult) []table.Row {
+func getValidatorOutputRows(validatorOutputs []pipeline.ValidatorResult) []table.Row {
 	rows := make([]table.Row, 0)
 	for i, output := range validatorOutputs {
 		s := strings.Split(output.Message, ": ")

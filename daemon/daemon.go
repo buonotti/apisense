@@ -10,18 +10,18 @@ import (
 
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/viper"
-	"golang.org/x/sys/unix"
 
 	"github.com/buonotti/apisense/conversion"
 	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/log"
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/pipeline"
 )
 
 // daemon provides simple daemon operations, and it holds the validation.Pipeline
 // to perform the validation of the data
 type daemon struct {
-	Pipeline *validation.Pipeline // Pipeline is the validation pipeline the daemon uses
+	Pipeline *pipeline.Pipeline // Pipeline is the validation pipeline the daemon uses
 }
 
 // run starts the daemon and with it the cron scheduler that runs the work
@@ -29,7 +29,7 @@ type daemon struct {
 // incoming signals and stop the daemon when a SIGINT is received, and it reloads
 // the configuration when a SIGHUP is received.
 func (d daemon) run(runOnStart bool) error {
-	err := writeStatus(UP)
+	err := writeStatus(UpStatus)
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func (d daemon) run(runOnStart bool) error {
 	ctx := context.Background()
 	ctx, contextCancel := context.WithCancel(ctx)
 	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, unix.SIGINT, unix.SIGHUP, unix.SIGTERM)
+	signal.Notify(signalChan, os.Kill)
 
 	defer endRun(signalChan, contextCancel)
 
@@ -57,6 +57,9 @@ func (d daemon) run(runOnStart bool) error {
 
 	cronScheduler := cron.New()
 	workFunctionId, err := cronScheduler.AddFunc(viper.GetString("daemon.interval"), d.work)
+	if err != nil {
+		return errors.CannotAddWorkFunctionToCronSchedulerError.Wrap(err, "cannot add work function to cron scheduler")
+	}
 
 	defer cronScheduler.Remove(workFunctionId)
 
@@ -71,25 +74,16 @@ func (d daemon) signalListener(signalChan chan os.Signal, cancel context.CancelF
 		select {
 		case s := <-signalChan:
 			switch s {
-			case unix.SIGHUP:
-				log.DaemonLogger.Info("received SIGHUP, reloading configuration")
-				errors.CheckErr(d.Pipeline.Reload())
-			case unix.SIGINT:
-				log.DaemonLogger.Info("received SIGINT, stopping daemon")
-				errors.CheckErr(writeStatus(DOWN))
-				errors.CheckErr(writePid(-1))
-				cancel()
-				os.Exit(0)
-			case unix.SIGTERM:
-				log.DaemonLogger.Info("received SIGTERM, stopping daemon")
-				errors.CheckErr(writeStatus(DOWN))
+			case os.Kill:
+				log.DaemonLogger.Info("received SIGKILL, stopping daemon")
+				errors.CheckErr(writeStatus(DownStatus))
 				errors.CheckErr(writePid(-1))
 				cancel()
 				os.Exit(0)
 			}
 		case <-ctx.Done():
 			log.DaemonLogger.Infof("context done, exiting signal handler")
-			errors.CheckErr(writeStatus(DOWN))
+			errors.CheckErr(writeStatus(DownStatus))
 			errors.CheckErr(writePid(-1))
 			os.Exit(0)
 		}
@@ -100,7 +94,7 @@ func (d daemon) signalListener(signalChan chan os.Signal, cancel context.CancelF
 // given cancel function and writes the daemon status
 func endRun(signalChan chan os.Signal, cancel context.CancelFunc) {
 	log.DaemonLogger.Info("stopping daemon")
-	errors.CheckErr(writeStatus(DOWN))
+	errors.CheckErr(writeStatus(DownStatus))
 	errors.CheckErr(writePid(-1))
 	signal.Stop(signalChan)
 	cancel()
@@ -120,13 +114,17 @@ func (d daemon) work() {
 		errors.CheckErr(errors.CannotSerializeItemError.Wrap(err, "cannot serialize report"))
 	}
 
-	reportPath := validation.ReportLocation() + string(filepath.Separator) + time.Now().Format("02-01-2006T15:04:05.000Z") + ".report.json"
-	err = os.WriteFile(reportPath, reportData, 0644)
-	if err != nil {
-		errors.CheckErr(errors.CannotWriteFileError.Wrap(err, "cannot write report to file"))
-	}
+	if len(result.Endpoints) > 0 {
+		reportPath := filepath.FromSlash(directories.ReportsDirectory() + "/" + time.Time(result.Time).Format(pipeline.ReportTimeFormat) + ".report.json")
+		err = os.WriteFile(reportPath, reportData, 0644)
+		if err != nil {
+			errors.CheckErr(errors.CannotWriteFileError.Wrap(err, "cannot write report to file"))
+		}
 
-	log.DaemonLogger.Infof("generated report (%s)", reportPath)
+		log.DaemonLogger.Infof("generated report (%s)", reportPath)
+	} else {
+		log.DaemonLogger.Info("no endpoints to validate")
+	}
 
 	errors.CheckErr(d.cleanupReports())
 }
@@ -137,7 +135,7 @@ func (d daemon) cleanupReports() error {
 	}
 
 	log.DaemonLogger.Info("cleaning up reports")
-	files, err := os.ReadDir(validation.ReportLocation())
+	files, err := os.ReadDir(filepath.FromSlash(directories.ReportsDirectory()))
 	errors.CheckErr(err)
 	for _, file := range files {
 		fName := file.Name()
@@ -145,14 +143,14 @@ func (d daemon) cleanupReports() error {
 			continue
 		}
 		fName = strings.TrimSuffix(fName, ".report.json")
-		fTime, err := time.Parse("02-01-2006T15:04:05.000Z", fName)
+		fTime, err := time.Parse(pipeline.ReportTimeFormat, fName)
 		if err != nil {
 			log.DaemonLogger.Warnf("cannot parse report name %s, skipping", file.Name())
-			return nil
+			continue
 		}
 		maxTime := viper.GetDuration("daemon.discard.max_lifetime")
 		if time.Since(fTime) > maxTime {
-			err = os.Remove(validation.ReportLocation() + string(filepath.Separator) + file.Name())
+			err = os.Remove(filepath.FromSlash(directories.ReportsDirectory() + "/" + file.Name()))
 			if err != nil {
 				return errors.CannotRemoveFileError.Wrap(err, "cannot remove report file")
 			}
@@ -163,7 +161,7 @@ func (d daemon) cleanupReports() error {
 }
 
 // logResults logs the results of the validation pipeline to the output file or stdout using the log.DaemonLogger
-func (d daemon) logResults(report validation.Report) {
+func (d daemon) logResults(report pipeline.Report) {
 	for _, validatedEndpoint := range report.Endpoints {
 		for _, result := range validatedEndpoint.TestCaseResults {
 			for _, validatorResult := range result.ValidatorResults {

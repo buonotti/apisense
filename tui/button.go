@@ -13,6 +13,7 @@ import (
 type option struct {
 	option, description string
 }
+
 type optionDelegate struct{}
 
 func (d optionDelegate) Height() int                               { return 1 }
@@ -26,7 +27,7 @@ func (d optionDelegate) Render(w io.Writer, m list.Model, index int, listItem li
 
 	var (
 		str string
-		fn  func(string2 string) string
+		fn  func(strings ...string) string
 	)
 
 	if terminalHeight < 25 {
@@ -34,8 +35,8 @@ func (d optionDelegate) Render(w io.Writer, m list.Model, index int, listItem li
 
 		fn = styleBase.Render
 		if index == m.Index() {
-			fn = func(s string) string {
-				//Add cursor by modifying the format string
+			fn = func(s ...string) string {
+				// Add cursor by modifying the format string
 				return fmt.Sprintf("[ %s ] %s", stylePrimary.Render("x"), styleBold.Render(i.option))
 			}
 		}
@@ -44,8 +45,8 @@ func (d optionDelegate) Render(w io.Writer, m list.Model, index int, listItem li
 
 		fn = styleBase.Render
 		if index == m.Index() {
-			fn = func(s string) string {
-				//Add cursor by modifying the format string
+			fn = func(s ...string) string {
+				// Add cursor by modifying the format string
 				return fmt.Sprintf("╭───╮\n│ %s │ %s \n╰───╯", stylePrimary.Render("x"), styleBold.Render(i.option))
 			}
 		}
@@ -64,4 +65,5 @@ var optionsDaemonMenu = []list.Item{
 	option{option: "Start daemon", description: "Starts a new daemon"},
 	option{option: "Stop daemon", description: "Stops the current daemon"},
 }
+
 var listDaemonButton = list.New(optionsDaemonMenu, optionDelegate{}, defaultWidth, defaultListHeight)

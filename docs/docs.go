@@ -9,13 +9,131 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "contact": {
+            "name": "buonotti",
+            "url": "https://github.com/buonotti/apisense/issues"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/health": {
+        "/definitions": {
+            "get": {
+                "description": "Gets a list of all definitions",
+                "tags": [
+                    "definitions"
+                ],
+                "summary": "Get all the definitions",
+                "operationId": "all-definitions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/definitions.Endpoint"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new definition",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "definitions"
+                ],
+                "summary": "Create a definition",
+                "operationId": "create-definition",
+                "parameters": [
+                    {
+                        "description": "Endpoint definition",
+                        "name": "definition",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/definitions.Endpoint"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/definitions.Endpoint"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/definitions/:name": {
+            "get": {
+                "description": "Gets a single definition identified by his endpoint name",
+                "tags": [
+                    "definitions"
+                ],
+                "summary": "Get one definition",
+                "operationId": "definition",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bluetooth",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/definitions.Endpoint"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
             "get": {
                 "description": "Get the health status of the API",
                 "tags": [
@@ -30,22 +148,48 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/reports": {
+        "/reports": {
             "get": {
-                "description": "Connect to this endpoint with the ws:// protocol to instantiate a websocket connection to get updates for new reports",
+                "description": "Gets a list of all reports that can be filtered with a query",
                 "tags": [
                     "reports"
                 ],
-                "summary": "Open a websocket connection to receive notifications",
-                "operationId": "ws",
+                "summary": "Get all the reports",
+                "operationId": "all-reports",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Query in the format: field.op.value (optional)",
+                        "name": "where",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Return format: json or csv (default: json)",
+                        "name": "format",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
-                    "101": {
-                        "description": "Switching Protocols"
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/pipeline.Report"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
                     }
                 }
             }
         },
-        "/api/reports/:id": {
+        "/reports/:id": {
             "get": {
                 "description": "Gets a single report identified by his id",
                 "tags": [
@@ -72,7 +216,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/validation.Report"
+                            "$ref": "#/definitions/pipeline.Report"
                         }
                     },
                     "404": {
@@ -89,6 +233,21 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/ws": {
+            "get": {
+                "description": "Connect to this endpoint with the ws:// protocol to instantiate a websocket connection to get updates for new reports",
+                "tags": [
+                    "reports"
+                ],
+                "summary": "Open a websocket connection to receive notifications",
+                "operationId": "ws",
+                "responses": {
+                    "101": {
+                        "description": "Switching Protocols"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -100,14 +259,113 @@ const docTemplate = `{
                 }
             }
         },
-        "validation.Report": {
+        "definitions.Endpoint": {
+            "type": "object",
+            "properties": {
+                "baseUrl": {
+                    "description": "BaseUrl is the base path of the endpoint",
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "IsEnabled is a boolean that indicates if the endpoint is enabled (not contained in the definition)",
+                    "type": "boolean"
+                },
+                "excludedValidators": {
+                    "description": "ExcludedValidators is a list of validators that should not be used for this endpoint",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "format": {
+                    "description": "Format is the response format of the",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name is the name of the endpoint",
+                    "type": "string"
+                },
+                "queryParameters": {
+                    "description": "QueryParameters are all the query parameters that should be added to the call",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/query.Definition"
+                    }
+                },
+                "responseSchema": {
+                    "description": "ResponseSchema describes how the response should look like",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/definitions.SchemaEntry"
+                    }
+                },
+                "variables": {
+                    "description": "Variables are all the variables that should be interpolated in the base url and the query parameters",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/definitions.Variable"
+                    }
+                }
+            }
+        },
+        "definitions.SchemaEntry": {
+            "type": "object",
+            "properties": {
+                "fields": {
+                    "description": "Fields describe the children of this field if the field is an object or array",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/definitions.SchemaEntry"
+                    }
+                },
+                "max": {
+                    "description": "Maximum is the maximum allowed value of the field"
+                },
+                "min": {
+                    "description": "Minimum is the minimum allowed value of the field"
+                },
+                "name": {
+                    "description": "Name is the name of the field",
+                    "type": "string"
+                },
+                "required": {
+                    "description": "Required is true if the field is required (not null or not empty in case of an array)",
+                    "type": "boolean"
+                },
+                "type": {
+                    "description": "Type is the type of the field",
+                    "type": "string"
+                }
+            }
+        },
+        "definitions.Variable": {
+            "type": "object",
+            "properties": {
+                "constant": {
+                    "description": "IsConstant is true if the value of the variable is constant or else false",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "Name is the name of the variable",
+                    "type": "string"
+                },
+                "values": {
+                    "description": "Values are all the possible values of the variable (only 1 in case of a constant)",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "pipeline.Report": {
             "type": "object",
             "properties": {
                 "endpoints": {
                     "description": "Endpoints is a collection of ValidatedEndpoint holding the validation results",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/validation.ValidatedEndpoint"
+                        "$ref": "#/definitions/pipeline.ValidatedEndpoint"
                     }
                 },
                 "id": {
@@ -120,7 +378,7 @@ const docTemplate = `{
                 }
             }
         },
-        "validation.TestCaseResult": {
+        "pipeline.TestCaseResult": {
             "type": "object",
             "properties": {
                 "url": {
@@ -131,12 +389,12 @@ const docTemplate = `{
                     "description": "ValidatorResults is the collection of ValidatorResult that describe the result of each validator",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/validation.ValidatorResult"
+                        "$ref": "#/definitions/pipeline.ValidatorResult"
                     }
                 }
             }
         },
-        "validation.ValidatedEndpoint": {
+        "pipeline.ValidatedEndpoint": {
             "type": "object",
             "properties": {
                 "endpointName": {
@@ -147,12 +405,12 @@ const docTemplate = `{
                     "description": "TestCaseResults are the collection of TestCaseResult that describe the result of validating a single api call",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/validation.TestCaseResult"
+                        "$ref": "#/definitions/pipeline.TestCaseResult"
                     }
                 }
             }
         },
-        "validation.ValidatorResult": {
+        "pipeline.ValidatorResult": {
             "type": "object",
             "properties": {
                 "message": {
@@ -168,18 +426,31 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "query.Definition": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "Name is the name of the query parameter",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "Value is the value of the query parameter",
+                    "type": "string"
+                }
+            }
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0",
+	Host:             "localhost:8080",
+	BasePath:         "/api",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Apisense API",
+	Description:      "Api specification for the Apisense API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

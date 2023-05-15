@@ -4,11 +4,11 @@ import (
 	"strconv"
 
 	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/fetcher"
 )
 
 // NewRangeValidator creates a new instance of a range validator
-func NewRangeValidator() validation.Validator {
+func NewRangeValidator() Validator {
 	return rangeValidator{}
 }
 
@@ -23,7 +23,7 @@ func (v rangeValidator) Name() string {
 
 // Validate validates the given item by checking the range values in the
 // definition, and return nil on success or an error on failure
-func (v rangeValidator) Validate(item validation.PipelineTestCase) error {
+func (v rangeValidator) Validate(item fetcher.TestCase) error {
 	for _, schemaEntry := range item.SchemaEntries {
 		value := item.Data[schemaEntry.Name]
 		if value == nil {

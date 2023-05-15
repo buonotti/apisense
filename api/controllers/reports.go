@@ -9,27 +9,28 @@ import (
 	"github.com/buonotti/apisense/conversion"
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/pipeline"
 )
 
 // AllReports godoc
+//
 //	@Summary		Get all the reports
 //	@Description	Gets a list of all reports that can be filtered with a query
 //	@ID				all-reports
 //	@Tags			reports
-//	@Param			where	query		string	false	"field.op.value"
-//	@Param			format	query		string	false	"json"
-//	@Success		200		array		validation.Report
+//	@Param			where	query		string	false	"Query in the format: field.op.value (optional)"
+//	@Param			format	query		string	false	"Return format: json or csv (default: json)"
+//	@Success		200		array		pipeline.Report
 //	@Failure		500		{object}	ErrorResponse
-//	@Router			/api/reports [get]
+//	@Router			/reports [get]
 func AllReports(c *gin.Context) {
-	allReports, err := validation.Reports()
+	allReports, err := pipeline.Reports()
 	if err != nil {
 		c.AbortWithStatusJSON(500, ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	whereFilter, err := filter.ParseFromContext[validation.Report](c)
+	whereFilter, err := filter.ParseFromContext[pipeline.Report](c)
 	allReports = whereFilter.Apply(allReports)
 
 	if err != nil {
@@ -40,19 +41,18 @@ func AllReports(c *gin.Context) {
 	writeFormattedReport(c, allReports...)
 }
 
-//	@BasePath	/api
-
 // Report godoc
+//
 //	@Summary		Get one report
 //	@Description	Gets a single report identified by his id
 //	@ID				report
 //	@Tags			reports
 //	@Param			format	query		string	false	"json"
 //	@Param			id		path		string	true	"qNg8rJX"
-//	@Success		200		{object}	validation.Report
+//	@Success		200		{object}	pipeline.Report
 //	@Failure		404		{object}	ErrorResponse
 //	@Failure		500		{object}	ErrorResponse
-//	@Router			/api/reports/:id [get]
+//	@Router			/reports/:id [get]
 func Report(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -61,13 +61,13 @@ func Report(c *gin.Context) {
 		return
 	}
 
-	reports, err := validation.Reports()
+	reports, err := pipeline.Reports()
 	if err != nil {
 		c.AbortWithStatusJSON(500, ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	report := util.FindFirst(reports, func(report validation.Report) bool {
+	report := util.FindFirst(reports, func(report pipeline.Report) bool {
 		return report.Id == id
 	})
 
@@ -80,7 +80,7 @@ func Report(c *gin.Context) {
 	writeFormattedReport(c, *report)
 }
 
-func writeFormattedReport(c *gin.Context, reports ...validation.Report) {
+func writeFormattedReport(c *gin.Context, reports ...pipeline.Report) {
 	body := strings.Builder{}
 	format := c.Query("format")
 	if format == "" {

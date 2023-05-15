@@ -3,7 +3,7 @@ package conversion
 import (
 	"encoding/json"
 
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/validation/pipeline"
 )
 
 func Json() Converter {
@@ -12,7 +12,7 @@ func Json() Converter {
 
 type jsonConverter struct{}
 
-func (jsonConverter) Convert(reports ...validation.Report) ([]byte, error) {
+func (jsonConverter) Convert(reports ...pipeline.Report) ([]byte, error) {
 	if len(reports) == 1 {
 		return json.Marshal(reports[0])
 	} else {

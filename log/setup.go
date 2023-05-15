@@ -11,7 +11,7 @@ func hasLogFile() bool {
 	return logFile != nil
 }
 
-var logFile *os.File
+var logFile *os.File = nil
 
 func CloseLogFile() error {
 	if logFile != nil {
@@ -35,6 +35,7 @@ func Setup() error {
 	}
 
 	log.SetHandler(newHandler())
+
 	log.SetLevelFromString(viper.GetString("log.level"))
 
 	return nil

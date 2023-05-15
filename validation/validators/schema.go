@@ -2,12 +2,12 @@ package validators
 
 import (
 	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/validation"
-	"github.com/buonotti/apisense/validation/response"
+	"github.com/buonotti/apisense/validation/definitions"
+	"github.com/buonotti/apisense/validation/fetcher"
 )
 
 // NewSchemaValidator returns a new schema validator
-func NewSchemaValidator() validation.Validator {
+func NewSchemaValidator() Validator {
 	return schemaValidator{}
 }
 
@@ -21,13 +21,13 @@ func (v schemaValidator) Name() string {
 }
 
 // Validate validates the given items schema and return nil on success or an error on failure
-func (v schemaValidator) Validate(item validation.PipelineTestCase) error {
+func (v schemaValidator) Validate(item fetcher.TestCase) error {
 	return validateSchema(item.SchemaEntries, item.Data)
 }
 
 // validateSchema validates the result against the schema and return nil on success or an error on failure.
 // The function recursively checks child object or array definitions
-func validateSchema(schemaEntries []response.SchemaEntry, data map[string]any) error {
+func validateSchema(schemaEntries []definitions.SchemaEntry, data map[string]any) error {
 	for _, schemaEntry := range schemaEntries {
 		// get the response value for the current schema schemaEntry
 		value := data[schemaEntry.Name]
@@ -38,17 +38,17 @@ func validateSchema(schemaEntries []response.SchemaEntry, data map[string]any) e
 		}
 
 		// check the type of the value. for each type, check if the value matches the type in the definition
-		switch value.(type) {
+		switch value := value.(type) {
 		case string:
 			if schemaEntry.Type != "string" {
 				return errors.ValidationError.New("validation failed for field %s: expected type %s, got string", schemaEntry.Name, schemaEntry.Type)
 			}
 		case int:
-			if schemaEntry.Type != "int" {
+			if schemaEntry.Type != "number" && schemaEntry.Type != "integer" {
 				return errors.ValidationError.New("validation failed for field %s: expected type %s, got int", schemaEntry.Name, schemaEntry.Type)
 			}
 		case float64:
-			if schemaEntry.Type != "float" && schemaEntry.Type != "integer" {
+			if schemaEntry.Type != "number" {
 				return errors.ValidationError.New("validation failed for field %s: expected type %s, got float", schemaEntry.Name, schemaEntry.Type)
 			}
 		case bool:
@@ -61,7 +61,7 @@ func validateSchema(schemaEntries []response.SchemaEntry, data map[string]any) e
 			}
 
 			// if the value is an array cast it
-			arr, _ := value.([]any)
+			arr := value
 
 			// check if the array is empty and if it is required
 			if len(arr) == 0 && schemaEntry.IsRequired {
@@ -84,7 +84,7 @@ func validateSchema(schemaEntries []response.SchemaEntry, data map[string]any) e
 
 			// do the similar thing as above for arrays but for objects (that means we do the
 			// same thing, we just check only one value instead of an array)
-			err := validateSchema(schemaEntry.Fields, value.(map[string]any))
+			err := validateSchema(schemaEntry.Fields, value)
 			if err != nil {
 				return err
 			}

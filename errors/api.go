@@ -11,3 +11,6 @@ var CannotUpgradeWebsocketError = ApiErrors.NewType("cannot_upgrade_websocket", 
 var CannotWriteWebsocketError = ApiErrors.NewType("cannot_write_websocket")
 var CannotFindReportError = ApiErrors.NewType("cannot_find_report")
 var IdRequiredError = ApiErrors.NewType("id_required")
+var NameRequiredError = ApiErrors.NewType("name_required")
+var CannotFindDefinitionError = ApiErrors.NewType("cannot_find_definition")
+var DefinitionAlreadyExistsError = ApiErrors.NewType("definition_already_exists")

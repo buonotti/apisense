@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"path/filepath"
 	"time"
 
 	"github.com/76creates/stickers"
@@ -12,10 +14,10 @@ import (
 	"github.com/common-nighthawk/go-figure"
 	"github.com/spf13/viper"
 
-	"github.com/buonotti/apisense/daemon"
 	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/fs"
-	"github.com/buonotti/apisense/validation"
+	"github.com/buonotti/apisense/filesystem"
+	"github.com/buonotti/apisense/filesystem/locations/files"
+	"github.com/buonotti/apisense/validation/pipeline"
 )
 
 var (
@@ -24,7 +26,7 @@ var (
 	choiceMainMenu    string                        // choiceMainMenu Saves the user choice made on the listMainMenu
 	choiceReportModel string                        // choiceReportModel Saves the user choice made in the reportModel view
 	choiceConfigModel string                        // choiceConfigModel Saves the user choice made in the configModel view
-	reports           []validation.Report           // reports Existing reports
+	reports           []pipeline.Report             // reports Existing reports
 	terminalHeight    = getTerminalHeight()         // terminalHeight Terminal height, updates whenever a WindowSizeMsg is triggered
 )
 
@@ -79,12 +81,12 @@ func TuiModule() Model {
 func (m Model) Init() tea.Cmd {
 	m.reportModel.Init()
 	m.configModel.Init()
-	fileWatcher := fs.NewFileWatcher()
-	err := fileWatcher.AddFile(daemon.PidFile)
+	fileWatcher := filesystem.NewFileWatcher()
+	err := fileWatcher.AddFile(files.DaemonPidFile())
 	errors.CheckErr(err)
 
-	directoryWatcher := fs.NewDirectoryWatcher()
-	err = directoryWatcher.SetDirectory(validation.ReportLocation())
+	directoryWatcher := filesystem.NewDirectoryWatcher()
+	err = directoryWatcher.SetDirectory(filepath.FromSlash(directories.ReportsDirectory()))
 	errors.CheckErr(err)
 	go func() {
 		err := fileWatcher.Start()
@@ -106,7 +108,7 @@ func (m Model) Init() tea.Cmd {
 		for {
 			<-directoryWatcher.Events
 			directoryUpdate = true
-			r, err := validation.Reports()
+			r, err := pipeline.Reports()
 			errors.CheckErr(err)
 			reports = r
 		}
@@ -195,7 +197,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	if choiceMainMenu == "Report" {
 		if choiceReportModel == "" {
-			r, err := validation.Reports()
+			r, err := pipeline.Reports()
 			errors.CheckErr(err)
 			reports = r
 			choiceReportModel = "reportModel"

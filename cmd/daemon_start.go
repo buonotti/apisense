@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-
 	"github.com/buonotti/apisense/daemon"
 	"github.com/buonotti/apisense/errors"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var daemonStartCmd = &cobra.Command{
@@ -13,6 +13,7 @@ var daemonStartCmd = &cobra.Command{
 	Long:  `This command starts the daemon. In any case if there is already a daemon running the new one won't start.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		force, err := cmd.Flags().GetBool("force")
+		force = force || viper.GetBool("daemon.run_at_startup")
 		if err != nil {
 			errors.CheckErr(errors.CannotGetFlagValueError.Wrap(err, "cannot get value of flag: force"))
 		}

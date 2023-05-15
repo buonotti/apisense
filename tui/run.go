@@ -6,6 +6,6 @@ import (
 
 func Run() error {
 	p := tea.NewProgram(TuiModule(), tea.WithAltScreen(), tea.WithMouseCellMotion())
-	err := p.Start()
+	_, err := p.Run()
 	return err
 }
