@@ -12,39 +12,11 @@ type Variable struct {
 	Values     []string `yaml:"values" json:"values"`     // Values are all the possible values of the variable (only 1 in case of a constant)
 }
 
-// EndpointParameter is an interface that defines a parameter that will be interpolated as variable in an endpoint request
-type EndpointParameter interface {
-	Value(index int) any // Value returns the value of the parameter at the given index
-}
-
-// NewVariableEndpointParameter returns a new EndpointParameter with the given values
-func NewVariableEndpointParameter(values []string) EndpointParameter {
-	return VariableEndpointParameter{values: values}
-}
-
-// VariableEndpointParameter is a parameter that returns a different value based on the index in the given collection
-type VariableEndpointParameter struct {
-	values []string // values is the collection of values that will be returned
-}
-
-// Value returns the value in the initial collection at the given index
-func (p VariableEndpointParameter) Value(index int) any {
-	return p.values[index]
-}
-
-// ConstantEndpointParameter is a parameter that always returns the same value
-type ConstantEndpointParameter struct {
-	value string // value is the value that is always returned
-}
-
-// NewConstantEndpointParameter returns a new EndpointParameter with the given value
-func NewConstantEndpointParameter(value string) EndpointParameter {
-	return ConstantEndpointParameter{value: value}
-}
-
-// Value always returns the same value
-func (p ConstantEndpointParameter) Value(int) any {
-	return p.value
+func (v Variable) Value(index int) any {
+	if v.IsConstant {
+		return v.Values[0]
+	}
+	return v.Values[index]
 }
 
 // VariableMap is a map of variables that will be generated from a collection of

@@ -12,7 +12,7 @@ For information about installation and usage, check out the [wiki](https://buono
 
 ## Contribution
 
-The project is still in the early stages of development. If you want to contribute or have a issue to report make sure
+The project is still in the early stages of development. If you want to contribute or have an issue to report make sure
 you open a [GitHub Issue](https://github.com/buonotti/apisense/issues/new) because we might already be working on it.
 
 ## License

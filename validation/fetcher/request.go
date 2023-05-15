@@ -83,7 +83,7 @@ func requestData(definition endpointRequest) (endpointResponse, error) {
 }
 
 // normalizeVariables converts all given variables in the definition of an endpoint to a collection of variables.EndpointParameter
-func normalizeVariables(definition definitions.Endpoint) ([]EndpointParameter, error) {
+func normalizeVariables(definition definitions.Endpoint) ([]definitions.Variable, error) {
 	// get the length of the first non-constant element of the variables. if there are only constants the valueCount is 1
 	firstVariableVar := util.FindFirst(definition.Variables, func(param definitions.Variable) bool { return !param.IsConstant })
 	valueCount := 1
@@ -101,14 +101,15 @@ func normalizeVariables(definition definitions.Endpoint) ([]EndpointParameter, e
 	// create a new variables.EndpointParameter for each variable. a constant
 	// parameter is created for constants and a variable parameter for variable
 	// values
-	var params []EndpointParameter
+	var params []definitions.Variable
 	for _, param := range definition.Variables {
-		if param.IsConstant {
-			params = append(params, NewConstantEndpointParameter(param.Values[0]))
-		} else {
-			params = append(params, NewVariableEndpointParameter(param.Values))
-		}
+		params = append(params, definitions.Variable{
+			Name:       param.Name,
+			IsConstant: param.IsConstant,
+			Values:     param.Values,
+		})
 	}
+
 	return params, nil
 }
 
@@ -134,7 +135,7 @@ func parseRequests(definition definitions.Endpoint) ([]endpointRequest, error) {
 		// create a variable map where the key is the name of the variable and the value
 		// is retrieved from the variables.EndpointParameter where the index is the
 		// current cycle
-		variableMap := VariableMap(make(map[string]any))
+		variableMap := definitions.VariableMap(make(map[string]any))
 		for varIndex, variable := range vars {
 			variableMap[definition.Variables[varIndex].Name] = variable.Value(valueCycle)
 		}

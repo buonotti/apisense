@@ -23,6 +23,10 @@ func AllDefinitions(c *gin.Context) {
 		return
 	}
 
+	if len(allDefinitions) == 0 {
+		allDefinitions = []definitions.Endpoint{}
+	}
+
 	c.JSON(200, allDefinitions)
 }
 
