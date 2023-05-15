@@ -12,7 +12,7 @@ import (
 )
 
 var reportExportCmd = &cobra.Command{
-	Use:   "export [flags] [reports]...",
+	Use:   "export [FLAGS] [REPORTS]...",
 	Short: "Export reports in various formats",
 	Long:  "", // TODO
 	Run: func(cmd *cobra.Command, args []string) {
