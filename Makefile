@@ -6,6 +6,10 @@ build:
 install: build
 	go install
 
+docs: build
+	swag init
+	swag fmt
+
 docker-build:
 	docker build -t auribuo/apisense:latest .
 

@@ -16,27 +16,27 @@ import (
 
 // SchemaEntry is a field definition of the response
 type SchemaEntry struct {
-	Name       string        `yaml:"name" json:"name"`         // Name is the name of the field
-	Type       string        `yaml:"type" json:"type"`         // Type is the type of the field
-	Minimum    interface{}   `yaml:"min" json:"min"`           // Minimum is the minimum allowed value of the field
-	Maximum    interface{}   `yaml:"max" json:"max"`           // Maximum is the maximum allowed value of the field
-	IsRequired bool          `yaml:"required" json:"required"` // Required is true if the field is required (not null or not empty in case of an array)
-	Fields     []SchemaEntry `yaml:"fields" json:"fields"`     // Fields describe the children of this field if the field is an object or array
+	Name       string        `yaml:"name" json:"name" validate:"required"`         // Name is the name of the field
+	Type       string        `yaml:"type" json:"type" validate:"required"`         // Type is the type of the field
+	Minimum    interface{}   `yaml:"min" json:"min"`                               // Minimum is the minimum allowed value of the field
+	Maximum    interface{}   `yaml:"max" json:"max"`                               // Maximum is the maximum allowed value of the field
+	IsRequired bool          `yaml:"required" json:"required" validate:"required"` // Required is true if the field is required (not null or not empty in case of an array)
+	Fields     []SchemaEntry `yaml:"fields" json:"fields" validate:"required"`     // Fields describe the children of this field if the field is an object or array
 }
 
 // Endpoint is the definition of an endpoint to test with all its query
 // parameters, variables and its result schema
 type Endpoint struct {
-	FileName           string             `yaml:"-" json:"-"`                                    // FileName is the name of the file that contains the definition
-	FullPath           string             `yaml:"-" json:"-"`                                    // FullPath is the full path of the file that contains the definition
-	Name               string             `yaml:"name" json:"name"`                              // Name is the name of the endpoint
-	IsEnabled          bool               `yaml:"enabled" json:"enabled"`                        // IsEnabled is a boolean that indicates if the endpoint is enabled (not contained in the definition)
-	BaseUrl            string             `yaml:"base_url" json:"baseUrl"`                       // BaseUrl is the base path of the endpoint
-	ExcludedValidators []string           `yaml:"excluded_validators" json:"excludedValidators"` // ExcludedValidators is a list of validators that should not be used for this endpoint
-	QueryParameters    []query.Definition `yaml:"query_parameters" json:"queryParameters"`       // QueryParameters are all the query parameters that should be added to the call
-	Format             string             `yaml:"format" json:"format"`                          // Format is the response format of the
-	Variables          []Variable         `yaml:"variables" json:"variables"`                    // Variables are all the variables that should be interpolated in the base url and the query parameters
-	ResponseSchema     []SchemaEntry      `yaml:"response_schema" json:"responseSchema"`         // ResponseSchema describes how the response should look like
+	FileName           string             `yaml:"-" json:"-"`                                                // FileName is the name of the file that contains the definition
+	FullPath           string             `yaml:"-" json:"-"`                                                // FullPath is the full path of the file that contains the definition
+	Name               string             `yaml:"name" json:"name" validate:"required"`                      // Name is the name of the endpoint
+	IsEnabled          bool               `yaml:"enabled" json:"enabled"`                                    // IsEnabled is a boolean that indicates if the endpoint is enabled (not contained in the definition)
+	BaseUrl            string             `yaml:"base_url" json:"baseUrl" validate:"required"`               // BaseUrl is the base path of the endpoint
+	ExcludedValidators []string           `yaml:"excluded_validators" json:"excludedValidators"`             // ExcludedValidators is a list of validators that should not be used for this endpoint
+	QueryParameters    []query.Definition `yaml:"query_parameters" json:"queryParameters"`                   // QueryParameters are all the query parameters that should be added to the call
+	Format             string             `yaml:"format" json:"format" validate:"required"`                  // Format is the response format of the
+	Variables          []Variable         `yaml:"variables" json:"variables"`                                // Variables are all the variables that should be interpolated in the base url and the query parameters
+	ResponseSchema     []SchemaEntry      `yaml:"response_schema" json:"responseSchema" validate:"required"` // ResponseSchema describes how the response should look like
 }
 
 // parseDefinition reads a given file and returns and EndpointDefinition.
