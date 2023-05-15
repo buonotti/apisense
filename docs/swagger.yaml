@@ -43,6 +43,11 @@ definitions:
         items:
           $ref: '#/definitions/definitions.Variable'
         type: array
+    required:
+    - baseUrl
+    - format
+    - name
+    - responseSchema
     type: object
   definitions.SchemaEntry:
     properties:
@@ -66,6 +71,11 @@ definitions:
       type:
         description: Type is the type of the field
         type: string
+    required:
+    - fields
+    - name
+    - required
+    - type
     type: object
   definitions.Variable:
     properties:
@@ -82,6 +92,10 @@ definitions:
         items:
           type: string
         type: array
+    required:
+    - constant
+    - name
+    - values
     type: object
   pipeline.Report:
     properties:
@@ -142,6 +156,9 @@ definitions:
       value:
         description: Value is the value of the query parameter
         type: string
+    required:
+    - name
+    - value
     type: object
 host: localhost:8080
 info:

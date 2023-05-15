@@ -261,6 +261,12 @@ const docTemplate = `{
         },
         "definitions.Endpoint": {
             "type": "object",
+            "required": [
+                "baseUrl",
+                "format",
+                "name",
+                "responseSchema"
+            ],
             "properties": {
                 "baseUrl": {
                     "description": "BaseUrl is the base path of the endpoint",
@@ -310,6 +316,12 @@ const docTemplate = `{
         },
         "definitions.SchemaEntry": {
             "type": "object",
+            "required": [
+                "fields",
+                "name",
+                "required",
+                "type"
+            ],
             "properties": {
                 "fields": {
                     "description": "Fields describe the children of this field if the field is an object or array",
@@ -340,6 +352,11 @@ const docTemplate = `{
         },
         "definitions.Variable": {
             "type": "object",
+            "required": [
+                "constant",
+                "name",
+                "values"
+            ],
             "properties": {
                 "constant": {
                     "description": "IsConstant is true if the value of the variable is constant or else false",
@@ -429,6 +446,10 @@ const docTemplate = `{
         },
         "query.Definition": {
             "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
             "properties": {
                 "name": {
                     "description": "Name is the name of the query parameter",

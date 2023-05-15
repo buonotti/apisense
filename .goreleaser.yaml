@@ -3,8 +3,6 @@
 before:
   hooks:
     - go mod tidy
-    - swag init
-    - swag fmt
 builds:
   - env:
       - CGO_ENABLED=0
