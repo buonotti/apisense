@@ -23,6 +23,7 @@ require (
 
 require (
 	github.com/apex/log v1.9.0
+	github.com/auribuo/userdir v1.0.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/kopoli/go-terminal-size v0.0.0-20170219200355-5c97524c8b54
 	github.com/muesli/termenv v0.15.1

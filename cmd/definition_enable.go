@@ -17,7 +17,7 @@ var definitionEnableCmd = &cobra.Command{
 	Use:   "enable [DEFINITION]",
 	Short: "Enable a definition",
 	Long:  `Enable a definition`, // TODO: Add more info
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, args []string) {
 		fileName := args[0]
 		fullPath := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + fileName)
 		if _, err := os.Stat(fullPath); err == nil {

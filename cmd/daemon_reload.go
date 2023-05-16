@@ -10,7 +10,7 @@ var daemonReloadCmd = &cobra.Command{
 	Use:   "reload",
 	Short: "Reload the daemon",
 	Long:  `Reload the daemon`, // TODO: Add more info
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		err := daemon.ReloadDaemon()
 		if err != nil {
 			log.CliLogger.Info("reloaded daemon pipeline items")

@@ -12,7 +12,7 @@ var configSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Set a configuration value",
 	Long:  `Set a configuration value`, // TODO: Add more info
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		key := cmd.Flag("key").Value.String()
 		if key == "" {
 			cobra.CheckErr(errors.CannotGetFlagValueError.New("cannot get value of flag: key"))

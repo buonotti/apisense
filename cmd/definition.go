@@ -10,7 +10,7 @@ var definitionCmd = &cobra.Command{
 	Use:   "definition",
 	Short: "Manage definitions",
 	Long:  `Manage definitions`, // TODO: Add more info
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		errors.CheckErr(cmd.Help())
 	},
 }

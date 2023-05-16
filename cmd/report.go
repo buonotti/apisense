@@ -8,7 +8,7 @@ var reportCmd = &cobra.Command{
 	Use:   "report",
 	Short: "Manage the reports",
 	Long:  "", // TODO
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		cobra.CheckErr(cmd.Help())
 	},
 }

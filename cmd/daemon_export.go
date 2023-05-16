@@ -14,7 +14,7 @@ var daemonExportCmd = &cobra.Command{
 	Use:   "export",
 	Short: "Export the currently available pipeline items",
 	Long:  `This command exports the currently available pipeline items. The exported items are the ones that are available in the pipeline.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		pipeline, err := daemon.NewPipeline()
 		errors.CheckErr(err)
 		format, err := cmd.Flags().GetString("format")

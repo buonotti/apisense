@@ -16,7 +16,7 @@ var definitionDisableCmd = &cobra.Command{
 	Use:   "disable [DEFINITION]",
 	Short: "Disable a definition",
 	Long:  `Disable a definition`, // TODO: Add more info
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, args []string) {
 		fileName := args[0]
 		fullPath := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + fileName)
 		if _, err := os.Stat(fullPath); err == nil {

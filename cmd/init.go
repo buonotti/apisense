@@ -12,7 +12,7 @@ var initCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 	},
-	PostRun: func(cmd *cobra.Command, args []string) {
+	PostRun: func(_ *cobra.Command, _ []string) {
 		log.CliLogger.Info("apisense initialized")
 	},
 }

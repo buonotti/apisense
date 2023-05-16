@@ -14,7 +14,7 @@ import (
 )
 
 func validReportsFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
 		reports, _ := pipeline.Reports()
 		return util.Map(reports, func(r pipeline.Report) string {
 			return fmt.Sprintf("%s\t%s with %d result(s)", r.Id, time.Time(r.Time).Format("2006-01-02 at 15-04-05.000Z"), len(r.Endpoints))
@@ -23,7 +23,7 @@ func validReportsFunc() func(cmd *cobra.Command, args []string, toComplete strin
 }
 
 func validConfigKeysFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
 		keys := viper.AllKeys()
 		return keys, cobra.ShellCompDirectiveNoFileComp
 	}
@@ -36,7 +36,7 @@ func validFormatsFunc() func(cmd *cobra.Command, args []string, toComplete strin
 }
 
 func validDefinitionsFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
 		endpointDefinitions, _ := definitions.Endpoints()
 		return util.Map(endpointDefinitions, func(d definitions.Endpoint) string {
 			return fmt.Sprintf("%s\t%s", d.FileName, d.Name)
@@ -45,7 +45,7 @@ func validDefinitionsFunc() func(cmd *cobra.Command, args []string, toComplete s
 }
 
 func validEnabledDefinitionFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
 		endpointDefinitions, _ := definitions.Endpoints()
 		mappedDefinitions := util.Map(endpointDefinitions, func(d definitions.Endpoint) string {
 			if d.IsEnabled {
@@ -60,7 +60,7 @@ func validEnabledDefinitionFunc() func(cmd *cobra.Command, args []string, toComp
 }
 
 func validDisabledDefinitionFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
 		endpointDefinitions, _ := definitions.Endpoints()
 		mappedDefinitions := util.Map(endpointDefinitions, func(d definitions.Endpoint) string {
 			if !d.IsEnabled {

@@ -14,7 +14,7 @@ var reportCleanCmd = &cobra.Command{
 	Use:   "clean",
 	Short: "Clean the report directory",
 	Long:  `This command cleans the report directory.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		override, err := cmd.Flags().GetBool("no-confirm")
 		if err != nil {
 			override = false
