@@ -24,7 +24,9 @@ var configSetCmd = &cobra.Command{
 
 		viper.Set(key, value)
 		err := viper.WriteConfig()
-		cobra.CheckErr(errors.SafeWrap(errors.CannotWriteConfigError, err, "cannot write to config file"))
+		if err != nil {
+			cobra.CheckErr(errors.CannotWriteConfigError.Wrap(err, "cannot write to config file"))
+		}
 		log.CliLogger.WithField("key", key).WithField("value", value).Info("set config value")
 		printConfigValue(key, len(key))
 	},

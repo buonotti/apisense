@@ -18,6 +18,7 @@ import (
 //	@Description	Gets a list of all reports that can be filtered with a query
 //	@ID				all-reports
 //	@Tags			reports
+//	@Produce		json
 //	@Param			where	query		string	false	"Query in the format: field.op.value (optional)"
 //	@Param			format	query		string	false	"Return format: json or csv (default: json)"
 //	@Success		200		array		pipeline.Report
@@ -47,6 +48,7 @@ func AllReports(c *gin.Context) {
 //	@Description	Gets a single report identified by his id
 //	@ID				report
 //	@Tags			reports
+//	@Produce		json
 //	@Param			format	query		string	false	"json"
 //	@Param			id		path		string	true	"qNg8rJX"
 //	@Success		200		{object}	pipeline.Report

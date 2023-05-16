@@ -1,4 +1,4 @@
-# This is the example configuration file for the ODH Data Monitor.
+# This is the example configuration file for apisense.
 
 ### LOGGING CONFIGURATION ###
 log:
@@ -63,6 +63,9 @@ api:
 
   # Set the API port.
   port: 8080
+
+  # The API key to use for authentication.
+  key: "apisense-1324h#3u4b5AS6j7_k!8l9m0"
 
 ### EXTERNAL VALIDATORS ###
 validation:

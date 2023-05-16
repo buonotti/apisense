@@ -24,12 +24,26 @@ const docTemplate = `{
     "paths": {
         "/definitions": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Gets a list of all definitions",
                 "tags": [
                     "definitions"
                 ],
                 "summary": "Get all the definitions",
                 "operationId": "all-definitions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -148,6 +162,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/login": {
+            "post": {
+                "description": "Logs a user in using the provided credentials",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Logs a user in",
+                "operationId": "login-user",
+                "parameters": [
+                    {
+                        "description": "content",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/reports": {
             "get": {
                 "description": "Gets a list of all reports that can be filtered with a query",
@@ -259,8 +323,33 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "definitions.Endpoint": {
             "type": "object",
+            "required": [
+                "baseUrl",
+                "format",
+                "name",
+                "responseSchema"
+            ],
             "properties": {
                 "baseUrl": {
                     "description": "BaseUrl is the base path of the endpoint",
@@ -310,6 +399,12 @@ const docTemplate = `{
         },
         "definitions.SchemaEntry": {
             "type": "object",
+            "required": [
+                "fields",
+                "name",
+                "required",
+                "type"
+            ],
             "properties": {
                 "fields": {
                     "description": "Fields describe the children of this field if the field is an object or array",
@@ -340,6 +435,11 @@ const docTemplate = `{
         },
         "definitions.Variable": {
             "type": "object",
+            "required": [
+                "constant",
+                "name",
+                "values"
+            ],
             "properties": {
                 "constant": {
                     "description": "IsConstant is true if the value of the variable is constant or else false",
@@ -423,12 +523,20 @@ const docTemplate = `{
                 },
                 "status": {
                     "description": "Status is the status of the validator (success/fail/skipped)",
-                    "type": "string"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/validators.ValidatorStatus"
+                        }
+                    ]
                 }
             }
         },
         "query.Definition": {
             "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
             "properties": {
                 "name": {
                     "description": "Name is the name of the query parameter",
@@ -439,6 +547,21 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "validators.ValidatorStatus": {
+            "type": "string",
+            "enum": [
+                "unknown",
+                "success",
+                "skipped",
+                "fail"
+            ],
+            "x-enum-varnames": [
+                "ValidatorStatusUnknown",
+                "ValidatorStatusSuccess",
+                "ValidatorStatusSkipped",
+                "ValidatorStatusFail"
+            ]
         }
     }
 }`

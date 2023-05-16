@@ -40,10 +40,14 @@ func Start(host string, port int) error {
 	api.GET("/health", controllers.GetHealth)
 	api.GET("/reports", controllers.AllReports)
 	api.GET("/reports/:id", controllers.Report)
-	api.GET("/definitions", controllers.AllDefinitions)
-	api.POST("/definitions", controllers.CreateDefinition)
-	api.GET("/definitions/:id", controllers.Definition)
 	api.GET("/ws", controllers.Ws)
+
+	api.Use(middleware.Auth())
+	{
+		api.GET("/definitions", controllers.AllDefinitions)
+		api.POST("/definitions", controllers.CreateDefinition)
+		api.GET("/definitions/:id", controllers.Definition)
+	}
 
 	apiHost := host
 	if apiHost == "" && viper.GetString("api.host") != "" {

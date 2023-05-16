@@ -9,6 +9,7 @@ import (
 //	@Description	Get the health status of the API
 //	@ID				health
 //	@Tags			health
+//	@Produce		json
 //	@Success		200
 //	@Router			/health [get]
 func GetHealth(c *gin.Context) {
