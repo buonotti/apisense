@@ -7,7 +7,7 @@ import (
 var reportCmd = &cobra.Command{
 	Use:   "report",
 	Short: "Manage the reports",
-	Long:  "", // TODO
+	Long:  "Manage the reports", // TODO ?
 	Run: func(cmd *cobra.Command, _ []string) {
 		cobra.CheckErr(cmd.Help())
 	},

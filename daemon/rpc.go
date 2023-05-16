@@ -38,7 +38,7 @@ func startRpcServer(daemon *daemon) error {
 		return err
 	}
 	rpc.HandleHTTP()
-	l, err := net.Listen("tcp", "127.0.0.1:1234")
+	l, err := net.Listen("tcp", "127.0.0.1:42069")
 	if err != nil {
 		if err != http.ErrServerClosed {
 			log.DaemonLogger.WithError(err).Error("cannot start daemon rpc server")
@@ -46,6 +46,6 @@ func startRpcServer(daemon *daemon) error {
 			log.DaemonLogger.Info("daemon rpc server stopped")
 		}
 	}
-	log.DaemonLogger.Info("daemon rpc server started")
+	log.DaemonLogger.WithField("address", "127.0.0.1:42069").Info("daemon rpc server started")
 	return http.Serve(l, nil)
 }

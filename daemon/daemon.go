@@ -16,6 +16,7 @@ import (
 	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/validation/pipeline"
+	"github.com/buonotti/apisense/validation/validators"
 )
 
 // daemon provides simple daemon operations, and it holds the validation.Pipeline
@@ -39,19 +40,19 @@ func (d daemon) run(runOnStart bool) error {
 		return err
 	}
 
-	log.DaemonLogger.Infof("daemon started")
+	log.DaemonLogger.Info("daemon started")
 
 	ctx := context.Background()
 	ctx, contextCancel := context.WithCancel(ctx)
 	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, os.Kill)
+	signal.Notify(signalChan, os.Interrupt)
 
 	defer endRun(signalChan, contextCancel)
 
 	go d.signalListener(signalChan, contextCancel, ctx)
 
 	if runOnStart {
-		log.DaemonLogger.Info("running work function on start")
+		log.DaemonLogger.Info("validating on startup")
 		d.work()
 	}
 
@@ -74,8 +75,8 @@ func (d daemon) signalListener(signalChan chan os.Signal, cancel context.CancelF
 		select {
 		case s := <-signalChan:
 			switch s {
-			case os.Kill:
-				log.DaemonLogger.Info("received SIGKILL, stopping daemon")
+			case os.Interrupt:
+				log.DaemonLogger.Info("received interrupt, stopping daemon")
 				errors.CheckErr(writeStatus(DownStatus))
 				errors.CheckErr(writePid(-1))
 				cancel()
@@ -121,7 +122,7 @@ func (d daemon) work() {
 			errors.CheckErr(errors.CannotWriteFileError.Wrap(err, "cannot write report to file"))
 		}
 
-		log.DaemonLogger.Infof("generated report (%s)", reportPath)
+		log.DaemonLogger.WithField("report", reportPath).Info("generated report")
 	} else {
 		log.DaemonLogger.Info("no endpoints to validate")
 	}
@@ -145,7 +146,7 @@ func (d daemon) cleanupReports() error {
 		fName = strings.TrimSuffix(fName, ".report.json")
 		fTime, err := time.Parse(pipeline.ReportTimeFormat, fName)
 		if err != nil {
-			log.DaemonLogger.Warnf("cannot parse report name %s, skipping", file.Name())
+			log.DaemonLogger.WithField("name", file.Name()).Warn("cannot parse report name, skipping")
 			continue
 		}
 		maxTime := viper.GetDuration("daemon.discard.max_lifetime")
@@ -154,7 +155,7 @@ func (d daemon) cleanupReports() error {
 			if err != nil {
 				return errors.CannotRemoveFileError.Wrap(err, "cannot remove report file")
 			}
-			log.DaemonLogger.Infof("removed report %s because it was too old", file.Name())
+			log.DaemonLogger.WithField("report", file.Name()).Info("removed report because it was too old")
 		}
 	}
 	return nil
@@ -165,11 +166,19 @@ func (d daemon) logResults(report pipeline.Report) {
 	for _, validatedEndpoint := range report.Endpoints {
 		for _, result := range validatedEndpoint.TestCaseResults {
 			for _, validatorResult := range result.ValidatorResults {
-				log.DaemonLogger.Infof("validation result for validator '%s' on endpoint %s (%s)", validatorResult.Name, validatedEndpoint.EndpointName, result.Url)
-				if validatorResult.Message != "" {
-					log.DaemonLogger.Errorf("error: %s", validatorResult.Message)
+				if validatorResult.Status == validators.ValidatorStatusFail {
+					log.DaemonLogger.
+						WithField("validator", validatorResult.Name).
+						WithField("endpoint", validatedEndpoint.EndpointName).
+						WithField("url", result.Url).
+						WithField("message", validatorResult.Message).
+						Error("validation failed")
 				} else {
-					log.DaemonLogger.Infof("nothing to report")
+					log.DaemonLogger.
+						WithField("validator", validatorResult.Name).
+						WithField("endpoint", validatedEndpoint.EndpointName).
+						WithField("url", result.Url).
+						Info("validation succeeded")
 				}
 			}
 		}

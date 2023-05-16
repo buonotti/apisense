@@ -46,9 +46,9 @@ type TestCaseResult struct {
 
 // ValidatorResult is the output of a single validator
 type ValidatorResult struct {
-	Name    string `json:"name"`    // Name is the name of the validator
-	Status  string `json:"status"`  // Status is the status of the validator (success/fail/skipped)
-	Message string `json:"message"` // Message is the error message of the validator
+	Name    string                     `json:"name"`    // Name is the name of the validator
+	Status  validators.ValidatorStatus `json:"status"`  // Status is the status of the validator (success/fail/skipped)
+	Message string                     `json:"message"` // Message is the error message of the validator
 }
 
 // NewPipelineWithValidators creates a new validation pipeline with the given validators already added
@@ -178,13 +178,13 @@ func (p *Pipeline) validateTestCase(item fetcher.TestCase) []ValidatorResult {
 	for _, validator := range p.Validators {
 		validatorResult := ValidatorResult{
 			Name:    validator.Name(),
-			Status:  "success",
+			Status:  validators.ValidatorStatusSuccess,
 			Message: "",
 		}
 
 		if util.Contains(item.ExcludedValidators, validator.Name()) {
-			log.DaemonLogger.Warnf("validator %s is excluded for %s", validator.Name(), item.Url)
-			validatorResult.Status = "skipped"
+			log.DaemonLogger.WithField("validator", validator.Name()).WithField("url", item.Url).Warn("validator is excluded")
+			validatorResult.Status = validators.ValidatorStatusSkipped
 			validatorResults = append(validatorResults, validatorResult)
 			continue
 		}
@@ -193,7 +193,7 @@ func (p *Pipeline) validateTestCase(item fetcher.TestCase) []ValidatorResult {
 
 		if err != nil {
 			validatorResult.Message = err.Error()
-			validatorResult.Status = "fail"
+			validatorResult.Status = validators.ValidatorStatusFail
 			validatorResults = append(validatorResults, validatorResult)
 			if validator.IsFatal() {
 				break

@@ -31,7 +31,7 @@ var daemonStatusCmd = &cobra.Command{
 		} else {
 			styledPid = greenStyle().Italic(true).Render(fmt.Sprintf("%d", pid))
 		}
-		log.CliLogger.Infof("Daemon is %s (pid %s)", styledStatus, styledPid)
+		log.CliLogger.WithField("status", styledStatus).WithField("pid", styledPid).Info("daemon status retrieved")
 	},
 }
 

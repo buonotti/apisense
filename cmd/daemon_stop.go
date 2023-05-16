@@ -14,7 +14,7 @@ var daemonStopCmd = &cobra.Command{
 	Long:  `This command stops a running daemon. If there is no daemon running the command does nothing.`,
 	Run: func(_ *cobra.Command, _ []string) {
 		errors.CheckErr(daemon.Stop())
-		log.CliLogger.Infof("Daemon stopped")
+		log.CliLogger.Infof("daemon stopped")
 	},
 }
 

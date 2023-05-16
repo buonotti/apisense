@@ -63,29 +63,29 @@ func Start(host string, port int) error {
 	}
 
 	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Kill)
+	signal.Notify(done, os.Interrupt)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
 			if err != http.ErrServerClosed {
 				log.ApiLogger.WithError(err).Error("cannot start api service")
 			} else {
-				log.ApiLogger.Info("api service stopped")
+				log.ApiLogger.Info("server stopped")
 			}
 		}
 	}()
 
-	log.ApiLogger.Infof("api service started listening on http://localhost:%v", apiPort)
+	log.ApiLogger.WithField("url", fmt.Sprintf("http://localhost:%v", apiPort)).Info("server listening")
 
 	<-done
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	log.ApiLogger.Info("stopping api service")
+	log.ApiLogger.Info("gracefully stopping server")
 
 	if err := srv.Shutdown(ctx); err != nil {
-		err = errors.CannotStopApiServiceError.Wrap(err, "cannot stop api service")
+		err = errors.CannotStopApiServiceError.Wrap(err, "cannot stop server")
 	}
 
 	return nil

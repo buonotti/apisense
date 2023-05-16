@@ -51,6 +51,5 @@ func printDefinition(definition definitions.Endpoint, concise bool) {
 
 func init() {
 	definitionListCmd.Flags().BoolP("concise", "c", false, "Print less information")
-
 	definitionCmd.AddCommand(definitionListCmd)
 }

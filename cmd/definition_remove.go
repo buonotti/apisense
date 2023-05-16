@@ -21,7 +21,7 @@ var definitionRemoveCmd = &cobra.Command{
 			fullPath := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + definition)
 			err := os.Remove(fullPath)
 			errors.CheckErr(err)
-			log.CliLogger.Infof("removed file %s", fullPath)
+			log.CliLogger.WithField("definition", fullPath).Info("removed definition")
 		}
 	},
 }

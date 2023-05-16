@@ -91,9 +91,9 @@ func getValidatorOutputRows(validatorOutputs []pipeline.ValidatorResult) []table
 		s := strings.Split(output.Message, ": ")
 		if len(s) > 1 {
 			q := util.Join(s[1:], "")
-			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Name, q, output.Status})
+			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Name, q, string(output.Status)})
 		} else {
-			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Name, "", output.Status})
+			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Name, "", string(output.Status)})
 		}
 	}
 	return rows

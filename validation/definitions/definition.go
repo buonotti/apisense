@@ -66,23 +66,23 @@ func parseDefinition(filename string) (Endpoint, error) {
 func validateDefinition(definitions []Endpoint, definition Endpoint) bool {
 	for _, def := range definitions {
 		if def.Name == definition.Name {
-			log.DaemonLogger.Warnf("duplicate definition found: %s (%s)\n", definition.Name, definition.FileName)
+			log.DaemonLogger.WithField("name", definition.Name).WithField("path", definition.FullPath).Warn("duplicate definition found")
 			return false
 		}
 	}
 	if definition.BaseUrl == "" {
-		log.DaemonLogger.Errorf("definition %s (%s) has no base url\n", definition.Name, definition.FileName)
+		log.DaemonLogger.WithField("name", definition.Name).WithField("path", definition.FullPath).Error("definition has no base url")
 		return false
 	}
 	if definition.Format == "" {
-		log.DaemonLogger.Errorf("definition %s (%s) has no format\n", definition.Name, definition.FileName)
+		log.DaemonLogger.WithField("name", definition.Name).WithField("path", definition.FullPath).Error("definition has no format")
 		return false
 	} else if definition.Format != "json" && definition.Format != "xml" {
-		log.DaemonLogger.Errorf("definition %s (%s) has an invalid format: %s. Found %s expected either 'json' or 'xml'\n", definition.Name, definition.FileName, definition.Format, definition.Format)
+		log.DaemonLogger.WithField("name", definition.Name).WithField("path", definition.FullPath).Errorf("definition has an invalid format: %s. Found %s expected either 'json' or 'xml'\n", definition.Format, definition.Format)
 		return false
 	}
 	if len(definition.ResponseSchema) == 0 {
-		log.DaemonLogger.Errorf("schema has no entries\n")
+		log.DaemonLogger.WithField("name", definition.Name).WithField("path", definition.FullPath).Error("schema has no entries")
 		return false
 	}
 	return true
@@ -107,7 +107,7 @@ func Endpoints() ([]Endpoint, error) {
 			return []Endpoint{}, err
 		}
 		if !validateDefinition(definitions, definition) {
-			log.DaemonLogger.Errorf("validation failed for definition %s (%s). skipping", definition.Name, definition.FileName)
+			log.DaemonLogger.WithField("name", definition.Name).WithField("path", definition.FullPath).Error("validation failed for definition. skipping")
 			continue
 		}
 		definitions = append(definitions, definition)

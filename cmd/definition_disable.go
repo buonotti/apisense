@@ -15,15 +15,15 @@ import (
 var definitionDisableCmd = &cobra.Command{
 	Use:   "disable [DEFINITION]",
 	Short: "Disable a definition",
-	Long:  `Disable a definition`, // TODO: Add more info
+	Long:  `This command is used to disable a given definition.`,
 	Run: func(_ *cobra.Command, args []string) {
 		fileName := args[0]
 		fullPath := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + fileName)
 		if _, err := os.Stat(fullPath); err == nil {
 			errors.CheckErr(os.Rename(fullPath, filepath.FromSlash(directories.DefinitionsDirectory()+"/"+viper.GetString("daemon.ignore_prefix")+fileName)))
-			log.CliLogger.Infof("Definition disabled: %s", fullPath)
+			log.CliLogger.WithField("definition", fileName).Info("definition disabled")
 		} else {
-			log.CliLogger.Infof("Definition not found: %s", fullPath)
+			log.CliLogger.WithField("definition", fileName).Error("definition not found")
 		}
 	},
 	ValidArgsFunction: validEnabledDefinitionFunc(),
