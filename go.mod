@@ -23,7 +23,7 @@ require (
 
 require (
 	github.com/apex/log v1.9.0
-	github.com/auribuo/userdir v1.0.0
+	github.com/auribuo/userdir v1.0.1
 	github.com/glebarez/go-sqlite v1.21.1
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/gorilla/websocket v1.5.0
