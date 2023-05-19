@@ -1,3 +1,7 @@
+# v1.1.0
+
+Added authentication to the definition endpoints of the api.
+
 # v1.0.0
 
 The initial release of apisense!!!
