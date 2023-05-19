@@ -1,6 +1,7 @@
 # v1.1.0
 
-Added authentication to the definition endpoints of the api.
+- Added authentication to the definition endpoints of the api.
+- 32-bit is not supported anymore.
 
 # v1.0.0
 
