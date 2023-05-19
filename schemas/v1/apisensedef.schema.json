@@ -152,7 +152,7 @@
         "$ref": "#/definitions/variable"
       }
     },
-    "result": {
+    "response_schema": {
       "title": "The schema of the result",
       "type": "array",
       "items": {

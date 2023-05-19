@@ -14,7 +14,7 @@ import (
 var reportExportCmd = &cobra.Command{
 	Use:   "export [FLAGS] [REPORTS]...",
 	Short: "Export reports in various formats",
-	Long:  "", // TODO
+	Long:  "This command exports all the reports in the report directory in one of the specified formats.",
 	Run: func(cmd *cobra.Command, args []string) {
 		format, err := cmd.Flags().GetString("format")
 		errors.CheckErr(errors.SafeWrap(errors.CannotGetFlagValueError, err, "cannot get value for flag: format"))

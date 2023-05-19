@@ -52,7 +52,7 @@ func requestData(definition endpointRequest) (endpointResponse, error) {
 	}
 
 	loc := resp.RawResponse.Request.URL.String()
-	log.DaemonLogger.Infof("sent request to %s", resp.Request.URL)
+	log.DaemonLogger.WithField("url", resp.Request.URL).Info("sent request")
 
 	if resp.StatusCode() != 200 {
 		return endpointResponse{

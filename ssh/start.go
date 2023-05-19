@@ -37,7 +37,7 @@ func Start() error {
 	fsHandler := scp.NewFileSystemHandler(filepath.FromSlash(directories.ReportsDirectory()))
 	s, err := wish.NewServer(
 		wish.WithAddress(fmt.Sprintf("%s:%d", host(), port())),
-		wish.WithHostKeyPath(os.Getenv("HOME")+"/.ssh/term_info_ed25519"),
+		wish.WithHostKeyPath(os.Getenv("HOME")+"/.ssh/apisense_rsa"),
 		wish.WithMiddleware(
 			bm.Middleware(teaHandler),
 			log.WishMiddleware(),
@@ -50,10 +50,10 @@ func Start() error {
 		return err
 	}
 
-	log.SSHLogger.Infof("starting SSH server on %s:%d", host(), port())
+	log.SSHLogger.WithField("address", fmt.Sprintf("%v:%v", host(), port())).Info("starting ssh server")
 
 	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Kill)
+	signal.Notify(done, os.Interrupt)
 
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
@@ -61,14 +61,14 @@ func Start() error {
 		}
 	}()
 
-	log.SSHLogger.Infof("SSH server started")
+	log.SSHLogger.Infof("ssh server started")
 
 	<-done
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	log.SSHLogger.Infof("stopping SSH server")
+	log.SSHLogger.Infof("stopping ssh server")
 
 	if err := s.Shutdown(ctx); err != nil {
 		err = errors.CannotStopSSHServerError.Wrap(err, "cannot stop ssh server")

@@ -2,6 +2,7 @@ package validators
 
 import (
 	"encoding/json"
+	"fmt"
 	"os/exec"
 	"strings"
 
@@ -128,8 +129,8 @@ func (v externalValidator) Validate(item fetcher.TestCase) error {
 
 	err = cmd.Run()
 
-	log.DaemonLogger.Debugf("validator external.%s output: %s", v.Definition.Name, validatorOut.String())
-	log.DaemonLogger.Debugf("validator external.%s error: %s", v.Definition.Name, validatorErr.String())
+	log.DaemonLogger.WithField("validator", fmt.Sprintf("external.%s", v.Definition.Name)).Debugf("validator output: %s", validatorOut.String())
+	log.DaemonLogger.WithField("validator", fmt.Sprintf("external.%s", v.Definition.Name)).Debugf("validator error: %s", validatorErr.String())
 
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {

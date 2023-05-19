@@ -84,7 +84,7 @@ func (v rangeValidator) Validate(item fetcher.TestCase) error {
 			}
 
 			if valueFloat < min || valueFloat > max {
-				return errors.ValidationError.New("validation failed for field %s: expected value between %d and %d, got %d", schemaEntry.Name, min, max, value)
+				return errors.ValidationError.New("validation failed for field %s: expected value between %f and %f, got %f", schemaEntry.Name, min, max, value)
 			}
 		}
 	}

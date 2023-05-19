@@ -63,12 +63,12 @@ var definitionCreateCmd = &cobra.Command{
 	Short: "Creates a new definition file",
 	Long:  `Creates a new definition file with the needed boilerplate and the given name`,
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, args []string) {
 		name := args[0]
 		fileName := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + name + ".apisensedef.yml")
 		err := os.WriteFile(fileName, []byte(fmt.Sprintf(definitionBoilerplate, name)), os.ModePerm)
 		errors.CheckErr(err)
-		log.ApiLogger.Infof("definition file %s successfully created", fileName)
+		log.ApiLogger.WithField("file", fileName).Info("definition file successfully created")
 	},
 }
 

@@ -16,12 +16,12 @@ var definitionRemoveCmd = &cobra.Command{
 	Long:              "Removes the definition files associated to the given definitions.",
 	Args:              cobra.MinimumNArgs(1),
 	ValidArgsFunction: validDefinitionsFunc(),
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, args []string) {
 		for _, definition := range args {
 			fullPath := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + definition)
 			err := os.Remove(fullPath)
 			errors.CheckErr(err)
-			log.CliLogger.Infof("removed file %s", fullPath)
+			log.CliLogger.WithField("definition", fullPath).Info("removed definition")
 		}
 	},
 }

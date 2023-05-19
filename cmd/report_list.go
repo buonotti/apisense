@@ -15,8 +15,8 @@ var reportListCmd = &cobra.Command{
 	Use:     "list",
 	Aliases: []string{"ls"},
 	Short:   "List all available reports",
-	Long:    "", // TODO
-	Run: func(cmd *cobra.Command, args []string) {
+	Long:    "This command lists all available reports.",
+	Run: func(cmd *cobra.Command, _ []string) {
 		verbose, err := cmd.Flags().GetBool("verbose")
 		errors.CheckErr(err)
 		reports, err := pipeline.Reports()

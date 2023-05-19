@@ -24,12 +24,29 @@ const docTemplate = `{
     "paths": {
         "/definitions": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Gets a list of all definitions",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "definitions"
                 ],
                 "summary": "Get all the definitions",
                 "operationId": "all-definitions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -49,6 +66,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Creates a new definition",
                 "consumes": [
                     "application/json"
@@ -62,6 +84,13 @@ const docTemplate = `{
                 "summary": "Create a definition",
                 "operationId": "create-definition",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Endpoint definition",
                         "name": "definition",
@@ -96,13 +125,28 @@ const docTemplate = `{
         },
         "/definitions/:name": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Gets a single definition identified by his endpoint name",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "definitions"
                 ],
                 "summary": "Get one definition",
                 "operationId": "definition",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Bluetooth",
@@ -136,6 +180,9 @@ const docTemplate = `{
         "/health": {
             "get": {
                 "description": "Get the health status of the API",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "health"
                 ],
@@ -148,9 +195,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/login": {
+            "post": {
+                "description": "Logs a user in using the provided credentials",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Logs a user in",
+                "operationId": "login-user",
+                "parameters": [
+                    {
+                        "description": "content",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/reports": {
             "get": {
                 "description": "Gets a list of all reports that can be filtered with a query",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "reports"
                 ],
@@ -192,6 +292,9 @@ const docTemplate = `{
         "/reports/:id": {
             "get": {
                 "description": "Gets a single report identified by his id",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "reports"
                 ],
@@ -255,6 +358,25 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
                     "type": "string"
                 }
             }
@@ -440,7 +562,11 @@ const docTemplate = `{
                 },
                 "status": {
                     "description": "Status is the status of the validator (success/fail/skipped)",
-                    "type": "string"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/validators.ValidatorStatus"
+                        }
+                    ]
                 }
             }
         },
@@ -460,6 +586,21 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "validators.ValidatorStatus": {
+            "type": "string",
+            "enum": [
+                "unknown",
+                "success",
+                "skipped",
+                "fail"
+            ],
+            "x-enum-varnames": [
+                "ValidatorStatusUnknown",
+                "ValidatorStatusSuccess",
+                "ValidatorStatusSkipped",
+                "ValidatorStatusFail"
+            ]
         }
     }
 }`

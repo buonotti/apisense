@@ -9,3 +9,7 @@ import (
 func DotenvFile() string {
 	return filepath.FromSlash(directories.AppDirectory() + "/.env")
 }
+
+func DbFile() string {
+	return filepath.FromSlash(directories.AppDirectory() + "/apisense.sqlite")
+}

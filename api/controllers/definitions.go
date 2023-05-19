@@ -18,6 +18,9 @@ import (
 //	@Description	Gets a list of all definitions
 //	@ID				all-definitions
 //	@Tags			definitions
+//	@Security		ApiKeyAuth
+//	@param			Authorization	header	string	true	"Authorization"
+//	@Produce		json
 //	@Success		200	array		definitions.Endpoint
 //	@Failure		500	{object}	ErrorResponse
 //	@Router			/definitions [get]
@@ -41,6 +44,9 @@ func AllDefinitions(c *gin.Context) {
 //	@Description	Gets a single definition identified by his endpoint name
 //	@ID				definition
 //	@Tags			definitions
+//	@Security		ApiKeyAuth
+//	@param			Authorization	header	string	true	"Authorization"
+//	@Produce		json
 //	@Param			name	path		string	true	"Bluetooth"
 //	@Success		200		{object}	definitions.Endpoint
 //	@Failure		404		{object}	ErrorResponse
@@ -79,6 +85,8 @@ func Definition(c *gin.Context) {
 //	@Description	Creates a new definition
 //	@ID				create-definition
 //	@Tags			definitions
+//	@Security		ApiKeyAuth
+//	@param			Authorization	header	string	true	"Authorization"
 //	@Accept			json
 //	@Produce		json
 //	@Param			definition	body		definitions.Endpoint	true	"Endpoint definition"

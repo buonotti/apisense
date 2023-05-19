@@ -17,7 +17,7 @@ var configGetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get a configuration value",
 	Long:  `Get a configuration value`, // TODO: Add more info
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		key := cmd.Flag("key").Value.String()
 		if key == "" {
 			allKeys := viper.AllKeys()

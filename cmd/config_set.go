@@ -12,7 +12,7 @@ var configSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Set a configuration value",
 	Long:  `Set a configuration value`, // TODO: Add more info
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		key := cmd.Flag("key").Value.String()
 		if key == "" {
 			cobra.CheckErr(errors.CannotGetFlagValueError.New("cannot get value of flag: key"))
@@ -24,8 +24,10 @@ var configSetCmd = &cobra.Command{
 
 		viper.Set(key, value)
 		err := viper.WriteConfig()
-		cobra.CheckErr(errors.SafeWrap(errors.CannotWriteConfigError, err, "cannot write to config file"))
-		log.CliLogger.Infof("Set config value: %s", key)
+		if err != nil {
+			cobra.CheckErr(errors.CannotWriteConfigError.Wrap(err, "cannot write to config file"))
+		}
+		log.CliLogger.WithField("key", key).WithField("value", value).Info("set config value")
 		printConfigValue(key, len(key))
 	},
 }

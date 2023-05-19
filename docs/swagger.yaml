@@ -5,6 +5,18 @@ definitions:
       message:
         type: string
     type: object
+  controllers.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  controllers.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
   definitions.Endpoint:
     properties:
       baseUrl:
@@ -145,8 +157,9 @@ definitions:
         description: Name is the name of the validator
         type: string
       status:
+        allOf:
+        - $ref: '#/definitions/validators.ValidatorStatus'
         description: Status is the status of the validator (success/fail/skipped)
-        type: string
     type: object
   query.Definition:
     properties:
@@ -160,6 +173,18 @@ definitions:
     - name
     - value
     type: object
+  validators.ValidatorStatus:
+    enum:
+    - unknown
+    - success
+    - skipped
+    - fail
+    type: string
+    x-enum-varnames:
+    - ValidatorStatusUnknown
+    - ValidatorStatusSuccess
+    - ValidatorStatusSkipped
+    - ValidatorStatusFail
 host: localhost:8080
 info:
   contact:
@@ -176,6 +201,14 @@ paths:
     get:
       description: Gets a list of all definitions
       operationId: all-definitions
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
@@ -187,6 +220,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get all the definitions
       tags:
       - definitions
@@ -196,6 +231,11 @@ paths:
       description: Creates a new definition
       operationId: create-definition
       parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Endpoint definition
         in: body
         name: definition
@@ -217,6 +257,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a definition
       tags:
       - definitions
@@ -225,11 +267,18 @@ paths:
       description: Gets a single definition identified by his endpoint name
       operationId: definition
       parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Bluetooth
         in: path
         name: name
         required: true
         type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
@@ -243,6 +292,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get one definition
       tags:
       - definitions
@@ -250,12 +301,47 @@ paths:
     get:
       description: Get the health status of the API
       operationId: health
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
       summary: Health check
       tags:
       - health
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Logs a user in using the provided credentials
+      operationId: login-user
+      parameters:
+      - description: content
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.LoginRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Logs a user in
+      tags:
+      - authentication
   /reports:
     get:
       description: Gets a list of all reports that can be filtered with a query
@@ -269,6 +355,8 @@ paths:
         in: query
         name: format
         type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
@@ -297,6 +385,8 @@ paths:
         name: id
         required: true
         type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK

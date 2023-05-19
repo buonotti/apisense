@@ -38,12 +38,17 @@ func Start(host string, port int) error {
 
 	api := router.Group("/api")
 	api.GET("/health", controllers.GetHealth)
+	api.POST("/login", controllers.LoginUser)
 	api.GET("/reports", controllers.AllReports)
 	api.GET("/reports/:id", controllers.Report)
+	api.GET("/ws", controllers.Ws)
+
+	if viper.GetBool("api.auth") {
+		api.Use(middleware.Auth())
+	}
 	api.GET("/definitions", controllers.AllDefinitions)
 	api.POST("/definitions", controllers.CreateDefinition)
 	api.GET("/definitions/:id", controllers.Definition)
-	api.GET("/ws", controllers.Ws)
 
 	apiHost := host
 	if apiHost == "" && viper.GetString("api.host") != "" {
@@ -63,29 +68,29 @@ func Start(host string, port int) error {
 	}
 
 	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Kill)
+	signal.Notify(done, os.Interrupt)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
 			if err != http.ErrServerClosed {
 				log.ApiLogger.WithError(err).Error("cannot start api service")
 			} else {
-				log.ApiLogger.Info("api service stopped")
+				log.ApiLogger.Info("server stopped")
 			}
 		}
 	}()
 
-	log.ApiLogger.Infof("api service started listening on http://localhost:%v", apiPort)
+	log.ApiLogger.WithField("url", fmt.Sprintf("http://localhost:%v", apiPort)).Info("server listening")
 
 	<-done
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	log.ApiLogger.Info("stopping api service")
+	log.ApiLogger.Info("gracefully stopping server")
 
 	if err := srv.Shutdown(ctx); err != nil {
-		err = errors.CannotStopApiServiceError.Wrap(err, "cannot stop api service")
+		err = errors.CannotStopApiServiceError.Wrap(err, "cannot stop server")
 	}
 
 	return nil

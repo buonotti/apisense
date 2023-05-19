@@ -17,7 +17,7 @@ var definitionListCmd = &cobra.Command{
 	Aliases: []string{"ls"},
 	Short:   "List definitions",
 	Long:    `List definitions`, // TODO: Add more info
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		definitions, err := definitions.Endpoints()
 		errors.CheckErr(err)
 		concise := cmd.Flag("concise").Value.String() == "true"
@@ -51,6 +51,5 @@ func printDefinition(definition definitions.Endpoint, concise bool) {
 
 func init() {
 	definitionListCmd.Flags().BoolP("concise", "c", false, "Print less information")
-
 	definitionCmd.AddCommand(definitionListCmd)
 }

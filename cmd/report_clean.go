@@ -14,7 +14,7 @@ var reportCleanCmd = &cobra.Command{
 	Use:   "clean",
 	Short: "Clean the report directory",
 	Long:  `This command cleans the report directory.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		override, err := cmd.Flags().GetBool("no-confirm")
 		if err != nil {
 			override = false
@@ -25,7 +25,7 @@ var reportCleanCmd = &cobra.Command{
 			fmt.Print("Are you sure you want to clean the report directory? [y/N] ")
 			_, err = fmt.Scanln(&answer)
 			if err != nil {
-				log.CliLogger.WithError(err).Fatal("Cannot read user input")
+				log.CliLogger.WithError(err).Fatal("cannot read user input")
 				return
 			}
 		}
@@ -43,10 +43,10 @@ var reportCleanCmd = &cobra.Command{
 					log.CliLogger.WithError(err).Fatal("cannot remove file")
 					return
 				}
-				log.CliLogger.Infof("removed file: %s", file.Name())
+				log.CliLogger.WithField("file", file.Name()).Info("removed file")
 			}
 		} else {
-			log.CliLogger.Info("Aborted")
+			log.CliLogger.Info("aborted")
 		}
 	},
 }

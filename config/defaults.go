@@ -1,6 +1,9 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"github.com/google/uuid"
+	"github.com/spf13/viper"
+)
 
 func setupDefaults() {
 	viper.SetDefault("APISENSE_EMAIL_USER", "")
@@ -23,5 +26,7 @@ func setupDefaults() {
 	viper.SetDefault("tui.refresh", 10)
 	viper.SetDefault("api.host", "")
 	viper.SetDefault("api.port", 8080)
+	viper.SetDefault("api.key", uuid.New().String())
+	viper.SetDefault("api.auth", true)
 	viper.SetDefault("validation.excluded_builtin_validators", []string{})
 }
