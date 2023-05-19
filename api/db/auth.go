@@ -30,15 +30,15 @@ func LoginUser(username string, password string) (UserData, error) {
 }
 
 func RegisterUser(username string, password string) (UserData, error) {
-	rows := db.QueryRow("SELECT * FROM users WHERE username = ?", username)
+	rows, err := db.Query("SELECT * FROM users WHERE username = ?", username)
 
-	if rows != nil {
+	if rows.Next() {
 		return UserData{}, errors.UserAlreadyExistsError.New("user already exists")
 	}
 
 	passwordHash := hashPassword(password)
 
-	_, err := db.Exec("INSERT INTO users (username, password) VALUES (?, ?)", username, passwordHash)
+	_, err = db.Exec("INSERT INTO users (username, password) VALUES (?, ?)", username, passwordHash)
 
 	if err != nil {
 		return UserData{}, err
@@ -95,6 +95,24 @@ func ListUsers() ([]User, error) {
 	}
 
 	return users, nil
+}
+
+func IsUserEnabled(uid string) bool {
+	rows := db.QueryRow("SELECT enabled FROM users WHERE username = ?", uid)
+
+	if rows == nil {
+		return false
+	}
+
+	var enabled bool
+
+	err := rows.Scan(&enabled)
+
+	if err != nil {
+		return false
+	}
+
+	return enabled
 }
 
 func hashPassword(password string) string {

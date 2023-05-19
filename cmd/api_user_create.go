@@ -31,7 +31,7 @@ var apiUserCreateCmd = &cobra.Command{
 		passwordRepeat := strings.TrimSpace(string(bytesRepeat))
 
 		fmt.Println()
-		os.Stdout.Sync()
+		_ = os.Stdout.Sync()
 
 		if password != passwordRepeat {
 			log.CliLogger.Error("passwords do not match")

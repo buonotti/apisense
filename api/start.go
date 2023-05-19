@@ -38,6 +38,7 @@ func Start(host string, port int) error {
 
 	api := router.Group("/api")
 	api.GET("/health", controllers.GetHealth)
+	api.POST("/login", controllers.LoginUser)
 	api.GET("/reports", controllers.AllReports)
 	api.GET("/reports/:id", controllers.Report)
 	api.GET("/ws", controllers.Ws)

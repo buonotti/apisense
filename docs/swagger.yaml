@@ -207,6 +207,8 @@ paths:
         name: Authorization
         required: true
         type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
@@ -229,6 +231,11 @@ paths:
       description: Creates a new definition
       operationId: create-definition
       parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Endpoint definition
         in: body
         name: definition
@@ -250,6 +257,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a definition
       tags:
       - definitions
@@ -258,11 +267,18 @@ paths:
       description: Gets a single definition identified by his endpoint name
       operationId: definition
       parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Bluetooth
         in: path
         name: name
         required: true
         type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
@@ -276,6 +292,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get one definition
       tags:
       - definitions
@@ -283,6 +301,8 @@ paths:
     get:
       description: Get the health status of the API
       operationId: health
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
@@ -335,6 +355,8 @@ paths:
         in: query
         name: format
         type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
@@ -363,6 +385,8 @@ paths:
         name: id
         required: true
         type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK

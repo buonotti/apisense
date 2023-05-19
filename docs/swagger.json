@@ -24,6 +24,9 @@
                     }
                 ],
                 "description": "Gets a list of all definitions",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "definitions"
                 ],
@@ -57,6 +60,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Creates a new definition",
                 "consumes": [
                     "application/json"
@@ -70,6 +78,13 @@
                 "summary": "Create a definition",
                 "operationId": "create-definition",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Endpoint definition",
                         "name": "definition",
@@ -104,13 +119,28 @@
         },
         "/definitions/:name": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Gets a single definition identified by his endpoint name",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "definitions"
                 ],
                 "summary": "Get one definition",
                 "operationId": "definition",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Bluetooth",
@@ -144,6 +174,9 @@
         "/health": {
             "get": {
                 "description": "Get the health status of the API",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "health"
                 ],
@@ -209,6 +242,9 @@
         "/reports": {
             "get": {
                 "description": "Gets a list of all reports that can be filtered with a query",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "reports"
                 ],
@@ -250,6 +286,9 @@
         "/reports/:id": {
             "get": {
                 "description": "Gets a single report identified by his id",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "reports"
                 ],

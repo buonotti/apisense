@@ -30,6 +30,9 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Gets a list of all definitions",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "definitions"
                 ],
@@ -63,6 +66,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Creates a new definition",
                 "consumes": [
                     "application/json"
@@ -76,6 +84,13 @@ const docTemplate = `{
                 "summary": "Create a definition",
                 "operationId": "create-definition",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Endpoint definition",
                         "name": "definition",
@@ -110,13 +125,28 @@ const docTemplate = `{
         },
         "/definitions/:name": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Gets a single definition identified by his endpoint name",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "definitions"
                 ],
                 "summary": "Get one definition",
                 "operationId": "definition",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Bluetooth",
@@ -150,6 +180,9 @@ const docTemplate = `{
         "/health": {
             "get": {
                 "description": "Get the health status of the API",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "health"
                 ],
@@ -215,6 +248,9 @@ const docTemplate = `{
         "/reports": {
             "get": {
                 "description": "Gets a list of all reports that can be filtered with a query",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "reports"
                 ],
@@ -256,6 +292,9 @@ const docTemplate = `{
         "/reports/:id": {
             "get": {
                 "description": "Gets a single report identified by his id",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "reports"
                 ],

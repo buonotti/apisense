@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/buonotti/apisense/api/db"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -69,6 +70,45 @@ func validDisabledDefinitionFunc() func(cmd *cobra.Command, args []string, toCom
 			return ""
 		})
 		return util.Where(mappedDefinitions, func(s string) bool {
+			return s != ""
+		}), cobra.ShellCompDirectiveNoFileComp
+	}
+}
+
+func validUsersFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
+		users, _ := db.ListUsers()
+		return util.Map(users, func(u db.User) string {
+			return fmt.Sprintf("%s\t%v", u.Username, u.Enabled)
+		}), cobra.ShellCompDirectiveNoFileComp
+	}
+}
+
+func validEnabledUserFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
+		users, _ := db.ListUsers()
+		mappedUsers := util.Map(users, func(u db.User) string {
+			if u.Enabled {
+				return fmt.Sprintf("%s", u.Username)
+			}
+			return ""
+		})
+		return util.Where(mappedUsers, func(s string) bool {
+			return s != ""
+		}), cobra.ShellCompDirectiveNoFileComp
+	}
+}
+
+func validDisabledUserFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
+		users, _ := db.ListUsers()
+		mappedUsers := util.Map(users, func(u db.User) string {
+			if !u.Enabled {
+				return fmt.Sprintf("%s", u.Username)
+			}
+			return ""
+		})
+		return util.Where(mappedUsers, func(s string) bool {
 			return s != ""
 		}), cobra.ShellCompDirectiveNoFileComp
 	}
