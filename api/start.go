@@ -43,12 +43,12 @@ func Start(host string, port int) error {
 	api.GET("/reports/:id", controllers.Report)
 	api.GET("/ws", controllers.Ws)
 
-	api.Use(middleware.Auth())
-	{
-		api.GET("/definitions", controllers.AllDefinitions)
-		api.POST("/definitions", controllers.CreateDefinition)
-		api.GET("/definitions/:id", controllers.Definition)
+	if viper.GetBool("api.auth") {
+		api.Use(middleware.Auth())
 	}
+	api.GET("/definitions", controllers.AllDefinitions)
+	api.POST("/definitions", controllers.CreateDefinition)
+	api.GET("/definitions/:id", controllers.Definition)
 
 	apiHost := host
 	if apiHost == "" && viper.GetString("api.host") != "" {

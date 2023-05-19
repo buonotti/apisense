@@ -67,6 +67,9 @@ api:
   # The API key to use for authentication.
   key: "apisense-1324h#3u4b5AS6j7_k!8l9m0"
 
+  # Enable authentication
+  auth: true
+
 ### EXTERNAL VALIDATORS ###
 validation:
   # Define external validators that can be used in the definitions.
