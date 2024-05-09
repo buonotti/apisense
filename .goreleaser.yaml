@@ -3,8 +3,6 @@
 before:
   hooks:
     - go mod tidy
-    - swag init
-    - swag fmt
 builds:
   - env:
       - CGO_ENABLED=0
@@ -12,6 +10,9 @@ builds:
       - linux
       - windows
       - darwin
+    goarch:
+      - amd64
+      - arm64
 
 archives:
   - format: tar.gz
