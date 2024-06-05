@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"sync"
 	"time"
 
 	"github.com/speps/go-hashids/v2"
@@ -129,16 +130,26 @@ func (p *Pipeline) Reload() error {
 
 // Validate validates all the test cases in the pipeline and returns a Report
 func (p *Pipeline) Validate() Report {
-	results := make([]ValidatedEndpoint, 0)
+	results := make([]ValidatedEndpoint, len(p.TestCases))
 
-	// for each endpoint testCaseResults all the testCases
+	var wg sync.WaitGroup
+
+	i := 0
 	for endpoint, testCases := range p.TestCases {
-		validatorResults := p.testCaseResults(testCases)
-		results = append(results, ValidatedEndpoint{
-			EndpointName:    endpoint,
-			TestCaseResults: validatorResults,
-		})
+		wg.Add(1)
+		go func(results *[]ValidatedEndpoint, slot int, testCases []fetcher.TestCase, endpoint string) {
+			validatorResults := p.testCaseResults(testCases)
+			(*results)[slot] = ValidatedEndpoint{
+				EndpointName:    endpoint,
+				TestCaseResults: validatorResults,
+			}
+			wg.Done()
+		}(&results, i, testCases, endpoint)
+
+		i += 1
 	}
+
+	wg.Wait()
 
 	currentTime := time.Now().UTC()
 	hashIDData := hashids.NewData()
@@ -150,7 +161,7 @@ func (p *Pipeline) Validate() Report {
 	// return the report with the current timestamp
 	return Report{
 		Id:        id,
-		Time:      ReportTime(currentTime),
+		Time:      util.ApisenseTime(currentTime),
 		Endpoints: results,
 	}
 }
@@ -190,7 +201,6 @@ func (p *Pipeline) validateTestCase(item fetcher.TestCase) []ValidatorResult {
 		}
 
 		err := validator.Validate(item)
-
 		if err != nil {
 			validatorResult.Message = err.Error()
 			validatorResult.Status = validators.ValidatorStatusFail

@@ -2,9 +2,11 @@ package pipeline
 
 import (
 	"encoding/json"
-	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"os"
 	"path/filepath"
+
+	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/util"
 
 	"github.com/buonotti/apisense/errors"
 )
@@ -12,7 +14,7 @@ import (
 // Report is a report of a test run
 type Report struct {
 	Id        string              `json:"id"`        // Id is a unique identifier for each report
-	Time      ReportTime          `json:"time"`      // Time is the timestamp of the report
+	Time      util.ApisenseTime   `json:"time"`      // Time is the timestamp of the report
 	Endpoints []ValidatedEndpoint `json:"endpoints"` // Endpoints is a collection of ValidatedEndpoint holding the validation results
 }
 

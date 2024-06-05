@@ -17,7 +17,9 @@ import (
 	"github.com/buonotti/apisense/api/middleware"
 	"github.com/buonotti/apisense/docs"
 	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/util"
 )
 
 func Start(host string, port int) error {
@@ -31,10 +33,15 @@ func Start(host string, port int) error {
 	router.Use(middleware.CORS())
 	// router.Use(middleware.Limiter())
 
+	if util.Exists(directories.UiDirectory()) {
+		log.ApiLogger.Info("loading apisense web ui")
+		router.LoadHTMLGlob(directories.UiDirectory() + "/*")
+		router.GET("/", func(c *gin.Context) {
+			c.HTML(http.StatusOK, "index.tmpl", gin.H{})
+		})
+	}
+
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	router.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusMovedPermanently, "/swagger/index.html")
-	})
 
 	api := router.Group("/api")
 	api.GET("/health", controllers.GetHealth)
@@ -42,6 +49,9 @@ func Start(host string, port int) error {
 	api.GET("/reports", controllers.AllReports)
 	api.GET("/reports/:id", controllers.Report)
 	api.GET("/ws", controllers.Ws)
+	api.GET("/swagger", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/swagger/index.html")
+	})
 
 	if viper.GetBool("api.auth") {
 		api.Use(middleware.Auth())

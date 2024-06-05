@@ -11,10 +11,12 @@ import (
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/viper"
 
+	"github.com/buonotti/apisense/alerting"
 	"github.com/buonotti/apisense/conversion"
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/util"
 	"github.com/buonotti/apisense/validation/pipeline"
 	"github.com/buonotti/apisense/validation/validators"
 )
@@ -116,18 +118,40 @@ func (d daemon) work() {
 	}
 
 	if len(result.Endpoints) > 0 {
-		reportPath := filepath.FromSlash(directories.ReportsDirectory() + "/" + time.Time(result.Time).Format(pipeline.ReportTimeFormat) + ".report.json")
+		reportPath := filepath.FromSlash(directories.ReportsDirectory() + "/" + time.Time(result.Time).Format(util.ApisenseTimeFormat) + ".report.json")
 		err = os.WriteFile(reportPath, reportData, 0644)
 		if err != nil {
 			errors.CheckErr(errors.CannotWriteFileError.Wrap(err, "cannot write report to file"))
 		}
 
 		log.DaemonLogger.WithField("report", reportPath).Info("generated report")
+
+		if viper.GetBool("daemon.notification.enabled") {
+			alertData := alerting.AlertData{
+				Time:        result.Time,
+				ErrorAmount: countErrors(result),
+			}
+			errors.CheckErr(alerting.SendAlert(alertData))
+		}
 	} else {
 		log.DaemonLogger.Info("no endpoints to validate")
 	}
 
 	errors.CheckErr(d.cleanupReports())
+}
+
+func countErrors(report pipeline.Report) uint {
+	count := 0
+	for _, endpoint := range report.Endpoints {
+		for _, testCase := range endpoint.TestCaseResults {
+			for _, validatorRes := range testCase.ValidatorResults {
+				if validatorRes.Status == validators.ValidatorStatusFail {
+					count += 1
+				}
+			}
+		}
+	}
+	return uint(count)
 }
 
 func (d daemon) cleanupReports() error {
@@ -144,7 +168,7 @@ func (d daemon) cleanupReports() error {
 			continue
 		}
 		fName = strings.TrimSuffix(fName, ".report.json")
-		fTime, err := time.Parse(pipeline.ReportTimeFormat, fName)
+		fTime, err := time.Parse(util.ApisenseTimeFormat, fName)
 		if err != nil {
 			log.DaemonLogger.WithField("name", file.Name()).Warn("cannot parse report name, skipping")
 			continue

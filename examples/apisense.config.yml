@@ -35,8 +35,11 @@ daemon:
     # Set whether the daemon should send notifications only if the report contains errors.
     only_on_error: true
 
+    # Set the sender email of the notifications
+    sender: "me@example.com"
+
     # Set the email address to send notifications to.
-    receiver: "me@example.com"
+    receiver: "you@example.com"
 
     # Set the SMTP server to use for sending notifications.
     smtp_server: "smtp.example.com"

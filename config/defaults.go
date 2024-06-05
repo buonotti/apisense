@@ -18,6 +18,7 @@ func setupDefaults() {
 	viper.SetDefault("daemon.discard.max_lifetime", "720h")
 	viper.SetDefault("daemon.notification.enabled", false)
 	viper.SetDefault("daemon.notification.only_on_error", true)
+	viper.SetDefault("daemon.notification.sender", "")
 	viper.SetDefault("daemon.notification.receiver", "")
 	viper.SetDefault("daemon.notification.smtp_server", "")
 	viper.SetDefault("daemon.notification.smtp_port", 587)
