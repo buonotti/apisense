@@ -26,8 +26,8 @@ type jwtServices struct {
 
 func Service() JwtService {
 	return &jwtServices{
-		secretKey: viper.GetString("api.key"),
-		issure:    "Buonotti",
+		secretKey: viper.GetString("APISENSE_SIGNING_KEY"),
+		issure:    "Apisense WEB-API",
 	}
 }
 

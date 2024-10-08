@@ -27,6 +27,10 @@ func render(view string, args any) func(*gin.Context) {
 }
 
 func Start(host string, port int) error {
+	if viper.GetString("APISENSE_SIGNING_KEY") == "" {
+		return errors.MissingSigningKeyError.New("Missing APISENSE_SIGNING_KEY value in .env")
+	}
+
 	docs.SwaggerInfo.BasePath = "/api"
 
 	gin.SetMode(gin.ReleaseMode)
