@@ -23,6 +23,7 @@ func setupDefaults() {
 	viper.SetDefault("daemon.notification.receiver", "")
 	viper.SetDefault("daemon.notification.smtp_server", "")
 	viper.SetDefault("daemon.notification.smtp_port", 587)
+	viper.SetDefault("daemon.rpc", true)
 
 	viper.SetDefault("ssh.host", "")
 	viper.SetDefault("ssh.port", 23232)

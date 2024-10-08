@@ -9,6 +9,7 @@ import (
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/files"
+	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/validation/pipeline"
 	"github.com/buonotti/apisense/validation/validators"
 )
@@ -45,21 +46,23 @@ func Start(runOnStart bool) error {
 		}
 	}(lock)
 
-	validationPipeline, err := NewPipeline()
+	pipe, err := NewPipeline()
 	if err != nil {
 		return err
 	}
 
 	d := daemon{
-		Pipeline: validationPipeline,
+		Pipeline: pipe,
 	}
 
-	go func() {
-		err := startRpcServer(&d)
-		if err != nil && err != http.ErrServerClosed {
-			errors.CheckErr(err)
-		}
-	}()
+	if viper.GetBool("daemon.rpc") {
+		go func() {
+			err := startRpcServer(&d)
+			if err != nil && err != http.ErrServerClosed {
+				errors.CheckErr(err)
+			}
+		}()
+	}
 
 	return d.run(runOnStart)
 }
@@ -78,6 +81,7 @@ func NewPipeline() (*pipeline.Pipeline, error) {
 	}
 
 	for _, externalValidator := range externalValidators {
+		log.DaemonLogger().Info("Loading external validator", "name", externalValidator.Name())
 		pipelineWithValidators.AddValidator(externalValidator)
 	}
 

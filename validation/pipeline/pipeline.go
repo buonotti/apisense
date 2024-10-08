@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -8,27 +9,14 @@ import (
 
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/util"
+	"github.com/buonotti/apisense/validation"
 	"github.com/buonotti/apisense/validation/definitions"
-	"github.com/buonotti/apisense/validation/fetcher"
-	"github.com/buonotti/apisense/validation/response"
 	"github.com/buonotti/apisense/validation/validators"
 )
 
-// TestCase represents an item in the validation pipeline
-type TestCase struct {
-	SchemaEntries      []response.SchemaEntry `json:"schemaEntries"`      // SchemaEntries are the schema definitions of every field in the items Data
-	Data               map[string]any         `json:"data"`               // Data is the raw response data mapped in a map
-	Url                string                 `json:"url"`                // Url is the request url of the item
-	EndpointName       string                 `json:"endpointName"`       // EndpointName is the name of the endpoint in the definition file
-	Code               int                    `json:"code"`               // Code is the response code of the request
-	ExcludedValidators []string               `json:"excludedValidators"` // ExcludedValidators is a list of validators that should be excluded from the validation
-}
-
 // Pipeline represents the validation pipeline
 type Pipeline struct {
-	TestCases  map[string][]fetcher.TestCase `json:"testCases"`  // TestCases are the collection of TestCase for each endpoint (definition file)
-	Validators []validators.Validator        `json:"validators"` // Validators are the validators that will be applied to the items in the pipeline
-	fetcher    fetcher.Fetcher               // fetcher is the fetcher that will be used to fetch the items in the pipeline
+	Validators []validators.Validator `json:"validators"` // Validators are the validators that will be applied to the items in the pipeline
 }
 
 // ValidatedEndpoint is the collection of results for each endpoint (definition)
@@ -65,26 +53,8 @@ func NewPipelineWithValidators(validators ...validators.Validator) (Pipeline, er
 
 // NewPipeline creates a new validation pipeline without any validators
 func NewPipeline() (Pipeline, error) {
-	allDefinitions, err := definitions.Endpoints()
-	if err != nil {
-		return Pipeline{}, err
-	}
-
 	pipeline := Pipeline{
-		TestCases:  make(map[string][]fetcher.TestCase),
 		Validators: make([]validators.Validator, 0),
-		fetcher:    fetcher.New(),
-	}
-
-	enabledDefinitions := util.Where(allDefinitions, func(d definitions.Endpoint) bool { return d.IsEnabled })
-
-	for _, definition := range enabledDefinitions {
-		items, err := pipeline.fetcher.Fetch(definition)
-		if err != nil {
-			return Pipeline{}, err
-		}
-
-		pipeline.TestCases[definition.Name] = items
 	}
 
 	return pipeline, nil
@@ -104,52 +74,41 @@ func (p *Pipeline) RemoveValidator(name string) {
 	}
 }
 
-// Reload re-populates the Pipeline.TestCases collection
-func (p *Pipeline) Reload() error {
-	log.DaemonLogger().Info("Reloading pipeline")
-	defs, err := definitions.Endpoints()
-	if err != nil {
-		return err
-	}
-
-	if len(defs) == 0 {
-		log.DaemonLogger().Warn("No endpoint definitions found.")
-		return nil
-	}
-
-	for _, definition := range defs {
-		items, err := p.fetcher.Fetch(definition)
-		if err != nil {
-			return err
-		}
-		p.TestCases[definition.Name] = items
-	}
-
-	return nil
-}
-
 // Validate validates all the test cases in the pipeline and returns a Report
-func (p *Pipeline) Validate() Report {
-	results := make([]ValidatedEndpoint, len(p.TestCases))
-
-	var wg sync.WaitGroup
-
-	i := 0
-	for endpoint, testCases := range p.TestCases {
-		wg.Add(1)
-		go func(results *[]ValidatedEndpoint, slot int, testCases []fetcher.TestCase, endpoint string) {
-			validatorResults := p.testCaseResults(testCases)
-			(*results)[slot] = ValidatedEndpoint{
-				EndpointName:    endpoint,
-				TestCaseResults: validatorResults,
-			}
-			wg.Done()
-		}(&results, i, testCases, endpoint)
-
-		i += 1
+func (p *Pipeline) Validate() (Report, error) {
+	allDefinitions, err := definitions.Endpoints()
+	if err != nil {
+		return Report{}, err
 	}
 
-	wg.Wait()
+	enabledDefinitions := util.Where(allDefinitions, func(d definitions.Endpoint) bool { return d.IsEnabled })
+	results := make([]ValidatedEndpoint, len(enabledDefinitions))
+	if len(enabledDefinitions) != 0 {
+		testCases := make([]validation.EndpointTestCases, len(enabledDefinitions))
+		for i, definition := range enabledDefinitions {
+			testCase, err := validation.Preprocess(definition)
+			if err != nil {
+				return Report{}, err
+			}
+			testCases[i] = testCase
+		}
+
+		var wg sync.WaitGroup
+
+		for i, endpointTestCase := range testCases {
+			wg.Add(1)
+			go func(results *[]ValidatedEndpoint, slot int, testCases validation.EndpointTestCases) {
+				validatorResults := p.testCaseResults(testCases)
+				(*results)[slot] = ValidatedEndpoint{
+					EndpointName:    testCases.Definition.Name,
+					TestCaseResults: validatorResults,
+				}
+				wg.Done()
+			}(&results, i, endpointTestCase)
+		}
+
+		wg.Wait()
+	}
 
 	currentTime := time.Now().UTC()
 	hashIDData := hashids.NewData()
@@ -163,28 +122,69 @@ func (p *Pipeline) Validate() Report {
 		Id:        id,
 		Time:      util.ApisenseTime(currentTime),
 		Endpoints: results,
-	}
+	}, nil
 }
 
 // testCaseResults validates a collection of items and returns the results
-func (p *Pipeline) testCaseResults(items []fetcher.TestCase) []TestCaseResult {
-	testCaseResults := make([]TestCaseResult, 0)
+func (p *Pipeline) testCaseResults(testCases validation.EndpointTestCases) []TestCaseResult {
+	testCaseResults := make([]TestCaseResult, len(testCases.HttpRequests))
 
-	// testCaseResults each single item and append to the results
-	for _, item := range items {
-		validatorResults := p.validateTestCase(item)
-		testCaseResults = append(testCaseResults, TestCaseResult{
-			Url:              item.Url,
-			ValidatorResults: validatorResults,
-		})
+	var wg sync.WaitGroup
+
+	for i, request := range testCases.HttpRequests {
+		wg.Add(1)
+		go func(results *[]TestCaseResult, slot int, request validation.EndpointRequest, endpoint definitions.Endpoint) {
+			response, err := validation.Fetch(request, endpoint)
+			if err != nil {
+				testCaseResults[i] = TestCaseResult{
+					Url: response.Url,
+					ValidatorResults: []ValidatorResult{
+						{
+							Name:    "fetcher",
+							Status:  validators.ValidatorStatusFail,
+							Message: err.Error(),
+						},
+					},
+				}
+			} else {
+				testCaseResults[i] = TestCaseResult{
+					Url:              response.Url,
+					ValidatorResults: p.validateTestCase(response, endpoint),
+				}
+			}
+
+			wg.Done()
+		}(&testCaseResults, i, request, testCases.Definition)
 	}
+
+	wg.Wait()
 
 	return testCaseResults
 }
 
 // validateTestCase validates a single item and returns the result of the validators
-func (p *Pipeline) validateTestCase(item fetcher.TestCase) []ValidatorResult {
-	validatorResults := make([]ValidatorResult, 0)
+func (p *Pipeline) validateTestCase(response validation.EndpointResponse, definition definitions.Endpoint) []ValidatorResult {
+	validatorResults := make([]ValidatorResult, 1)
+
+	okCode := 200
+	if definition.OkCode > 0 {
+		okCode = definition.OkCode
+	}
+
+	if response.StatusCode != okCode {
+		validatorResults[0] = ValidatorResult{
+			Name:    "status",
+			Status:  validators.ValidatorStatusFail,
+			Message: fmt.Sprintf("status validation failed. Expected %d, got %d", definition.OkCode, response.StatusCode),
+		}
+		return validatorResults
+	}
+
+	validatorResults[0] = ValidatorResult{
+		Name:    "status",
+		Status:  validators.ValidatorStatusSuccess,
+		Message: "",
+	}
 
 	for _, validator := range p.Validators {
 		validatorResult := ValidatorResult{
@@ -193,14 +193,17 @@ func (p *Pipeline) validateTestCase(item fetcher.TestCase) []ValidatorResult {
 			Message: "",
 		}
 
-		if util.Contains(item.ExcludedValidators, validator.Name()) {
-			log.DaemonLogger().Warn("Validator is excluded", "endpoint", item.EndpointName, "validator", validator.Name())
+		if util.Contains(definition.ExcludedValidators, validator.Name()) {
+			log.DaemonLogger().Warn("Validator is excluded", "endpoint", definition.Name, "validator", validator.Name())
 			validatorResult.Status = validators.ValidatorStatusSkipped
 			validatorResults = append(validatorResults, validatorResult)
 			continue
 		}
 
-		err := validator.Validate(item)
+		err := validator.Validate(validators.ValidationItem{
+			Response:   response,
+			Definition: definition,
+		})
 		if err != nil {
 			validatorResult.Message = err.Error()
 			validatorResult.Status = validators.ValidatorStatusFail

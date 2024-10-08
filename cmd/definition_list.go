@@ -22,7 +22,7 @@ var definitionListCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, _ []string) {
 		definitions, err := definitions.Endpoints()
 		errors.CheckErr(err)
-		concise := cmd.Flag("concise").Value.String() == "true"
+		concise := cmd.Flags().GetBool("concise")
 
 		if !concise {
 			fmt.Println(yellowStyle().Bold(true).Render("# Definitions \n"))
@@ -41,7 +41,7 @@ func printDefinitionVerbose(definition definitions.Endpoint) {
 	if definition.IsEnabled {
 		fmt.Printf("%v\n", greenStyle().Render("true"))
 	} else {
-		fmt.Printf("%v\n", redStyle().Render("true"))
+		fmt.Printf("%v\n", redStyle().Render("false"))
 	}
 	fmt.Printf("%s: %s\n", keyStyle.Render("Full path"), filepath.FromSlash(definition.FullPath))
 	fmt.Println()

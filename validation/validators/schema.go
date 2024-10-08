@@ -3,7 +3,6 @@ package validators
 import (
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/validation/definitions"
-	"github.com/buonotti/apisense/validation/fetcher"
 )
 
 // NewSchemaValidator returns a new schema validator
@@ -20,8 +19,8 @@ func (v schemaValidator) Name() string {
 }
 
 // Validate validates the given items schema and return nil on success or an error on failure
-func (v schemaValidator) Validate(item fetcher.TestCase) error {
-	return validateSchema(item.SchemaEntries, item.Data)
+func (v schemaValidator) Validate(item ValidationItem) error {
+	return validateSchema(item.Definition.ResponseSchema, item.Response.RawData)
 }
 
 // validateSchema validates the result against the schema and return nil on success or an error on failure.

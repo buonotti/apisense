@@ -8,7 +8,6 @@ import (
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
-	"github.com/buonotti/apisense/validation/fetcher"
 	"github.com/spf13/viper"
 )
 
@@ -112,7 +111,7 @@ func (v externalValidator) Name() string {
 // Validate validates an item by serializing it and sending it to the external
 // process then returning an error according to the status code of the external
 // program
-func (v externalValidator) Validate(item fetcher.TestCase) error {
+func (v externalValidator) Validate(item ValidationItem) error {
 	jsonString, err := json.Marshal(item)
 	outString := &strings.Builder{}
 	if err != nil {
@@ -135,7 +134,7 @@ func (v externalValidator) Validate(item fetcher.TestCase) error {
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			if exitErr.ExitCode() == 1 {
-				return errors.NewF(errors.ValidationError, "validation failed for endpoint %s: %s", item.EndpointName, validatorErr.String())
+				return errors.NewF(errors.ValidationError, "validation failed for endpoint %s: %s", item.Definition.Name, validatorErr.String())
 			} else {
 				return errors.NewF(errors.ValidationError, "validation failed: unexpected exit code from external validator: %d", exitErr.ExitCode())
 			}

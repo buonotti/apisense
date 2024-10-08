@@ -6,5 +6,5 @@ import (
 
 var (
 	AssetErrors          = errorx.NewNamespace("asset")
-	CannotLoadAssetError = AssetErrors.NewType("cannot_load_asset", fatalTrait)
+	CannotLoadAssetError = AssetErrors.NewType("cannot_load_asset")
 )

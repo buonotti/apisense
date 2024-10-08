@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-
-	"github.com/buonotti/apisense/errors"
 )
 
 var definitionCmd = &cobra.Command{
@@ -11,7 +9,7 @@ var definitionCmd = &cobra.Command{
 	Short: "Manage definitions",
 	Long:  `Manage definitions`, // TODO: Add more info
 	Run: func(cmd *cobra.Command, _ []string) {
-		errors.CheckErr(cmd.Help())
+		cobra.CheckErr(cmd.Help())
 	},
 }
 

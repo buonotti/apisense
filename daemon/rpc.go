@@ -12,24 +12,6 @@ type RpcDaemonManager struct {
 	daemon *daemon
 }
 
-func (mgr *RpcDaemonManager) ReloadDaemon(retries *int, reply *int) error {
-	var err error
-	for i := 0; i <= *retries; i++ {
-		err = mgr.daemon.Pipeline.Reload()
-		if err == nil {
-			break
-		}
-	}
-	if err != nil {
-		log.DaemonLogger().Error("Cannot reload daemon", "reason", err.Error())
-		*reply = 1
-		return err
-	}
-
-	*reply = 0
-	return nil
-}
-
 func startRpcServer(daemon *daemon) error {
 	manager := &RpcDaemonManager{daemon: daemon}
 	err := rpc.Register(manager)

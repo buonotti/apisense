@@ -3,11 +3,9 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/buonotti/apisense/daemon"
 	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
 )
 
@@ -18,14 +16,12 @@ var validateCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		validationPipeline, err := daemon.NewPipeline()
-		if err != nil {
-			log.DefaultLogger().Error("Failed to create pipeline", "reason", err.Error())
-			os.Exit(1)
-		}
-		report := validationPipeline.Validate()
+		errors.CheckErr(err)
+		report, err := validationPipeline.Validate()
+		errors.CheckErr(err)
 		data, err := json.Marshal(report)
 		errors.CheckErr(err)
-		fmt.Print(string(data))
+		fmt.Println(string(data))
 	},
 }
 

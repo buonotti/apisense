@@ -5,7 +5,6 @@ import (
 )
 
 var allValidators = map[string]Validator{
-	"status": NewStatusValidatorC(200),
 	"range":  NewRangeValidator(),
 	"schema": NewSchemaValidator(),
 }

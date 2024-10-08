@@ -11,7 +11,6 @@ import (
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/log"
-	"github.com/buonotti/apisense/validation/query"
 )
 
 // SchemaEntry is a field definition of the response
@@ -30,26 +29,32 @@ type JwtLoginOptions struct {
 	TokenKeyName string         `yaml:"token_key_name" json:"token_key_name"` // TokenKeyName is the name of the key in the response which contains the token
 }
 
+// Definition is a query parameter that should be added to the call
+type QueryDefinition struct {
+	Name  string `yaml:"name" json:"name" validate:"required"`   // Name is the name of the query parameter
+	Value string `yaml:"value" json:"value" validate:"required"` // Value is the value of the query parameter
+}
+
 // Endpoint is the definition of an endpoint to test with all its query
 // parameters, variables and its result schema
 type Endpoint struct {
-	FileName           string             `yaml:"-" json:"-"`                                                // FileName is the name of the file that contains the definition
-	FullPath           string             `yaml:"-" json:"-"`                                                // FullPath is the full path of the file that contains the definition
-	Secrets            map[string]string  `yaml:"-" json:"-"`                                                // Secrets are the secrets for this definition loaded from the secrets file
-	Name               string             `yaml:"name" json:"name" validate:"required"`                      // Name is the name of the endpoint
-	IsEnabled          bool               `yaml:"enabled" json:"enabled"`                                    // IsEnabled is a boolean that indicates if the endpoint is enabled (not contained in the definition)
-	BaseUrl            string             `yaml:"base_url" json:"baseUrl" validate:"required"`               // BaseUrl is the base path of the endpoint
-	Method             string             `yaml:"method" json:"method"`                                      // Method is the name of the http-method to use for the request
-	Payload            map[string]any     `yaml:"payload" json:"payload"`                                    // Payload is the payload to use in case of a POST or PUT request
-	Authorization      string             `yaml:"authorization" json:"authorization"`                        // Authorization is the value to set for the authorization header
-	JwtLogin           JwtLoginOptions    `yaml:"jwt_login" json:"jwt_login"`                                // JwtLogin are options to auto-get a login token for a request.
-	Headers            map[string]string  `yaml:"headers" json:"headers"`                                    // Headers are additional headers to set for the request
-	ExcludedValidators []string           `yaml:"excluded_validators" json:"excludedValidators"`             // ExcludedValidators is a list of validators that should not be used for this endpoint
-	QueryParameters    []query.Definition `yaml:"query_parameters" json:"queryParameters"`                   // QueryParameters are all the query parameters that should be added to the call
-	Format             string             `yaml:"format" json:"format" validate:"required"`                  // Format is the response format of the
-	Variables          []Variable         `yaml:"variables" json:"variables"`                                // Variables are all the variables that should be interpolated in the base url and the query parameters
-	OkCode             int                `yaml:"ok_codes" json:"ok_codes"`                                  // The expected status code
-	ResponseSchema     []SchemaEntry      `yaml:"response_schema" json:"responseSchema" validate:"required"` // ResponseSchema describes how the response should look like
+	FileName           string            `yaml:"-" json:"-"`                                                // FileName is the name of the file that contains the definition
+	FullPath           string            `yaml:"-" json:"-"`                                                // FullPath is the full path of the file that contains the definition
+	Secrets            map[string]string `yaml:"-" json:"-"`                                                // Secrets are the secrets for this definition loaded from the secrets file
+	Name               string            `yaml:"name" json:"name" validate:"required"`                      // Name is the name of the endpoint
+	IsEnabled          bool              `yaml:"enabled" json:"enabled"`                                    // IsEnabled is a boolean that indicates if the endpoint is enabled (not contained in the definition)
+	BaseUrl            string            `yaml:"base_url" json:"baseUrl" validate:"required"`               // BaseUrl is the base path of the endpoint
+	Method             string            `yaml:"method" json:"method"`                                      // Method is the name of the http-method to use for the request
+	Payload            map[string]any    `yaml:"payload" json:"payload"`                                    // Payload is the payload to use in case of a POST or PUT request
+	Authorization      string            `yaml:"authorization" json:"authorization"`                        // Authorization is the value to set for the authorization header
+	JwtLogin           JwtLoginOptions   `yaml:"jwt_login" json:"jwt_login"`                                // JwtLogin are options to auto-get a login token for a request.
+	Headers            map[string]string `yaml:"headers" json:"headers"`                                    // Headers are additional headers to set for the request
+	ExcludedValidators []string          `yaml:"excluded_validators" json:"excludedValidators"`             // ExcludedValidators is a list of validators that should not be used for this endpoint
+	QueryParameters    []QueryDefinition `yaml:"query_parameters" json:"queryParameters"`                   // QueryParameters are all the query parameters that should be added to the call
+	Format             string            `yaml:"format" json:"format" validate:"required"`                  // Format is the response format of the
+	Variables          []Variable        `yaml:"variables" json:"variables"`                                // Variables are all the variables that should be interpolated in the base url and the query parameters
+	OkCode             int               `yaml:"ok_code" json:"ok_code"`                                    // The expected status code
+	ResponseSchema     []SchemaEntry     `yaml:"response_schema" json:"responseSchema" validate:"required"` // ResponseSchema describes how the response should look like
 }
 
 // parseDefinition reads a given file and returns and EndpointDefinition.

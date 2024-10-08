@@ -105,10 +105,8 @@ func endRun(signalChan chan os.Signal, cancel context.CancelFunc) {
 
 // work runs the validation pipeline and logs the results
 func (d daemon) work() {
-	err := d.Pipeline.Reload()
+	result, err := d.Pipeline.Validate()
 	errors.CheckErr(err)
-
-	result := d.Pipeline.Validate()
 
 	d.logResults(result)
 
