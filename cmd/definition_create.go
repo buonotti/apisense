@@ -68,7 +68,7 @@ var definitionCreateCmd = &cobra.Command{
 		fileName := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + name + ".apisensedef.yml")
 		err := os.WriteFile(fileName, []byte(fmt.Sprintf(definitionBoilerplate, name)), os.ModePerm)
 		errors.CheckErr(err)
-		log.ApiLogger.WithField("file", fileName).Info("definition file successfully created")
+		log.DefaultLogger().Info("Definition file successfully created", "filename", fileName)
 	},
 }
 

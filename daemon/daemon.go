@@ -42,7 +42,7 @@ func (d daemon) run(runOnStart bool) error {
 		return err
 	}
 
-	log.DaemonLogger.Info("daemon started")
+	log.DaemonLogger().Info("Daemon started")
 
 	ctx := context.Background()
 	ctx, contextCancel := context.WithCancel(ctx)
@@ -54,7 +54,7 @@ func (d daemon) run(runOnStart bool) error {
 	go d.signalListener(signalChan, contextCancel, ctx)
 
 	if runOnStart {
-		log.DaemonLogger.Info("validating on startup")
+		log.DaemonLogger().Info("Running validation on startup")
 		d.work()
 	}
 
@@ -78,14 +78,14 @@ func (d daemon) signalListener(signalChan chan os.Signal, cancel context.CancelF
 		case s := <-signalChan:
 			switch s {
 			case os.Interrupt:
-				log.DaemonLogger.Info("received interrupt, stopping daemon")
+				log.DaemonLogger().Info("Received interrupt, stopping daemon")
 				errors.CheckErr(writeStatus(DownStatus))
 				errors.CheckErr(writePid(-1))
 				cancel()
 				os.Exit(0)
 			}
 		case <-ctx.Done():
-			log.DaemonLogger.Infof("context done, exiting signal handler")
+			log.DaemonLogger().Info("Context done, exiting signal handler")
 			errors.CheckErr(writeStatus(DownStatus))
 			errors.CheckErr(writePid(-1))
 			os.Exit(0)
@@ -96,7 +96,7 @@ func (d daemon) signalListener(signalChan chan os.Signal, cancel context.CancelF
 // endRun runs at the end of the work function and cancels the context via the
 // given cancel function and writes the daemon status
 func endRun(signalChan chan os.Signal, cancel context.CancelFunc) {
-	log.DaemonLogger.Info("stopping daemon")
+	log.DaemonLogger().Info("Stopping daemon")
 	errors.CheckErr(writeStatus(DownStatus))
 	errors.CheckErr(writePid(-1))
 	signal.Stop(signalChan)
@@ -124,7 +124,7 @@ func (d daemon) work() {
 			errors.CheckErr(errors.CannotWriteFileError.Wrap(err, "cannot write report to file"))
 		}
 
-		log.DaemonLogger.WithField("report", reportPath).Info("generated report")
+		log.DaemonLogger().Info("Generated report", "path", reportPath)
 
 		if viper.GetBool("daemon.notification.enabled") {
 			alertData := alerting.AlertData{
@@ -134,7 +134,7 @@ func (d daemon) work() {
 			errors.CheckErr(alerting.SendAlert(alertData))
 		}
 	} else {
-		log.DaemonLogger.Info("no endpoints to validate")
+		log.DaemonLogger().Info("No endpoints to validate")
 	}
 
 	errors.CheckErr(d.cleanupReports())
@@ -159,7 +159,7 @@ func (d daemon) cleanupReports() error {
 		return nil
 	}
 
-	log.DaemonLogger.Info("cleaning up reports")
+	log.DaemonLogger().Info("Cleaning up reports")
 	files, err := os.ReadDir(filepath.FromSlash(directories.ReportsDirectory()))
 	errors.CheckErr(err)
 	for _, file := range files {
@@ -170,7 +170,7 @@ func (d daemon) cleanupReports() error {
 		fName = strings.TrimSuffix(fName, ".report.json")
 		fTime, err := time.Parse(util.ApisenseTimeFormat, fName)
 		if err != nil {
-			log.DaemonLogger.WithField("name", file.Name()).Warn("cannot parse report name, skipping")
+			log.DaemonLogger().Warn("Cannot parse report name, skipping", "report", file.Name())
 			continue
 		}
 		maxTime := viper.GetDuration("daemon.discard.max_lifetime")
@@ -179,30 +179,28 @@ func (d daemon) cleanupReports() error {
 			if err != nil {
 				return errors.CannotRemoveFileError.Wrap(err, "cannot remove report file")
 			}
-			log.DaemonLogger.WithField("report", file.Name()).Info("removed report because it was too old")
+			log.DaemonLogger().Info("Removed report because it was too old", "filename", file.Name())
 		}
 	}
 	return nil
 }
 
-// logResults logs the results of the validation pipeline to the output file or stdout using the log.DaemonLogger
+// logResults logs the results of the validation pipeline to the output file or stdout using the log.DaemonLogger()
 func (d daemon) logResults(report pipeline.Report) {
 	for _, validatedEndpoint := range report.Endpoints {
 		for _, result := range validatedEndpoint.TestCaseResults {
 			for _, validatorResult := range result.ValidatorResults {
 				if validatorResult.Status == validators.ValidatorStatusFail {
-					log.DaemonLogger.
-						WithField("validator", validatorResult.Name).
-						WithField("endpoint", validatedEndpoint.EndpointName).
-						WithField("url", result.Url).
-						WithField("message", validatorResult.Message).
-						Error("validation failed")
+					log.DaemonLogger().Error("Validation failed",
+						"validator", validatorResult.Name,
+						"endpoint", validatedEndpoint.EndpointName,
+						"url", result.Url,
+						"message", validatorResult.Message)
 				} else {
-					log.DaemonLogger.
-						WithField("validator", validatorResult.Name).
-						WithField("endpoint", validatedEndpoint.EndpointName).
-						WithField("url", result.Url).
-						Info("validation succeeded")
+					log.DaemonLogger().Info("Validation succeeded",
+						"validator", validatorResult.Name,
+						"endpoint", validatedEndpoint.EndpointName,
+						"url", result.Url)
 				}
 			}
 		}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/apex/log"
 	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
 	"github.com/gin-gonic/gin"
@@ -20,12 +19,13 @@ func GinMiddleware() gin.HandlerFunc {
 		t := time.Now()
 		c.Next()
 		elapsed := time.Since(t)
-		ApiLogger.WithFields(log.Fields{
-			"time":   fmt.Sprintf("%dms", elapsed.Milliseconds()),
-			"status": c.Writer.Status(),
-			"method": c.Request.Method,
-			"ip":     c.ClientIP(),
-		}).Info(url)
+
+		ApiLogger().Info("Completed request",
+			"path", url,
+			"time", fmt.Sprintf("%dms", elapsed.Milliseconds()),
+			"status", c.Writer.Status(),
+			"method", c.Request.Method,
+			"remote", c.ClientIP())
 	}
 }
 
@@ -36,17 +36,17 @@ func WishMiddleware() wish.Middleware {
 			ct := time.Now()
 			hpk := s.PublicKey() != nil
 			pty, _, _ := s.Pty()
-			SSHLogger.WithFields(log.Fields{
-				"user":   s.User(),
-				"ip":     s.RemoteAddr().String(),
-				"hpk":    hpk,
-				"cmd":    s.Command(),
-				"term":   pty.Term,
-				"width":  pty.Window.Width,
-				"height": pty.Window.Height,
-			}).Infof("%s connect", s.User())
+			SshLogger().Info("Client connected",
+				"user", s.User(),
+				"remote", s.RemoteAddr().String(),
+				"hpk", hpk,
+				"cmd", s.Command(),
+				"term", pty.Term)
 			sh(s)
-			SSHLogger.WithField("ip", s.RemoteAddr().String()).WithField("time", time.Since(ct)).Info("disconnected")
+			SshLogger().Info("Client disconnected",
+				"user", s.User(),
+				"remote", s.RemoteAddr().String(),
+				"session_time", time.Since(ct))
 		}
 	}
 }

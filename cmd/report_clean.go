@@ -25,28 +25,28 @@ var reportCleanCmd = &cobra.Command{
 			fmt.Print("Are you sure you want to clean the report directory? [y/N] ")
 			_, err = fmt.Scanln(&answer)
 			if err != nil {
-				log.CliLogger.WithError(err).Fatal("cannot read user input")
+				log.DefaultLogger().Fatal("Cannot read user input", "error", err.Error())
 				return
 			}
 		}
 		if answer == "y" || answer == "Y" || override {
-			log.CliLogger.Info("cleaning report directory")
+			log.DefaultLogger().Info("cleaning report directory")
 			reportFiles, err := os.ReadDir(directories.ReportsDirectory())
 			if err != nil {
-				log.CliLogger.WithError(err).Fatal("cannot read report directory")
+				log.DefaultLogger().Fatal("Cannot read report directory", "error", err.Error())
 				return
 			}
 
 			for _, file := range reportFiles {
 				err := os.Remove(filepath.FromSlash(directories.ReportsDirectory() + "/" + file.Name()))
 				if err != nil {
-					log.CliLogger.WithError(err).Fatal("cannot remove file")
+					log.DefaultLogger().Fatal("Cannot remove file", "file", file.Name())
 					return
 				}
-				log.CliLogger.WithField("file", file.Name()).Info("removed file")
+				log.DefaultLogger().Info("Removed file", "file", file.Name())
 			}
 		} else {
-			log.CliLogger.Info("aborted")
+			log.DefaultLogger().Info("Aborted")
 		}
 	},
 }
@@ -54,5 +54,4 @@ var reportCleanCmd = &cobra.Command{
 func init() {
 	reportCleanCmd.Flags().Bool("no-confirm", false, "Do not ask for confirmation")
 	reportCmd.AddCommand(reportCleanCmd)
-
 }

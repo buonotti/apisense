@@ -1,11 +1,32 @@
 package log
 
 import (
-	"github.com/apex/log"
+	"io"
+	"os"
+
+	"github.com/charmbracelet/log"
 )
 
-var DaemonLogger = log.WithFields(log.Fields{"system": "daemon"})
-var DefaultLogger = log.WithFields(log.Fields{"system": "default"})
-var SSHLogger = log.WithFields(log.Fields{"system": "ssh"})
-var ApiLogger = log.WithFields(log.Fields{"system": "api"})
-var CliLogger = log.WithFields(log.Fields{"system": "cli"})
+func getWriter() io.Writer {
+	if hasLogFile() {
+		return logFile
+	} else {
+		return os.Stderr
+	}
+}
+
+func DefaultLogger() *log.Logger {
+	return log.Default()
+}
+
+func DaemonLogger() *log.Logger {
+	return log.Default().WithPrefix("Daemon")
+}
+
+func ApiLogger() *log.Logger {
+	return log.Default().WithPrefix("Api")
+}
+
+func SshLogger() *log.Logger {
+	return log.Default().WithPrefix("Ssh")
+}

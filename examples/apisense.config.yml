@@ -1,93 +1,84 @@
 # This is the example configuration file for apisense.
+# All the values displayed are the default values
 
 ### LOGGING CONFIGURATION ###
-log:
-  # Set the log level. Valid values are: debug, info, warn, error, fatal, panic
-  level: "info"
+# log:
+  # Set the log level. Valid values are: debug, info, warn, error, fatal
+  # level: "info"
 
   # Set the log file. Leave empty to log to stdout.
-  #file: "~/apisense/apisense.log"
-  file: ""
+  # file: ""
 
 ### DAEMON CONFIGURATION ###
-daemon:
+# daemon:
   # Set the interval in seconds in which the daemon should run. The format is cron (https://www.wikipedia.org/wiki/Cron)
-  interval: "* * * * *"
+  # interval: "* * * * *"
 
   # Sets whether the daemon should run a validation run upon startup
-  run_on_startup: true
+  # run_on_startup: true
 
   # Definition files that start with this prefix are not included
-  ignore_prefix: "_"
+  # ignore_prefix: "_"
 
   # Set the discard times of reports. Reports older than this will be discarded.
-  discard:
+  # discard:
     # Enable discarding of reports
-    enabled: true
+    # enabled: true
 
     # Set the discard interval. Reports older than this will be discarded.
-    max_lifetime: "720h"
+    # max_lifetime: "720h"
 
-  notification:
+  # Configure the notifications from the daemon
+  # notification:
     # Set whether the daemon should send notifications.
-    enabled: false
+    # enabled: false
 
     # Set whether the daemon should send notifications only if the report contains errors.
-    only_on_error: true
+    # only_on_error: true
 
     # Set the sender email of the notifications
-    sender: "me@example.com"
+    # sender: ""
 
     # Set the email address to send notifications to.
-    receiver: "you@example.com"
+    # receiver: ""
 
     # Set the SMTP server to use for sending notifications.
-    smtp_server: "smtp.example.com"
+    # smtp_server: ""
 
     # Set the SMTP port to use for sending notifications.
-    smtp_port: 587
+    # smtp_port: 587
 
 ### SSH CONFIGURATION ###
-ssh:
+# ssh:
   # Set the SSH host. Leave empty to allow any host to connect
-  host: ""
+  # host: ""
 
   # Set the SSH port.
-  port: 23232
+  # port: 23232
 
 ### TUI CONFIGURATION ###
-tui:
-  refresh: 10
+# tui:
+  # Set the refresh rate of the tui
+  # refresh: 10
 
 ### API CONFIGURATION ###
-api:
+# api:
   # Set the API host. Leave empty to allow any host to connect
-  host: ""
+  # host: ""
 
   # Set the API port.
-  port: 8080
+  # port: 8080
 
   # The API key to use for authentication.
-  key: "apisense-1324h#3u4b5AS6j7_k!8l9m0"
+  # key: "apisense-1324h#3u4b5AS6j7_k!8l9m0"
 
   # Enable authentication
-  auth: true
+  # auth: true
 
 ### EXTERNAL VALIDATORS ###
-validation:
+# validation:
   # Define external validators that can be used in the definitions.
-  external_validators:
-    # Define a validator named "data-hole"
-    - name: "data-hole"
-      # Set the command to run. This can be a path to an executable or a command.
-      path: "/home/aurelio/source/Repos/School/Matura/data_hole_validator/target/release/data_hole_validator"
-      # Set the arguments to pass to the command.
-      args:
-        - "--max-records"
-        - "50"
-      # Set whether the command should be fatal or not.
-      fatal: false
+  # external_validators: []
 
   # Define build-in validators that should be disabled.
-  excluded_builtin_validators:
-    - "range"
+  # excluded_builtin_validators: []

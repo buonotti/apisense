@@ -22,9 +22,9 @@ var definitionEnableCmd = &cobra.Command{
 		fullPath := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + fileName)
 		if _, err := os.Stat(fullPath); err == nil {
 			errors.CheckErr(os.Rename(fullPath, filepath.FromSlash(directories.DefinitionsDirectory()+"/"+strings.TrimPrefix(fileName, viper.GetString("daemon.ignore_prefix")))))
-			log.CliLogger.WithField("definition", fileName).Info("definition enabled")
+			log.DefaultLogger().Info("Definition enabled", "filename", fileName)
 		} else {
-			log.CliLogger.WithField("definition", fileName).Error("definition not found")
+			log.DefaultLogger().Error("definition not found", "filename", fileName)
 		}
 	},
 	ValidArgsFunction: validDisabledDefinitionFunc(),

@@ -41,9 +41,9 @@ func Parse[T any](query string) (*Filter[T], error) {
 		errors.CheckErr(err)
 		data := gjson.GetBytes(jsonString, key)
 		if strings.Contains(strings.ToLower(key), "time") {
-			parsedTime, err := time.Parse("2006-01-02T15:04:05.000Z", value)
+			parsedTime, err := time.Parse(util.ApisenseTimeFormat, value)
 			if err != nil {
-				log.ApiLogger.Error(err.Error())
+				log.ApiLogger().Error(err.Error())
 			}
 			return comp.Compare(data.Time(), parsedTime)
 		}

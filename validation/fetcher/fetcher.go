@@ -18,11 +18,10 @@ type Fetcher interface {
 	Fetch(definition definitions.Endpoint) ([]TestCase, error)
 }
 
-type defaultFetcher struct {
-}
+type defaultFetcher struct{}
 
 func (f *defaultFetcher) Fetch(definition definitions.Endpoint) ([]TestCase, error) {
-	log.DaemonLogger.Infof("fetching data for %s", definition.Name)
+	log.DaemonLogger().Info("Fetching data", "endpoint", definition.Name)
 	var testCases []TestCase
 	requests, err := parseRequests(definition)
 	if err != nil {

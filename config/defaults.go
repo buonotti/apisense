@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/google/uuid"
 	"github.com/spf13/viper"
 )
 
@@ -11,6 +10,7 @@ func setupDefaults() {
 
 	viper.SetDefault("log.level", "info")
 	viper.SetDefault("log.file", "")
+
 	viper.SetDefault("daemon.interval", "* * * * *")
 	viper.SetDefault("daemon.run_on_startup", true)
 	viper.SetDefault("daemon.ignore_prefix", "_")
@@ -22,12 +22,17 @@ func setupDefaults() {
 	viper.SetDefault("daemon.notification.receiver", "")
 	viper.SetDefault("daemon.notification.smtp_server", "")
 	viper.SetDefault("daemon.notification.smtp_port", 587)
+
 	viper.SetDefault("ssh.host", "")
 	viper.SetDefault("ssh.port", 23232)
+
 	viper.SetDefault("tui.refresh", 10)
+
 	viper.SetDefault("api.host", "")
 	viper.SetDefault("api.port", 8080)
-	viper.SetDefault("api.key", uuid.New().String())
+	viper.SetDefault("api.key", "apisense-1324h#3u4b5AS6j7_k!8l9m0")
 	viper.SetDefault("api.auth", true)
+
+	viper.SetDefault("validation.external_validators", []any{})
 	viper.SetDefault("validation.excluded_builtin_validators", []string{})
 }

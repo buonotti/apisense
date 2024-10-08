@@ -68,12 +68,14 @@ func NewPipeline() (*pipeline.Pipeline, error) {
 	pipelineWithValidators, err := pipeline.NewPipelineWithValidators(
 		validators.Without(viper.GetStringSlice("validation.excluded_builtin_validators")...)...,
 	)
-
 	if err != nil {
 		return nil, err
 	}
 
 	externalValidators, err := validators.LoadExternalValidators()
+	if err != nil {
+		return nil, err
+	}
 
 	for _, externalValidator := range externalValidators {
 		pipelineWithValidators.AddValidator(externalValidator)

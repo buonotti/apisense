@@ -1,8 +1,9 @@
 package middleware
 
 import (
-	"github.com/buonotti/apisense/api/db"
 	"net/http"
+
+	"github.com/buonotti/apisense/api/db"
 
 	"github.com/buonotti/apisense/api/jwt"
 	"github.com/buonotti/apisense/errors"
@@ -32,7 +33,7 @@ func Auth() gin.HandlerFunc {
 		if err == nil && token.Valid {
 			claims := token.Claims.(goJWT.MapClaims)
 			uid := claims["uid"].(string)
-			log.ApiLogger.WithField("user", claims["uid"].(string)).Info("authorizing user")
+			log.ApiLogger().Info("Authorizing user", "user", claims["uid"].(string))
 			if !db.IsUserEnabled(uid) {
 				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "user is not allowed to use the API"})
 				return

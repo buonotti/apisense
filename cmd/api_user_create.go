@@ -34,14 +34,14 @@ var apiUserCreateCmd = &cobra.Command{
 		_ = os.Stdout.Sync()
 
 		if password != passwordRepeat {
-			log.CliLogger.Error("passwords do not match")
+			log.DefaultLogger().Error("Passwords do not match")
 		} else if len(password) == 0 {
-			log.CliLogger.Error("password cannot be empty")
+			log.DefaultLogger().Error("Password cannot be empty")
 		} else {
 			_, err = db.RegisterUser(username, password)
 			errors.CheckErr(err)
 
-			log.CliLogger.WithField("username", username).Info("user created")
+			log.DefaultLogger().Info("User created", "username", username)
 		}
 	},
 }

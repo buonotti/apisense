@@ -5,10 +5,12 @@ import (
 	"path/filepath"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/muesli/termenv"
 	"github.com/spf13/cobra"
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/theme"
 	"github.com/buonotti/apisense/validation/definitions"
 )
 
@@ -33,11 +35,15 @@ var definitionListCmd = &cobra.Command{
 }
 
 func printDefinitionVerbose(definition definitions.Endpoint) {
-	keyStyle := lipgloss.NewStyle().Bold(true)
+	keyStyle := lipgloss.NewStyle().Foreground(theme.Ansi2Color(termenv.ANSIBlue)).Bold(true)
 	fmt.Printf("%s: %s\n", keyStyle.Render("Filename"), definition.Name)
-	fmt.Printf("%s: %v\n", keyStyle.Render("Enabled"), definition.IsEnabled)
+	fmt.Printf("%s: ", keyStyle.Render("Enabled"))
+	if definition.IsEnabled {
+		fmt.Printf("%v\n", greenStyle().Render("true"))
+	} else {
+		fmt.Printf("%v\n", redStyle().Render("true"))
+	}
 	fmt.Printf("%s: %s\n", keyStyle.Render("Full path"), filepath.FromSlash(definition.FullPath))
-	fmt.Printf("%s: %s\n", keyStyle.Render("Base url"), definition.BaseUrl)
 	fmt.Println()
 }
 
@@ -45,7 +51,11 @@ func printDefinition(definition definitions.Endpoint, concise bool) {
 	if !concise {
 		printDefinitionVerbose(definition)
 	} else {
-		fmt.Printf("%s (%s/%s)\n", definition.Name, filepath.FromSlash(directories.DefinitionsDirectory()), definition.FileName)
+		enabled := "enabled"
+		if !definition.IsEnabled {
+			enabled = "disabled"
+		}
+		fmt.Printf("%s (%s/%s) %s\n", definition.Name, filepath.FromSlash(directories.DefinitionsDirectory()), definition.FileName, enabled)
 	}
 }
 

@@ -18,7 +18,7 @@ var apiUserEnableCmd = &cobra.Command{
 		err := db.EnableUser(username)
 		errors.CheckErr(err)
 
-		log.CliLogger.WithField("username", username).Info("user enabled")
+		log.DefaultLogger().Info("User enabled", "username", username)
 	},
 	ValidArgsFunction: validDisabledUserFunc(),
 }

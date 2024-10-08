@@ -13,9 +13,9 @@ var daemonReloadCmd = &cobra.Command{
 	Run: func(_ *cobra.Command, _ []string) {
 		err := daemon.ReloadDaemon()
 		if err != nil {
-			log.CliLogger.Info("reloaded daemon pipeline items")
+			log.DefaultLogger().Info("Reloaded daemon pipeline items")
 		} else {
-			log.CliLogger.Error("cannot reload daemon pipeline items")
+			log.DefaultLogger().Error("Cannot reload daemon pipeline items")
 		}
 	},
 }

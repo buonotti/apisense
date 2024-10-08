@@ -27,7 +27,7 @@ var configSetCmd = &cobra.Command{
 		if err != nil {
 			cobra.CheckErr(errors.CannotWriteConfigError.Wrap(err, "cannot write to config file"))
 		}
-		log.CliLogger.WithField("key", key).WithField("value", value).Info("set config value")
+		log.DefaultLogger().Info("Set config value", "key", key, "value", value)
 		printConfigValue(key, len(key))
 	},
 }

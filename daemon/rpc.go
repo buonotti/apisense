@@ -21,7 +21,7 @@ func (mgr *RpcDaemonManager) ReloadDaemon(retries *int, reply *int) error {
 		}
 	}
 	if err != nil {
-		log.DaemonLogger.WithError(err).Error("cannot reload daemon")
+		log.DaemonLogger().Error("Cannot reload daemon", "reason", err.Error())
 		*reply = 1
 		return err
 	}
@@ -34,18 +34,18 @@ func startRpcServer(daemon *daemon) error {
 	manager := &RpcDaemonManager{daemon: daemon}
 	err := rpc.Register(manager)
 	if err != nil {
-		log.DaemonLogger.WithError(err).Error("cannot register daemon rpc server")
+		log.DaemonLogger().Error("Cannot register daemon rpc server", "reason", err.Error())
 		return err
 	}
 	rpc.HandleHTTP()
 	l, err := net.Listen("tcp", "127.0.0.1:42069")
 	if err != nil {
 		if err != http.ErrServerClosed {
-			log.DaemonLogger.WithError(err).Error("cannot start daemon rpc server")
+			log.DaemonLogger().Error("Cannot start daemon rpc server", "reason", err.Error())
 		} else {
-			log.DaemonLogger.Info("daemon rpc server stopped")
+			log.DaemonLogger().Info("Daemon rpc server stopped")
 		}
 	}
-	log.DaemonLogger.WithField("address", "127.0.0.1:42069").Info("daemon rpc server started")
+	log.DaemonLogger().Info("Daemon rpc server started", "address", "127.0.0.1:42069")
 	return http.Serve(l, nil)
 }

@@ -18,7 +18,7 @@ var apiUserRemoveCmd = &cobra.Command{
 		err := db.DeleteUser(username)
 		errors.CheckErr(err)
 
-		log.CliLogger.WithField("username", username).Info("user removed")
+		log.DefaultLogger().Info("User removed", "username", username)
 	},
 	ValidArgsFunction: validUsersFunc(),
 }

@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
 
 	"github.com/buonotti/apisense/daemon"
@@ -31,7 +30,7 @@ var daemonStatusCmd = &cobra.Command{
 		} else {
 			styledPid = greenStyle().Italic(true).Render(fmt.Sprintf("%d", pid))
 		}
-		log.CliLogger.WithField("status", styledStatus).WithField("pid", styledPid).Info("daemon status retrieved")
+		fmt.Printf("Daemon is %s with pid %s\n", styledStatus, styledPid)
 	},
 }
 

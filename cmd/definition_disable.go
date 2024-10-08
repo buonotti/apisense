@@ -21,9 +21,9 @@ var definitionDisableCmd = &cobra.Command{
 		fullPath := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + fileName)
 		if _, err := os.Stat(fullPath); err == nil {
 			errors.CheckErr(os.Rename(fullPath, filepath.FromSlash(directories.DefinitionsDirectory()+"/"+viper.GetString("daemon.ignore_prefix")+fileName)))
-			log.CliLogger.WithField("definition", fileName).Info("definition disabled")
+			log.DefaultLogger().Info("Definition disabled", "filename", fileName)
 		} else {
-			log.CliLogger.WithField("definition", fileName).Error("definition not found")
+			log.DefaultLogger().Error("Definition not found", "filename", fileName)
 		}
 	},
 	ValidArgsFunction: validEnabledDefinitionFunc(),

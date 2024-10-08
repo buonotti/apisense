@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/buonotti/apisense/log"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -57,7 +56,7 @@ func printConfigValue(key string, maxKeyLength int) {
 			styledVal = greyedOutStyle().Italic(true).Render(fmt.Sprintf("%v", val))
 		}
 	}
-	log.CliLogger.Infof("%s%s", styledKey, styledVal)
+	fmt.Printf("%s%s\n", styledKey, styledVal)
 }
 
 func init() {

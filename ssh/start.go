@@ -50,25 +50,23 @@ func Start() error {
 		return err
 	}
 
-	log.SSHLogger.WithField("address", fmt.Sprintf("%v:%v", host(), port())).Info("starting ssh server")
+	log.SshLogger().Info("Starting ssh server", "address", fmt.Sprintf("%v:%v", host(), port()))
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt)
 
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
-			log.SSHLogger.Warn(err.Error())
+			log.SshLogger().Warn(err.Error())
 		}
 	}()
-
-	log.SSHLogger.Infof("ssh server started")
 
 	<-done
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	log.SSHLogger.Infof("stopping ssh server")
+	log.SshLogger().Infof("Stopping ssh server")
 
 	if err := s.Shutdown(ctx); err != nil {
 		err = errors.CannotStopSSHServerError.Wrap(err, "cannot stop ssh server")

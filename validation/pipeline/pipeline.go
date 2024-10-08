@@ -106,14 +106,14 @@ func (p *Pipeline) RemoveValidator(name string) {
 
 // Reload re-populates the Pipeline.TestCases collection
 func (p *Pipeline) Reload() error {
-	log.DaemonLogger.Infof("reloading pipeline...")
+	log.DaemonLogger().Info("Reloading pipeline")
 	defs, err := definitions.Endpoints()
 	if err != nil {
 		return err
 	}
 
 	if len(defs) == 0 {
-		log.DaemonLogger.Warnf("no endpoint definitions found.")
+		log.DaemonLogger().Warn("No endpoint definitions found.")
 		return nil
 	}
 
@@ -194,7 +194,7 @@ func (p *Pipeline) validateTestCase(item fetcher.TestCase) []ValidatorResult {
 		}
 
 		if util.Contains(item.ExcludedValidators, validator.Name()) {
-			log.DaemonLogger.WithField("validator", validator.Name()).WithField("url", item.Url).Warn("validator is excluded")
+			log.DaemonLogger().Warn("Validator is excluded", "endpoint", item.EndpointName, "validator", validator.Name())
 			validatorResult.Status = validators.ValidatorStatusSkipped
 			validatorResults = append(validatorResults, validatorResult)
 			continue

@@ -5,8 +5,8 @@ import (
 
 	"github.com/joomcode/errorx"
 
-	apexlog "github.com/apex/log"
 	"github.com/buonotti/apisense/log"
+	charmlog "github.com/charmbracelet/log"
 )
 
 // fatalTrait is a trait that can be added to any error type to make it fatal and make the program exit with code 1
@@ -26,17 +26,17 @@ func CheckErr(err error) {
 func handleErrorxError(err *errorx.Error) {
 	if err != nil {
 		if err.HasTrait(fatalTrait) {
-			if log.DefaultLogger.Level == apexlog.DebugLevel {
-				log.DefaultLogger.Errorf("%+v", err)
+			if charmlog.GetLevel() == charmlog.DebugLevel {
+				log.DefaultLogger().Errorf("%+v", err)
 			} else {
-				log.DefaultLogger.Error(err.Error())
+				log.DefaultLogger().Error(err.Error())
 			}
 			os.Exit(1)
 		} else {
-			if log.DefaultLogger.Level == apexlog.DebugLevel {
-				log.DefaultLogger.Warnf("%+v", err)
+			if charmlog.GetLevel() == charmlog.DebugLevel {
+				log.DefaultLogger().Warnf("%+v", err)
 			} else {
-				log.DefaultLogger.Warn(err.Error())
+				log.DefaultLogger().Warn(err.Error())
 			}
 		}
 	}
@@ -44,7 +44,7 @@ func handleErrorxError(err *errorx.Error) {
 
 func handleError(err error) {
 	if err != nil {
-		log.DefaultLogger.Error(err.Error())
+		log.DefaultLogger().Fatal(err.Error())
 		os.Exit(1)
 	}
 }

@@ -3,6 +3,7 @@ package fetcher
 import (
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"strings"
 	"text/template"
 
@@ -24,9 +25,9 @@ func rest() *resty.Client {
 
 // endpointRequest is a single request to an endpoint
 type endpointRequest struct {
-	Url             string            // Url is the base url of the request
-	QueryParameters map[string]string // QueryParameters are the query parameters of the request that will be encoded
-	ResponseFormat  string            // ResponseFormat is the format of the response (json or xml)
+	Url             string               // Url is the base url of the request
+	QueryParameters map[string]string    // QueryParameters are the query parameters of the request that will be encoded
+	Definition      definitions.Endpoint // The source definition of this request
 }
 
 // endpointResponse is a single response
@@ -37,42 +38,137 @@ type endpointResponse struct {
 	UsedQueryParameters map[string][]string // UsedQueryParameters are the query parameters that were used in the request
 }
 
+func retrieveToken(definition endpointRequest) (string, error) {
+	log.DaemonLogger().Debug("Retrieving jwt token")
+	payload, err := json.Marshal(definition.Definition.JwtLogin.LoginPayload)
+	if err != nil {
+		return "", errors.CannotSerializeItemError.Wrap(err, "cannot serialize login payload")
+	}
+	temp := template.New("Login" + definition.Definition.JwtLogin.Url)
+
+	temp, err = temp.Parse(string(payload))
+	if err != nil {
+		return "", errors.CannotApplyTemplateError.Wrap(err, "cannot parse template")
+	}
+
+	payloadBuilder := strings.Builder{}
+	err = temp.Execute(&payloadBuilder, definition.Definition.Secrets)
+	if err != nil {
+		return "", errors.CannotApplyTemplateError.Wrap(err, "cannot apply template")
+	}
+	resp, err := rest().R().SetBody(payloadBuilder.String()).SetHeader("Content-Type", "application/json").Post(definition.Definition.JwtLogin.Url)
+	if err != nil {
+		return "", errors.CannotRequestDataError.Wrap(err, "cannot send login request")
+	}
+	if resp.StatusCode() != 200 {
+		return "", errors.NewF(errors.CannotRequestDataError, "login request failed with status: %d", resp.StatusCode())
+	}
+	var response map[string]any
+	err = json.Unmarshal(resp.Body(), &response)
+	if err != nil {
+		return "", errors.CannotParseDataError.Wrap(err, "cannot deserialize login response")
+	}
+	var token string = response[definition.Definition.JwtLogin.TokenKeyName].(string)
+	log.DaemonLogger().Debug("Got token", "token", token)
+	return token, nil
+}
+
+func prepareRequest(definition endpointRequest) (*resty.Request, error) {
+	request := rest().R()
+
+	for hName, hValue := range definition.Definition.Headers {
+		request.SetHeader(hName, hValue)
+	}
+
+	if definition.Definition.JwtLogin.Url != "" {
+		token, err := retrieveToken(definition)
+		if err != nil {
+			return nil, err
+		}
+
+		request.SetHeader("Authorization", fmt.Sprintf("Bearer %s", token))
+	} else if definition.Definition.Authorization != "" {
+		temp := template.New("Authorization" + definition.Url)
+		temp, err := temp.Parse(definition.Definition.Authorization)
+		if err != nil {
+			return nil, errors.CannotApplyTemplateError.Wrap(err, "cannot parse tempalte")
+		}
+		headerBuilder := strings.Builder{}
+		err = temp.Execute(&headerBuilder, definition.Definition.Secrets)
+		if err != nil {
+			return nil, errors.CannotApplyTemplateError.Wrap(err, "cannot apply template")
+		}
+
+		request.SetHeader("Authorization", headerBuilder.String())
+	}
+
+	return request, nil
+}
+
 // requestData sends based on the given request a http GET request and returns the response
 func requestData(definition endpointRequest) (endpointResponse, error) {
 	var data map[string]any
 
-	resp, err := rest().R().SetQueryParams(definition.QueryParameters).Get(definition.Url)
+	request, err := prepareRequest(definition)
+	if err != nil {
+		return endpointResponse{}, err
+	}
+
+	var resp *resty.Response
+	switch definition.Definition.Method {
+	case "POST":
+		{
+			resp, err = request.SetBody(definition.Definition.Payload).Post(definition.Url)
+			break
+		}
+	case "PUT":
+		{
+			resp, err = request.SetBody(definition.Definition.Payload).Post(definition.Url)
+			break
+		}
+	case "DELETE":
+		{
+			resp, err = request.Delete(definition.Url)
+			break
+		}
+	default:
+		{
+			resp, err = request.Get(definition.Url)
+			break
+		}
+	}
+
 	if err != nil {
 		err = errors.SafeWrapF(errors.CannotRequestDataError, err, "cannot request data from: %s", definition.Url)
-		errors.CheckErr(err)
-
-		return endpointResponse{
-			StatusCode: 500,
-		}, nil
+		return endpointResponse{}, err
 	}
 
 	loc := resp.RawResponse.Request.URL.String()
-	log.DaemonLogger.WithField("url", resp.Request.URL).Info("sent request")
+	log.DaemonLogger().Info("Fetched data", "url", loc)
 
-	if resp.StatusCode() != 200 {
+	if resp.StatusCode() != definition.Definition.OkCode {
 		return endpointResponse{
 			StatusCode: resp.StatusCode(),
 		}, nil
 	}
 
-	switch definition.ResponseFormat {
-	case "json":
-		err = json.Unmarshal(resp.Body(), &data)
-		if err != nil {
-			return endpointResponse{}, errors.CannotParseDataError.Wrap(err, "cannot parse data from: "+definition.Url)
+	if len(definition.Definition.ResponseSchema) != 0 {
+		switch definition.Definition.Format {
+		case "json":
+			err = json.Unmarshal(resp.Body(), &data)
+			if err != nil {
+				return endpointResponse{}, errors.CannotParseDataError.Wrap(err, "cannot parse data from: "+definition.Url)
+			}
+		case "xml":
+			err = xml.Unmarshal(resp.Body(), &data)
+			if err != nil {
+				return endpointResponse{}, errors.CannotParseDataError.Wrap(err, "cannot parse data from: "+definition.Url)
+			}
+		default:
+			return endpointResponse{}, errors.UnknownFormatError.Wrap(err, "unknown format: "+definition.Definition.Format)
 		}
-	case "xml":
-		err = xml.Unmarshal(resp.Body(), &data)
-		if err != nil {
-			return endpointResponse{}, errors.CannotParseDataError.Wrap(err, "cannot parse data from: "+definition.Url)
-		}
-	default:
-		return endpointResponse{}, errors.UnknownFormatError.Wrap(err, "unknown format: "+definition.ResponseFormat)
+	} else {
+		data = make(map[string]any)
 	}
 
 	return endpointResponse{
@@ -160,7 +256,7 @@ func parseRequests(definition definitions.Endpoint) ([]endpointRequest, error) {
 		parsedUrl := stringBuilder.String()
 
 		// interpolate the variable map with each query parameter
-		var queryParams = make(map[string]string)
+		queryParams := make(map[string]string)
 		for _, queryParam := range definition.QueryParameters {
 			temp, err := temp.Parse(queryParam.Value)
 			if err != nil {
@@ -181,7 +277,7 @@ func parseRequests(definition definitions.Endpoint) ([]endpointRequest, error) {
 		requests = append(requests, endpointRequest{
 			Url:             parsedUrl,
 			QueryParameters: queryParams,
-			ResponseFormat:  "json",
+			Definition:      definition,
 		})
 	}
 	return requests, nil

@@ -12,8 +12,7 @@ func NewSchemaValidator() Validator {
 }
 
 // schemaValidator is a validator that validates the response data against the result schema in the definition
-type schemaValidator struct {
-}
+type schemaValidator struct{}
 
 // Name returns the name of the validator: schema
 func (v schemaValidator) Name() string {

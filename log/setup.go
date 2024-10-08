@@ -3,7 +3,8 @@ package log
 import (
 	"os"
 
-	"github.com/apex/log"
+	"github.com/buonotti/apisense/util"
+	"github.com/charmbracelet/log"
 	"github.com/spf13/viper"
 )
 
@@ -34,9 +35,14 @@ func Setup() error {
 		logFile = osFile
 	}
 
-	log.SetHandler(newHandler())
+	lvl, err := log.ParseLevel(viper.GetString("log.level"))
+	if err != nil {
+		return err
+	}
 
-	log.SetLevelFromString(viper.GetString("log.level"))
+	log.SetLevel(lvl)
+	log.SetTimeFormat(util.ApisenseTimeFormat)
+	log.SetReportCaller(log.GetLevel() == log.DebugLevel)
 
 	return nil
 }
