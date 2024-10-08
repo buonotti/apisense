@@ -9,9 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-var (
-	running bool
-)
+var running bool
 
 type daemonModel struct {
 	status  string
@@ -40,7 +38,6 @@ func (d daemonModel) Init() tea.Cmd {
 }
 
 func (d daemonModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-
 	p, pe := daemon.Pid()
 	s, se := daemon.Status()
 	running = s == daemon.UpStatus
@@ -67,7 +64,6 @@ func (d daemonModel) View() string {
 		} else {
 			sStatus = "status: " + stylePrimary.Render(d.status)
 		}
-
 	} else {
 		sStatus = "status: " + stylePrimary.Render("unknown")
 	}

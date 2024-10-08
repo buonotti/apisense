@@ -5,6 +5,7 @@ import (
 )
 
 // GetHealth godoc
+//
 //	@Summary		Health check
 //	@Description	Get the health status of the API
 //	@ID				health

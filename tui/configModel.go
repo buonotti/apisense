@@ -1,12 +1,13 @@
 package tui
 
 import (
+	"strconv"
+
 	"github.com/buonotti/apisense/errors"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"strconv"
 )
 
 var (
@@ -22,7 +23,6 @@ type configModel struct {
 }
 
 func ConfigModel() tea.Model {
-
 	t := table.New(
 		table.WithColumns(getConfigColumns()),
 		table.WithRows(getConfigRows()),
@@ -51,11 +51,9 @@ func getConfigColumns() []table.Column {
 		{Title: "Config", Width: 30},
 		{Title: "Description", Width: 42},
 	}
-
 }
 
 func getConfigRows() []table.Row {
-
 	rows := []table.Row{
 		{"0", "env", "Edit env values"},
 		{"1", "daemon", "Configure daemon"},

@@ -16,7 +16,7 @@ const (
 
 // Setup loads the config file with viper.ReadInConfig and creates the default config if it doesn't exist.
 func Setup() error {
-	err := os.MkdirAll(filepath.FromSlash(directories.ConfigDirectory()), 0755)
+	err := os.MkdirAll(filepath.FromSlash(directories.ConfigDirectory()), 0o755)
 	if err != nil {
 		return errors.CannotCreateDirectoryError.Wrap(err, "cannot create config directory")
 	}
@@ -24,7 +24,6 @@ func Setup() error {
 	setupDefaults()
 
 	err = setupEnv()
-
 	if err != nil {
 		return err
 	}

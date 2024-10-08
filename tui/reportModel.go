@@ -27,7 +27,6 @@ type reportModel struct {
 }
 
 func ReportModel() tea.Model {
-
 	r, err := pipeline.Reports()
 	errors.CheckErr(err)
 	reports = r
@@ -113,7 +112,6 @@ func (r reportModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return r, tea.Batch(cmd, cmdModel)
 	}
 	return r, nil
-
 }
 
 func (r reportModel) View() string {

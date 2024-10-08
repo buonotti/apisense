@@ -21,7 +21,6 @@ func LoginUser(username string, password string) (UserData, error) {
 	}
 
 	token, err := jwt.Service().GenerateToken(username)
-
 	if err != nil {
 		return UserData{}, err
 	}
@@ -39,13 +38,11 @@ func RegisterUser(username string, password string) (UserData, error) {
 	passwordHash := hashPassword(password)
 
 	_, err = db.Exec("INSERT INTO users (username, password) VALUES (?, ?)", username, passwordHash)
-
 	if err != nil {
 		return UserData{}, err
 	}
 
 	token, err := jwt.Service().GenerateToken(username)
-
 	if err != nil {
 		return UserData{}, err
 	}
@@ -75,7 +72,6 @@ type User struct {
 
 func ListUsers() ([]User, error) {
 	rows, err := db.Query("SELECT username, enabled FROM users")
-
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +103,6 @@ func IsUserEnabled(uid string) bool {
 	var enabled bool
 
 	err := rows.Scan(&enabled)
-
 	if err != nil {
 		return false
 	}

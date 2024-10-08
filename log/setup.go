@@ -28,7 +28,7 @@ func CloseLogFile() error {
 func Setup() error {
 	logFilePath := viper.GetString("log.file")
 	if logFilePath != "" {
-		osFile, err := os.OpenFile(viper.GetString("log.file"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		osFile, err := os.OpenFile(viper.GetString("log.file"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 		if err != nil {
 			return err
 		}

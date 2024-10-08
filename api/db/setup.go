@@ -32,7 +32,6 @@ func Setup() error {
 	db = db_
 
 	_, err = db.Exec(setup)
-
 	if err != nil {
 		return err
 	}

@@ -2,15 +2,16 @@ package tui
 
 import (
 	"fmt"
+	"sort"
+	"strconv"
+	strings2 "strings"
+
 	"github.com/buonotti/apisense/errors"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/viper"
-	"sort"
-	"strconv"
-	strings2 "strings"
 )
 
 var (
@@ -129,7 +130,6 @@ func getSelectConfigColumns() []table.Column {
 		{Title: "Type", Width: 40},
 		{Title: "Value", Width: 32},
 	}
-
 }
 
 func getSelectedFieldName(i int) string {
@@ -137,7 +137,6 @@ func getSelectedFieldName(i int) string {
 }
 
 func getSelectConfigRows() []table.Row {
-
 	rows := make([]table.Row, 0)
 	strings := viper.AllKeys()
 	sort.Strings(strings)

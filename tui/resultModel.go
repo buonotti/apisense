@@ -30,7 +30,6 @@ type resultModel struct {
 }
 
 func ResultModel() tea.Model {
-
 	t := table.New(
 		table.WithColumns(getResultColumns()),
 		table.WithRows(nil),

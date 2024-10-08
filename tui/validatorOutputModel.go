@@ -19,7 +19,6 @@ type validatorOutputModel struct {
 }
 
 func ValidatorOutputModel() tea.Model {
-
 	t := table.New(
 		table.WithColumns(getValidatorOutputColumns()),
 		table.WithRows(nil),

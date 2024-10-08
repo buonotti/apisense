@@ -1,9 +1,10 @@
 package tui
 
 import (
-	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"path/filepath"
 	"time"
+
+	"github.com/buonotti/apisense/filesystem/locations/directories"
 
 	"github.com/76creates/stickers"
 	"github.com/charmbracelet/bubbles/help"
@@ -211,12 +212,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(cmdElapsedTrigger, cmdConfigModel)
 	}
 	return m, cmdElapsedTrigger
-
 }
 
 // View Redraws the UI after every Update
 func (m Model) View() string {
-
 	// Handle ErrorMsg received during Update()
 	if m.err != nil {
 		errors.CheckErr(errors.UnknownError.Wrap(m.err, "Unknown error"))
@@ -257,5 +256,4 @@ func (m Model) View() string {
 	// Render help menu
 	m.flexbox.Row(2).Cell(0).SetContent(m.help.View(m.keymap))
 	return m.flexbox.Render()
-
 }

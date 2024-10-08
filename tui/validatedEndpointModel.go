@@ -27,7 +27,6 @@ type validationEndpointModel struct {
 }
 
 func ValidationEndpointModel() tea.Model {
-
 	t := table.New(
 		table.WithColumns(getValidatedEndpointColumns()),
 		table.WithFocused(true),

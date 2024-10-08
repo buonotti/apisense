@@ -13,8 +13,7 @@ func NewRangeValidator() Validator {
 }
 
 // rangeValidator is a validator that validates the range of a field
-type rangeValidator struct {
-}
+type rangeValidator struct{}
 
 // Name returns the name of the validator: range
 func (v rangeValidator) Name() string {

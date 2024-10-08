@@ -122,7 +122,6 @@ func CreateDefinition(c *gin.Context) {
 	}
 
 	err = os.WriteFile(fileName, data, os.ModePerm)
-
 	if err != nil {
 		c.AbortWithStatusJSON(500, ErrorResponse{Message: err.Error()})
 		return

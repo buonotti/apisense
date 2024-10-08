@@ -119,7 +119,7 @@ func (d daemon) work() {
 
 	if len(result.Endpoints) > 0 {
 		reportPath := filepath.FromSlash(directories.ReportsDirectory() + "/" + time.Time(result.Time).Format(util.ApisenseTimeFormat) + ".report.json")
-		err = os.WriteFile(reportPath, reportData, 0644)
+		err = os.WriteFile(reportPath, reportData, 0o644)
 		if err != nil {
 			errors.CheckErr(errors.CannotWriteFileError.Wrap(err, "cannot write report to file"))
 		}

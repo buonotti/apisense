@@ -17,4 +17,3 @@ var (
 	DuplicateDefinitionError                  = DaemonErrors.NewType("duplicate_definition", fatalTrait)
 	CannotAddWorkFunctionToCronSchedulerError = DaemonErrors.NewType("cannot_add_work_function_to_cron_scheduler", fatalTrait)
 )
-

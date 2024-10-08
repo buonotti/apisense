@@ -15,8 +15,10 @@ var styleHotkey = styleHelp.Copy().
 	Bold(true)
 
 // BASE STYLES FOR MENU RENDERING
-var styleBase = lipgloss.NewStyle()
-var styleBold = lipgloss.NewStyle().Bold(true)
+var (
+	styleBase = lipgloss.NewStyle()
+	styleBold = lipgloss.NewStyle().Bold(true)
+)
 
 // BASE STYLES FOR THE CONFIG VIEWPORT RENDERING
 func titleStyle() lipgloss.Style {
@@ -32,10 +34,12 @@ func infoStyle() lipgloss.Style {
 }
 
 // COLORS
-var styleHelp = lipgloss.NewStyle().Foreground(theme.Ansi2Color(termenv.ANSIWhite))
-var stylePrimary = lipgloss.NewStyle().Foreground(theme.Ansi2Color(termenv.ANSIRed))
-var styleInfo = lipgloss.NewStyle().Foreground(theme.Ansi2Color(termenv.ANSIBlue))
-var styleSuccess = lipgloss.NewStyle().Foreground(theme.Ansi2Color(termenv.ANSIGreen))
+var (
+	styleHelp    = lipgloss.NewStyle().Foreground(theme.Ansi2Color(termenv.ANSIWhite))
+	stylePrimary = lipgloss.NewStyle().Foreground(theme.Ansi2Color(termenv.ANSIRed))
+	styleInfo    = lipgloss.NewStyle().Foreground(theme.Ansi2Color(termenv.ANSIBlue))
+	styleSuccess = lipgloss.NewStyle().Foreground(theme.Ansi2Color(termenv.ANSIGreen))
+)
 
 // CENTER
 var styleContentCenter = lipgloss.NewStyle().

@@ -62,7 +62,7 @@ func ReloadDaemon() error {
 // writeStatus is a helper function to write a daemon status to file.
 // If an error occurs the error will be of type *errors.CannotWriteStatusFileError.
 func writeStatus(state State) error {
-	err := os.WriteFile(files.DaemonStatusFile(), []byte(state), 0644)
+	err := os.WriteFile(files.DaemonStatusFile(), []byte(state), 0o644)
 	if err != nil {
 		return errors.CannotWriteFileError.Wrap(err, "cannot write status file")
 	}
@@ -73,7 +73,7 @@ func writeStatus(state State) error {
 // writePid is a helper function to write a daemon pid to file.
 // If an error occurs the error will be of type *errors.CannotWritePidFileError.
 func writePid(pid int) error {
-	err := os.WriteFile(files.DaemonPidFile(), []byte(strconv.Itoa(pid)), 0644)
+	err := os.WriteFile(files.DaemonPidFile(), []byte(strconv.Itoa(pid)), 0o644)
 	if err != nil {
 		return errors.CannotWriteFileError.Wrap(err, "cannot write pid file")
 	}

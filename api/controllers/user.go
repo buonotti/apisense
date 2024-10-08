@@ -17,6 +17,7 @@ type LoginResponse struct {
 }
 
 // LoginUser godoc
+//
 //	@Summary		Logs a user in
 //	@Schemes		LoginRequest LoginResponse ErrorResponse
 //	@Description	Logs a user in using the provided credentials

@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+
 	"github.com/buonotti/apisense/errors"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -17,7 +18,6 @@ type editConfigModel struct {
 }
 
 func EditConfigModel() tea.Model {
-
 	ti := textinput.New()
 	ti.Placeholder = ""
 	ti.Focus()
