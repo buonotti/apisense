@@ -24,3 +24,8 @@ clean-build:
 clean-cfg:
 	rm -r "$HOME"/apisense
 	rm -r "$HOME"/.config/apisense
+
+ui-dev:
+	apisense api ui --install --local ui 
+	yarn build 
+	apisense api

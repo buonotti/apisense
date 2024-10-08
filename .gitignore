@@ -25,3 +25,5 @@ dist/
 
 apisense
 token.sh
+tmp/
+node_modules/

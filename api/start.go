@@ -17,10 +17,14 @@ import (
 	"github.com/buonotti/apisense/api/middleware"
 	"github.com/buonotti/apisense/docs"
 	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/log"
-	"github.com/buonotti/apisense/util"
 )
+
+func render(view string, args any) func(*gin.Context) {
+	return func(c *gin.Context) {
+		c.HTML(http.StatusOK, view+".tmpl", args)
+	}
+}
 
 func Start(host string, port int) error {
 	docs.SwaggerInfo.BasePath = "/api"
@@ -32,14 +36,6 @@ func Start(host string, port int) error {
 	router.Use(log.GinMiddleware())
 	router.Use(middleware.CORS())
 	// router.Use(middleware.Limiter())
-
-	if util.Exists(directories.UiDirectory()) {
-		log.ApiLogger.Info("loading apisense web ui")
-		router.LoadHTMLGlob(directories.UiDirectory() + "/*")
-		router.GET("/", func(c *gin.Context) {
-			c.HTML(http.StatusOK, "index.tmpl", gin.H{})
-		})
-	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
