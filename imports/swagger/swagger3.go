@@ -92,16 +92,16 @@ func addResponseSchemaV3(response responseSpecV3, defs map[string]map[string]any
 			endpoint.Format = "json"
 			endpoint.ResponseSchema = schema.Schema
 			if endpoint.ResponseSchema != nil {
-				endpoint.ResponseSchema["$schema"] = "https://json-schema.org/draft/2020-12/schema"
 				endpoint.ResponseSchema["definitions"] = defs
 			}
+			return nil
 		} else if media == "appliaction/xml" {
 			endpoint.Format = "xml"
 			endpoint.ResponseSchema = schema.Schema
 			if endpoint.ResponseSchema != nil {
-				endpoint.ResponseSchema["$schema"] = "https://json-schema.org/draft/2020-12/schema"
 				endpoint.ResponseSchema["definitions"] = defs
 			}
+			return nil
 		}
 	}
 

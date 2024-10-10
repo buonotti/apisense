@@ -114,7 +114,6 @@ func addQueryParametersV2(parameters []parameterSpecV2, endpoint *definitions.En
 func addResponseSchemaV2(response responseSpecV2, defs map[string]map[string]any, endpoint *definitions.Endpoint) error {
 	endpoint.ResponseSchema = response.Schema
 	if response.Schema != nil {
-		endpoint.ResponseSchema["$schema"] = "https://json-schema.org/draft/2020-12/schema"
 		endpoint.ResponseSchema["definitions"] = defs
 	}
 
