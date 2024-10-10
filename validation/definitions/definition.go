@@ -29,7 +29,7 @@ type JwtLoginOptions struct {
 	TokenKeyName string         `yaml:"token_key_name" json:"token_key_name"` // TokenKeyName is the name of the key in the response which contains the token
 }
 
-// Definition is a query parameter that should be added to the call
+// QueryDefinition is a query parameter that should be added to the call
 type QueryDefinition struct {
 	Name  string `yaml:"name" json:"name" validate:"required"`   // Name is the name of the query parameter
 	Value string `yaml:"value" json:"value" validate:"required"` // Value is the value of the query parameter
@@ -54,7 +54,7 @@ type Endpoint struct {
 	Format             string            `yaml:"format" json:"format" validate:"required"`                  // Format is the response format of the
 	Variables          []Variable        `yaml:"variables" json:"variables"`                                // Variables are all the variables that should be interpolated in the base url and the query parameters
 	OkCode             int               `yaml:"ok_code" json:"ok_code"`                                    // The expected status code
-	ResponseSchema     []SchemaEntry     `yaml:"response_schema" json:"responseSchema" validate:"required"` // ResponseSchema describes how the response should look like
+	ResponseSchema     map[string]any    `yaml:"response_schema" json:"responseSchema" validate:"required"` // ResponseSchema describes how the response should look like
 }
 
 // parseDefinition reads a given file and returns and EndpointDefinition.

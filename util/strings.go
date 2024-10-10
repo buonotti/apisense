@@ -10,3 +10,12 @@ func Pad(s string, maxLen int) string {
 	}
 	return s
 }
+
+func Capitalize(s string) string {
+	bldr := strings.Builder{}
+	upper := strings.ToUpper(s[:1])
+	rest := s[1:]
+	bldr.WriteString(upper)
+	bldr.WriteString(rest)
+	return bldr.String()
+}

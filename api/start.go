@@ -20,12 +20,6 @@ import (
 	"github.com/buonotti/apisense/log"
 )
 
-func render(view string, args any) func(*gin.Context) {
-	return func(c *gin.Context) {
-		c.HTML(http.StatusOK, view+".tmpl", args)
-	}
-}
-
 func Start(host string, port int) error {
 	if viper.GetString("APISENSE_SIGNING_KEY") == "" {
 		return errors.MissingSigningKeyError.New("Missing APISENSE_SIGNING_KEY value in .env")

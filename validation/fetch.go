@@ -23,7 +23,7 @@ func rest() *resty.Client {
 
 type EndpointResponse struct {
 	StatusCode          int                 // StatusCode is the status code of the response
-	RawData             map[string]any      // RawData is the raw data of the response mapped to a map
+	RawData             any                 // RawData is the raw data of the response
 	Url                 string              // Url is the full url of the request
 	UsedQueryParameters map[string][]string // UsedQueryParameters are the query parameters that were used in the request
 }
@@ -103,7 +103,7 @@ func prepareRequest(request EndpointRequest, definition definitions.Endpoint) (*
 
 // requestData sends based on the given request a http GET request and returns the response
 func Fetch(request EndpointRequest, definition definitions.Endpoint) (EndpointResponse, error) {
-	var data map[string]any
+	var data any
 
 	req, err := prepareRequest(request, definition)
 	log.DaemonLogger().Debug("Prepared request for url", "url", request.Url)
@@ -157,7 +157,7 @@ func Fetch(request EndpointRequest, definition definitions.Endpoint) (EndpointRe
 		}, nil
 	}
 
-	if len(definition.ResponseSchema) != 0 {
+	if definition.ResponseSchema != nil {
 		switch definition.Format {
 		case "json":
 			err = json.Unmarshal(resp.Body(), &data)

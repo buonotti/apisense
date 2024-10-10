@@ -22,7 +22,7 @@ var definitionListCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, _ []string) {
 		definitions, err := definitions.Endpoints()
 		errors.CheckErr(err)
-		concise := cmd.Flags().GetBool("concise")
+		concise := cmd.Flag("concise").Value.String() == "true"
 
 		if !concise {
 			fmt.Println(yellowStyle().Bold(true).Render("# Definitions \n"))

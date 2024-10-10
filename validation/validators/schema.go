@@ -2,7 +2,9 @@ package validators
 
 import (
 	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/util"
 	"github.com/buonotti/apisense/validation/definitions"
+	"github.com/xeipuuv/gojsonschema"
 )
 
 // NewSchemaValidator returns a new schema validator
@@ -20,7 +22,18 @@ func (v schemaValidator) Name() string {
 
 // Validate validates the given items schema and return nil on success or an error on failure
 func (v schemaValidator) Validate(item ValidationItem) error {
-	return validateSchema(item.Definition.ResponseSchema, item.Response.RawData)
+	schemaLoader := gojsonschema.NewGoLoader(item.Definition.ResponseSchema)
+	documentLoader := gojsonschema.NewGoLoader(item.Response.RawData)
+	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
+	if err != nil {
+		return errors.ValidationError.Wrap(err, "validation of schema failed")
+	}
+	if !result.Valid() {
+		return errors.ValidationError.New("response has invalid schema: " + util.FirstOrDefault(util.Map(result.Errors(), func(e gojsonschema.ResultError) string {
+			return e.String()
+		}), "<?>"))
+	}
+	return nil
 }
 
 // validateSchema validates the result against the schema and return nil on success or an error on failure.

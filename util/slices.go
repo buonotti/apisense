@@ -115,3 +115,10 @@ func Max(arr []int) int {
 	}
 	return max
 }
+
+func FirstOrDefault[T any](arr []T, fallback T) T {
+	if len(arr) == 0 {
+		return fallback
+	}
+	return arr[0]
+}

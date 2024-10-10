@@ -4,13 +4,8 @@ import (
 	"github.com/buonotti/apisense/util"
 )
 
-var allValidators = map[string]Validator{
-	"range":  NewRangeValidator(),
-	"schema": NewSchemaValidator(),
-}
-
 func All() []Validator {
-	return util.Values(allValidators)
+	return []Validator{NewSchemaValidator()}
 }
 
 func Without(names ...string) []Validator {
