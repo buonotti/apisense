@@ -139,7 +139,7 @@ func generateDefinitionNameV3(title string, path string, method string) string {
 	title = titleRegex.ReplaceAllString(title, "")
 
 	path, _ = strings.CutPrefix(path, "/")
-	pathRegex, _ := regexp.Compile(`(/:(\w*)|/)`)
+	pathRegex, _ := regexp.Compile(`(/{(\w*)}|/)`)
 	path = pathRegex.ReplaceAllString(path, "_$2")
 
 	return fmt.Sprintf("%s_%s_%s", title, method, path)

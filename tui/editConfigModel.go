@@ -2,8 +2,8 @@ package tui
 
 import (
 	"fmt"
+	"github.com/buonotti/apisense/log"
 
-	"github.com/buonotti/apisense/errors"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -66,14 +66,18 @@ func (e editConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				viper.Set(selectedField, e.textInput.Value())
 				err := viper.WriteConfig()
-				errors.CheckErr(err)
+				if err != nil {
+					log.TuiLogger().Fatal(err)
+				}
 				updateSelectConfigRows = true
 				return e, cmd
 			}
 
 		case errMsg:
 			e.err = msg
-			errors.CheckErr(e.err)
+			if e.err != nil {
+				log.TuiLogger().Fatal(e.err)
+			}
 		}
 
 		e.textInput, cmd = e.textInput.Update(msg)

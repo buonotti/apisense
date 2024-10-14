@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/buonotti/apisense/log"
 	"net/http"
 	"path/filepath"
 	"time"
@@ -40,32 +41,50 @@ func Ws(c *gin.Context) {
 	// we have to handle the errors because the upgrade hijacks the response writer
 	// so we cant use the context to write the response to the client
 	conn, err := wsUpgrader.Upgrade(c.Writer, c.Request, nil)
-	err = errors.SafeWrap(errors.CannotUpgradeWebsocketError, err, "cannot upgrade websocket connection")
-	errors.CheckErr(err)
+	if err != nil {
+		log.ApiLogger().Error(errors.CannotUpgradeWebsocketError.Wrap(err, "cannot upgrade websocket connection"))
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
 	defer func() {
-		err := conn.Close()
-		errors.CheckErr(err)
+		closeErr := conn.Close()
+		if closeErr != nil {
+			log.ApiLogger().Error(closeErr)
+		}
 	}()
 
 	watcher, err := filesystem.NewDirectoryWatcherWithFiles(filepath.FromSlash(directories.ReportsDirectory()))
-	errors.CheckErr(err)
+	if err != nil {
+		log.ApiLogger().Error(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
 	go func() {
-		err := watcher.Start()
-		errors.CheckErr(err)
+		watcherStartErr := watcher.Start()
+		if watcherStartErr != nil {
+			log.ApiLogger().Error(watcherStartErr)
+		}
 	}()
 
 	for {
 		newFileName := <-watcher.Events
 		report, err := pipeline.GetReport(newFileName)
-		errors.CheckErr(err)
+		if err != nil {
+			log.ApiLogger().Error(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		err = conn.WriteJSON(wsResponse{
 			Timestamp: time.Now(),
 			Filename:  newFileName,
 			ReportId:  report.Id,
 		})
-		err = errors.SafeWrap(errors.CannotWriteWebsocketError, err, "cannot write to websocket")
-		errors.CheckErr(err)
+		if err != nil {
+			log.ApiLogger().Error(errors.CannotWriteWebsocketError.Wrap(err, "cannot write to websocket"))
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 	}
 }

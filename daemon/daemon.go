@@ -79,15 +79,27 @@ func (d daemon) signalListener(signalChan chan os.Signal, cancel context.CancelF
 			switch s {
 			case os.Interrupt:
 				log.DaemonLogger().Info("Received interrupt, stopping daemon")
-				errors.CheckErr(writeStatus(DownStatus))
-				errors.CheckErr(writePid(-1))
+				err := writeStatus(DownStatus)
+				if err != nil {
+					log.DaemonLogger().Fatal(err)
+				}
+				err = writePid(-1)
+				if err != nil {
+					log.DaemonLogger().Fatal(err)
+				}
 				cancel()
 				os.Exit(0)
 			}
 		case <-ctx.Done():
 			log.DaemonLogger().Info("Context done, exiting signal handler")
-			errors.CheckErr(writeStatus(DownStatus))
-			errors.CheckErr(writePid(-1))
+			err := writeStatus(DownStatus)
+			if err != nil {
+				log.DaemonLogger().Fatal(err)
+			}
+			err = writePid(-1)
+			if err != nil {
+				log.DaemonLogger().Fatal(err)
+			}
 			os.Exit(0)
 		}
 	}
@@ -97,8 +109,14 @@ func (d daemon) signalListener(signalChan chan os.Signal, cancel context.CancelF
 // given cancel function and writes the daemon status
 func endRun(signalChan chan os.Signal, cancel context.CancelFunc) {
 	log.DaemonLogger().Info("Stopping daemon")
-	errors.CheckErr(writeStatus(DownStatus))
-	errors.CheckErr(writePid(-1))
+	err := writeStatus(DownStatus)
+	if err != nil {
+		log.DaemonLogger().Fatal(err)
+	}
+	err = writePid(-1)
+	if err != nil {
+		log.DaemonLogger().Fatal(err)
+	}
 	signal.Stop(signalChan)
 	cancel()
 }
@@ -106,20 +124,22 @@ func endRun(signalChan chan os.Signal, cancel context.CancelFunc) {
 // work runs the validation pipeline and logs the results
 func (d daemon) work() {
 	result, err := d.Pipeline.Validate()
-	errors.CheckErr(err)
+	if err != nil {
+		log.DaemonLogger().Fatal(err)
+	}
 
 	d.logResults(result)
 
 	reportData, err := conversion.Json().Convert(result)
 	if err != nil {
-		errors.CheckErr(errors.CannotSerializeItemError.Wrap(err, "cannot serialize report"))
+		log.DaemonLogger().Fatal(errors.CannotSerializeItemError.Wrap(err, "cannot serialize report"))
 	}
 
 	if len(result.Endpoints) > 0 {
 		reportPath := filepath.FromSlash(directories.ReportsDirectory() + "/" + time.Time(result.Time).Format(util.ApisenseTimeFormat) + ".report.json")
 		err = os.WriteFile(reportPath, reportData, 0o644)
 		if err != nil {
-			errors.CheckErr(errors.CannotWriteFileError.Wrap(err, "cannot write report to file"))
+			log.DaemonLogger().Fatal(errors.CannotWriteFileError.Wrap(err, "cannot write report to file"))
 		}
 
 		log.DaemonLogger().Info("Generated report", "path", reportPath)
@@ -129,13 +149,19 @@ func (d daemon) work() {
 				Time:        result.Time,
 				ErrorAmount: countErrors(result),
 			}
-			errors.CheckErr(alerting.SendAlert(alertData))
+			err = alerting.SendAlert(alertData)
+			if err != nil {
+				log.DaemonLogger().Error(err)
+			}
 		}
 	} else {
 		log.DaemonLogger().Info("No endpoints to validate")
 	}
 
-	errors.CheckErr(d.cleanupReports())
+	err = d.cleanupReports()
+	if err != nil {
+		log.DaemonLogger().Error(err)
+	}
 }
 
 func countErrors(report pipeline.Report) uint {
@@ -159,7 +185,9 @@ func (d daemon) cleanupReports() error {
 
 	log.DaemonLogger().Info("Cleaning up reports")
 	files, err := os.ReadDir(filepath.FromSlash(directories.ReportsDirectory()))
-	errors.CheckErr(err)
+	if err != nil {
+		return err
+	}
 	for _, file := range files {
 		fName := file.Name()
 		if !strings.HasSuffix(fName, ".report.json") {

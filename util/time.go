@@ -29,6 +29,6 @@ func (t ApisenseTime) String() string {
 }
 
 func ParseTime(s string) (ApisenseTime, error) {
-	time, err := time.Parse(ApisenseTimeFormat, s)
-	return ApisenseTime(time), err
+	parsedTime, err := time.Parse(ApisenseTimeFormat, s)
+	return ApisenseTime(parsedTime), err
 }

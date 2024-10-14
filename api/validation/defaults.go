@@ -3,6 +3,7 @@ package validation
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/buonotti/apisense/errors"
 	"reflect"
 	"strconv"
 	"strings"
@@ -78,6 +79,8 @@ func parseValue(value reflect.Value, bindValue string) (any, error) {
 			return nil, err
 		}
 		return val, nil
+	default:
+		return nil, errors.UnsupportedTypeError.New("type is unsupported %v", value.Kind())
 	}
 	return nil, fmt.Errorf("unsupported type %s", value.Kind())
 }

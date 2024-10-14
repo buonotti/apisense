@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/buonotti/apisense/log"
 
 	"github.com/spf13/cobra"
 
@@ -17,13 +18,19 @@ var reportExportCmd = &cobra.Command{
 	Long:  "This command exports all the reports in the report directory in one of the specified formats.",
 	Run: func(cmd *cobra.Command, args []string) {
 		format, err := cmd.Flags().GetString("format")
-		errors.CheckErr(errors.SafeWrap(errors.CannotGetFlagValueError, err, "cannot get value for flag: format"))
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 
 		all, err := cmd.Flags().GetBool("all")
-		errors.CheckErr(errors.SafeWrap(errors.CannotGetFlagValueError, err, "cannot get value for flag: all"))
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 
 		reports, err := pipeline.Reports()
-		errors.CheckErr(err)
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 
 		var ids []string
 		if all {
@@ -38,17 +45,23 @@ var reportExportCmd = &cobra.Command{
 			})
 
 			if report == nil {
-				errors.CheckErr(errors.NewF(errors.UnknownReportError, "unknown report: %s", arg))
+				if err != nil {
+					log.DefaultLogger().Fatal(err)
+				}
 				return
 			}
 
 			converter := conversion.Get(format)
 			if converter == nil {
-				errors.CheckErr(errors.NewF(errors.UnknownExportFormatError, "unknown format: %s", format))
+				if err != nil {
+					log.DefaultLogger().Fatal(err)
+				}
 			}
 
 			str, err := converter.Convert(*report)
-			errors.CheckErr(err)
+			if err != nil {
+				log.DefaultLogger().Fatal(err)
+			}
 			fmt.Println(string(str))
 		}
 	},
@@ -61,7 +74,12 @@ func init() {
 	err := reportExportCmd.RegisterFlagCompletionFunc("format", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return conversion.Converters(), cobra.ShellCompDirectiveNoFileComp
 	})
-	errors.CheckErr(errors.SafeWrap(errors.CannotRegisterCompletionFunction, err, "cannot register completion function for reports"))
-	errors.CheckErr(reportExportCmd.MarkFlagRequired("format"))
+	if err != nil {
+		log.DefaultLogger().Fatal(errors.CannotRegisterCompletionFunction.Wrap(err, "cannot register completion function for reports"))
+	}
+	err = reportExportCmd.MarkFlagRequired("format")
+	if err != nil {
+		log.DefaultLogger().Fatal(err)
+	}
 	reportCmd.AddCommand(reportExportCmd)
 }

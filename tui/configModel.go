@@ -1,9 +1,9 @@
 package tui
 
 import (
+	"github.com/buonotti/apisense/log"
 	"strconv"
 
-	"github.com/buonotti/apisense/errors"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -86,7 +86,9 @@ func (c configModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return c, tea.Quit
 			case key.Matches(msg, c.keymap.choose):
 				i, err := strconv.Atoi(c.table.SelectedRow()[0])
-				errors.CheckErr(err)
+				if err != nil {
+					log.TuiLogger().Fatal(err)
+				}
 				if choiceConfigModel != "configModel" {
 					c.editConfigModel, cmdModel = c.editConfigModel.Update(msg)
 					c.table, cmd = c.table.Update(msg)
@@ -101,7 +103,9 @@ func (c configModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case errMsg:
 			c.err = msg
-			errors.CheckErr(c.err)
+			if c.err != nil {
+				log.TuiLogger().Fatal(c.err)
+			}
 		}
 
 		c.editConfigModel, cmdModel = c.editConfigModel.Update(msg)

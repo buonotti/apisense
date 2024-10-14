@@ -30,3 +30,5 @@ func ApiLogger() *log.Logger {
 func SshLogger() *log.Logger {
 	return log.Default().WithPrefix("Ssh")
 }
+
+func TuiLogger() *log.Logger { return log.Default().WithPrefix("Tui") }

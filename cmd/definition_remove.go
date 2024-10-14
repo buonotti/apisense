@@ -4,7 +4,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
@@ -20,7 +19,9 @@ var definitionRemoveCmd = &cobra.Command{
 		for _, definition := range args {
 			fullPath := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + definition)
 			err := os.Remove(fullPath)
-			errors.CheckErr(err)
+			if err != nil {
+				log.DefaultLogger().Fatal(err)
+			}
 			log.DefaultLogger().Info("Definition removed", "filename", fullPath)
 		}
 	},

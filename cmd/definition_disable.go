@@ -8,8 +8,6 @@ import (
 	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	"github.com/buonotti/apisense/errors"
 )
 
 var definitionDisableCmd = &cobra.Command{
@@ -20,7 +18,10 @@ var definitionDisableCmd = &cobra.Command{
 		fileName := args[0]
 		fullPath := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + fileName)
 		if _, err := os.Stat(fullPath); err == nil {
-			errors.CheckErr(os.Rename(fullPath, filepath.FromSlash(directories.DefinitionsDirectory()+"/"+viper.GetString("daemon.ignore_prefix")+fileName)))
+			err := os.Rename(fullPath, filepath.FromSlash(directories.DefinitionsDirectory()+"/"+viper.GetString("daemon.ignore_prefix")+fileName))
+			if err != nil {
+				log.DefaultLogger().Fatal(err)
+			}
 			log.DefaultLogger().Info("Definition disabled", "filename", fileName)
 		} else {
 			log.DefaultLogger().Error("Definition not found", "filename", fileName)

@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/buonotti/apisense/log"
 	"path/filepath"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/termenv"
 	"github.com/spf13/cobra"
 
-	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/theme"
 	"github.com/buonotti/apisense/validation/definitions"
@@ -21,7 +21,9 @@ var definitionListCmd = &cobra.Command{
 	Long:    `List definitions`, // TODO: Add more info
 	Run: func(cmd *cobra.Command, _ []string) {
 		definitions, err := definitions.Endpoints()
-		errors.CheckErr(err)
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 		concise := cmd.Flag("concise").Value.String() == "true"
 
 		if !concise {

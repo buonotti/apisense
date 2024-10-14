@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem"
 	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/log"
@@ -15,7 +14,10 @@ var initCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 	},
 	PostRun: func(_ *cobra.Command, _ []string) {
-		errors.CheckErr(filesystem.Setup())
+		err := filesystem.Setup()
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 		log.DefaultLogger().Info("Apisense initialized",
 			"config_directory", directories.ConfigDirectory(),
 			"report_directory", directories.ReportsDirectory(),

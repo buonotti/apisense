@@ -33,7 +33,7 @@ require (
 	github.com/muesli/termenv v0.15.3-0.20240509142007-81b8f94111d5
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.1
 	github.com/speps/go-hashids/v2 v2.0.1
-	github.com/tidwall/gjson v1.17.3
+	github.com/tidwall/gjson v1.18.0
 	github.com/ulule/limiter/v3 v3.11.2
 	golang.org/x/term v0.25.0
 )

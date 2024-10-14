@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/buonotti/apisense/daemon"
 	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -15,10 +16,12 @@ var daemonStartCmd = &cobra.Command{
 		force, err := cmd.Flags().GetBool("force")
 		force = force || viper.GetBool("daemon.run_at_startup")
 		if err != nil {
-			errors.CheckErr(errors.CannotGetFlagValueError.Wrap(err, "cannot get value of flag: force"))
+			log.DefaultLogger().Fatal(errors.CannotGetFlagValueError.Wrap(err, "cannot get value of flag: force"))
 		}
 		err = daemon.Start(force)
-		errors.CheckErr(err)
+		if err != nil {
+			log.DaemonLogger().Fatal(err)
+		}
 	},
 }
 

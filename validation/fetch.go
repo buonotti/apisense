@@ -51,14 +51,14 @@ func retrieveToken(definition definitions.Endpoint) (string, error) {
 		return "", errors.CannotRequestDataError.Wrap(err, "cannot send login request")
 	}
 	if resp.StatusCode() != 200 {
-		return "", errors.NewF(errors.CannotRequestDataError, "login request failed with status: %d", resp.StatusCode())
+		return "", errors.CannotRequestDataError.New("login request failed with status: %d", resp.StatusCode())
 	}
 	var response map[string]any
 	err = json.Unmarshal(resp.Body(), &response)
 	if err != nil {
 		return "", errors.CannotParseDataError.Wrap(err, "cannot deserialize login response")
 	}
-	var token string = response[definition.JwtLogin.TokenKeyName].(string)
+	token := response[definition.JwtLogin.TokenKeyName].(string)
 	log.DaemonLogger().Debug("Got token", "token", token)
 	return token, nil
 }
@@ -138,8 +138,7 @@ func Fetch(request EndpointRequest, definition definitions.Endpoint) (EndpointRe
 	log.DaemonLogger().Debug("Completed request for url", "url", request.Url)
 
 	if err != nil {
-		err = errors.SafeWrapF(errors.CannotRequestDataError, err, "cannot request data from: %s", request.Url)
-		return EndpointResponse{}, err
+		return EndpointResponse{}, errors.CannotRequestDataError.Wrap(err, "cannot request data from: %s", request.Url)
 	}
 
 	loc := resp.RawResponse.Request.URL.String()

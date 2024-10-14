@@ -17,10 +17,14 @@ var definitionImportCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		file := args[0]
 		content, err := os.ReadFile(file)
-		errors.CheckErr(err)
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 		var importer imports.Importer
 		specVer, err := cmd.Flags().GetString("fmt")
-		errors.CheckErr(err)
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 		if specVer == "swagger2" {
 			importer = &swagger.V2Importer{}
 		} else if specVer == "swagger3" {
@@ -29,7 +33,9 @@ var definitionImportCmd = &cobra.Command{
 			log.DefaultLogger().Fatal("Invalid spec format", "format", specVer)
 		}
 		definitions, err := importer.Import(file, content)
-		errors.CheckErr(err)
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 
 		for _, def := range definitions {
 			// defStr, err := yaml.Marshal(def)
@@ -48,7 +54,12 @@ func init() {
 	err := definitionImportCmd.RegisterFlagCompletionFunc("fmt", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return []string{"swagger2", "swagger3"}, cobra.ShellCompDirectiveNoFileComp
 	})
-	errors.CheckErr(errors.SafeWrap(errors.CannotRegisterCompletionFunction, err, "cannot register fmt completion func"))
-	errors.CheckErr(definitionImportCmd.MarkFlagRequired("fmt"))
+	if err != nil {
+		log.DefaultLogger().Fatal(errors.CannotRegisterCompletionFunction.Wrap(err, "cannot register fmt completion func"))
+	}
+	err = definitionImportCmd.MarkFlagRequired("fmt")
+	if err != nil {
+		log.DefaultLogger().Fatal(err)
+	}
 	definitionCmd.AddCommand(definitionImportCmd)
 }

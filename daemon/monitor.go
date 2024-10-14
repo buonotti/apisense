@@ -1,7 +1,6 @@
 package daemon
 
 import (
-	"net/rpc"
 	"os"
 	"strconv"
 
@@ -43,20 +42,6 @@ func Pid() (int, error) {
 	}
 
 	return pid, nil
-}
-
-// ReloadDaemon sends a SIGHUP to the daemon to force it to reload its configuration.
-// If an error occurs the error will be of type *errors.CannotReloadDaemonError.
-func ReloadDaemon() error {
-	client, err := rpc.DialHTTP("tcp", "127.0.0.1:1234")
-	errors.CheckErr(err)
-	var reply int
-	err = client.Call("RpcDaemonManager.ReloadDaemon", 0, &reply)
-	errors.CheckErr(err)
-	if reply != 0 {
-		return errors.CannotReloadDaemonError.New("cannot reload daemon")
-	}
-	return nil
 }
 
 // writeStatus is a helper function to write a daemon status to file.

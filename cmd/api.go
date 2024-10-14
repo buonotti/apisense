@@ -1,12 +1,12 @@
 package cmd
 
 import (
+	"github.com/buonotti/apisense/log"
 	"strconv"
 
 	"github.com/spf13/cobra"
 
 	"github.com/buonotti/apisense/api"
-	"github.com/buonotti/apisense/errors"
 )
 
 var apiCmd = &cobra.Command{
@@ -18,8 +18,12 @@ The port and interface can be changed with the --port and --host flags. The flag
 		host := cmd.Flag("host").Value.String()
 		port := cmd.Flag("port").Value.String()
 		portParsed, err := strconv.Atoi(port)
-		errors.CheckErr(err)
-		errors.CheckErr(api.Start(host, portParsed))
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
+		if api.Start(host, portParsed) != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 	},
 }
 

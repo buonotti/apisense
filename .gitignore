@@ -7,7 +7,6 @@
 *.dll
 *.so
 *.dylib
-apisense
 .ssh/
 .ssh/*
 release/

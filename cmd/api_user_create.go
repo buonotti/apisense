@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/buonotti/apisense/api/db"
-	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
@@ -21,11 +20,15 @@ var apiUserCreateCmd = &cobra.Command{
 		username := args[0]
 		fmt.Print("Password: ")
 		bytes, err := term.ReadPassword(int(os.Stdin.Fd()))
-		errors.CheckErr(err)
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 
 		fmt.Print("\nConfirm password: ")
 		bytesRepeat, err := term.ReadPassword(int(os.Stdin.Fd()))
-		errors.CheckErr(err)
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 
 		password := strings.TrimSpace(string(bytes))
 		passwordRepeat := strings.TrimSpace(string(bytesRepeat))
@@ -39,7 +42,9 @@ var apiUserCreateCmd = &cobra.Command{
 			log.DefaultLogger().Error("Password cannot be empty")
 		} else {
 			_, err = db.RegisterUser(username, password)
-			errors.CheckErr(err)
+			if err != nil {
+				log.DefaultLogger().Fatal(err)
+			}
 
 			log.DefaultLogger().Info("User created", "username", username)
 		}

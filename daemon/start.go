@@ -1,6 +1,7 @@
 package daemon
 
 import (
+	errs "errors"
 	"net/http"
 	"os"
 
@@ -39,10 +40,10 @@ func Start(runOnStart bool) error {
 	}
 
 	defer func(lock lf.Lockfile) {
-		err := lock.Unlock()
-		if err != nil {
-			err = errors.CannotUnlockFileError.Wrap(err, "cannot unlock lock file")
-			errors.CheckErr(err)
+		lockErr := lock.Unlock()
+		if lockErr != nil {
+			lockErr = errors.CannotUnlockFileError.Wrap(lockErr, "cannot unlock lock file")
+			log.DaemonLogger().Fatal(lockErr)
 		}
 	}(lock)
 
@@ -57,9 +58,9 @@ func Start(runOnStart bool) error {
 
 	if viper.GetBool("daemon.rpc") {
 		go func() {
-			err := startRpcServer(&d)
-			if err != nil && err != http.ErrServerClosed {
-				errors.CheckErr(err)
+			startErr := startRpcServer(&d)
+			if startErr != nil && !errs.Is(startErr, http.ErrServerClosed) {
+				log.DaemonLogger().Fatal(startErr)
 			}
 		}()
 	}

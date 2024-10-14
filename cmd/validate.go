@@ -3,9 +3,9 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/buonotti/apisense/log"
 
 	"github.com/buonotti/apisense/daemon"
-	"github.com/buonotti/apisense/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -16,11 +16,17 @@ var validateCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		validationPipeline, err := daemon.NewPipeline()
-		errors.CheckErr(err)
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 		report, err := validationPipeline.Validate()
-		errors.CheckErr(err)
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 		data, err := json.Marshal(report)
-		errors.CheckErr(err)
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 		fmt.Println(string(data))
 	},
 }

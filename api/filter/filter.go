@@ -38,7 +38,9 @@ func Parse[T any](query string) (*Filter[T], error) {
 	value := strings.Split(query, comparerType)[1]
 	filterPredicate := func(item T) bool {
 		jsonString, err := json.Marshal(item)
-		errors.CheckErr(err)
+		if err != nil {
+			log.ApiLogger().Fatal(err)
+		}
 		data := gjson.GetBytes(jsonString, key)
 		if strings.Contains(strings.ToLower(key), "time") {
 			parsedTime, err := time.Parse(util.ApisenseTimeFormat, value)

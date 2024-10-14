@@ -2,6 +2,7 @@ package validators
 
 import (
 	"encoding/json"
+	errs "errors"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -132,14 +133,13 @@ func (v externalValidator) Validate(item ValidationItem) error {
 	log.DaemonLogger().With("validator", fmt.Sprintf("external.%s", v.Definition.Name)).Debugf("validator error: %s", validatorErr.String())
 
 	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
+		var exitErr *exec.ExitError
+		if errs.As(err, &exitErr) {
 			if exitErr.ExitCode() == 1 {
-				return errors.NewF(errors.ValidationError, "validation failed for endpoint %s: %s", item.Definition.Name, validatorErr.String())
+				return errors.ValidationError.New("validation failed for endpoint %s: %s", item.Definition.Name, validatorErr.String())
 			} else {
-				return errors.NewF(errors.ValidationError, "validation failed: unexpected exit code from external validator: %d", exitErr.ExitCode())
+				return errors.ValidationError.New("validation failed: unexpected exit code from external validator: %d", exitErr.ExitCode())
 			}
-		} else {
-			return errors.WrapF(errors.ValidationError, err, "validation failed: unexpected error from external validator")
 		}
 	}
 	return nil

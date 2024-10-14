@@ -107,7 +107,7 @@ func normalizeVariables(definition definitions.Endpoint) ([]definitions.Variable
 	// check if any of the non-constant variables has a different length of values than the first non-constant variable
 	for _, param := range definition.Variables {
 		if !param.IsConstant && len(param.Values) != valueCount {
-			return nil, errors.NewF(errors.VariableValueLengthMismatchError, "variable %s has %d values, but %d are expected", param.Name, len(param.Values), valueCount)
+			return nil, errors.VariableValueLengthMismatchError.New("variable %s has %d values, but %d are expected", param.Name, len(param.Values), valueCount)
 		}
 	}
 

@@ -19,4 +19,5 @@ var (
 	LoginError                   = ApiErrors.NewType("login_error")
 	UserAlreadyExistsError       = ApiErrors.NewType("user_already_exists")
 	MissingSigningKeyError       = ApiErrors.NewType("signing_key_missing")
+	UnsupportedTypeError         = ApiErrors.NewType("unsupported_type")
 )

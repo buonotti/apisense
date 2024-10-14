@@ -1,6 +1,7 @@
 package daemon
 
 import (
+	"errors"
 	"net"
 	"net/http"
 	"net/rpc"
@@ -22,7 +23,7 @@ func startRpcServer(daemon *daemon) error {
 	rpc.HandleHTTP()
 	l, err := net.Listen("tcp", "127.0.0.1:42069")
 	if err != nil {
-		if err != http.ErrServerClosed {
+		if !errors.Is(err, http.ErrServerClosed) {
 			log.DaemonLogger().Error("Cannot start daemon rpc server", "reason", err.Error())
 		} else {
 			log.DaemonLogger().Info("Daemon rpc server stopped")

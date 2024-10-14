@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/buonotti/apisense/log"
 
 	"github.com/buonotti/apisense/api/db"
-	"github.com/buonotti/apisense/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +15,9 @@ var apiUserListCmd = &cobra.Command{
 	Long:    `This command allows to list the users of the API.`,
 	Run: func(_ *cobra.Command, _ []string) {
 		users, err := db.ListUsers()
-		errors.CheckErr(err)
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 
 		for _, user := range users {
 			if user.Enabled {

@@ -2,11 +2,11 @@ package tui
 
 import (
 	"fmt"
+	"github.com/buonotti/apisense/log"
 	"sort"
 	"strconv"
 	strings2 "strings"
 
-	"github.com/buonotti/apisense/errors"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -88,7 +88,9 @@ func (s selectConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, s.keymap.choose):
 				if allowConfigSelection {
 					i, err := strconv.Atoi(s.table.SelectedRow()[0])
-					errors.CheckErr(err)
+					if err != nil {
+						log.TuiLogger().Fatal(err)
+					}
 
 					if choiceConfigModel == "selectConfigModel" {
 						selectedField = getSelectedFieldName(i)
@@ -107,7 +109,9 @@ func (s selectConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case errMsg:
 			s.err = msg
-			errors.CheckErr(s.err)
+			if s.err != nil {
+				log.TuiLogger().Fatal(s.err)
+			}
 		}
 
 		s.table, cmd = s.table.Update(msg)

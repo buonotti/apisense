@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/buonotti/apisense/log"
 	"sort"
 
 	"github.com/charmbracelet/lipgloss"
@@ -63,7 +64,9 @@ func init() {
 	configGetCmd.Flags().StringP("key", "k", "", "The key to get")
 
 	err := configGetCmd.RegisterFlagCompletionFunc("key", validConfigKeysFunc())
-	errors.CheckErr(errors.SafeWrap(errors.CannotRegisterCompletionFunction, err, "cannot register completion function for config get"))
+	if err != nil {
+		log.DefaultLogger().Fatal(errors.CannotRegisterCompletionFunction.Wrap(err, "cannot register completion function for config get"))
+	}
 
 	configCmd.AddCommand(configGetCmd)
 }

@@ -20,7 +20,9 @@ type Report struct {
 
 func GetReport(filename string) (*Report, error) {
 	files, err := os.ReadDir(filepath.FromSlash(directories.ReportsDirectory()))
-	errors.CheckErr(err)
+	if err != nil {
+		return nil, errors.CannotReadDirectoryError.WrapWithNoMessage(err)
+	}
 
 	for _, file := range files {
 		if !file.IsDir() && file.Name() == filename {
@@ -45,7 +47,9 @@ func GetReport(filename string) (*Report, error) {
 // Reports returns all the reports in the report directory
 func Reports() ([]Report, error) {
 	files, err := os.ReadDir(filepath.FromSlash(directories.ReportsDirectory()))
-	errors.CheckErr(err)
+	if err != nil {
+		return nil, errors.CannotReadDirectoryError.WrapWithNoMessage(err)
+	}
 
 	reports := make([]Report, 0)
 	for _, file := range files {
@@ -71,7 +75,9 @@ func Reports() ([]Report, error) {
 // RawReports return all the reports in the report directory without unmarshalling them
 func RawReports() ([]map[string]any, error) {
 	files, err := os.ReadDir(filepath.FromSlash(directories.ReportsDirectory()))
-	errors.CheckErr(err)
+	if err != nil {
+		return nil, errors.CannotReadDirectoryError.WrapWithNoMessage(err)
+	}
 
 	reports := make([]map[string]any, 0)
 	for _, file := range files {

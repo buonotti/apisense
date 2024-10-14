@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/buonotti/apisense/api/db"
-	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
 )
@@ -16,7 +15,9 @@ var apiUserDisableCmd = &cobra.Command{
 		username := args[0]
 
 		err := db.DisableUser(username)
-		errors.CheckErr(err)
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 
 		log.DefaultLogger().Info("User disabled", "username", username)
 	},

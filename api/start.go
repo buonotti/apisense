@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	errs "errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -76,7 +77,7 @@ func Start(host string, port int) error {
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
-			if err != http.ErrServerClosed {
+			if !errs.Is(err, http.ErrServerClosed) {
 				log.ApiLogger().Error("Cannot start api server", "reason", err.Error())
 			} else {
 				log.ApiLogger().Info("Server stopped")

@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
@@ -67,7 +66,9 @@ var definitionCreateCmd = &cobra.Command{
 		name := args[0]
 		fileName := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + name + ".apisensedef.yml")
 		err := os.WriteFile(fileName, []byte(fmt.Sprintf(definitionBoilerplate, name)), os.ModePerm)
-		errors.CheckErr(err)
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 		log.DefaultLogger().Info("Definition file successfully created", "filename", fileName)
 	},
 }
