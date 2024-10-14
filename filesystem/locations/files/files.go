@@ -13,3 +13,7 @@ func DotenvFile() string {
 func DbFile() string {
 	return filepath.FromSlash(directories.AppDirectory() + "/apisense.sqlite")
 }
+
+func PkgLockFile() string {
+	return filepath.FromSlash(directories.ValidatorsDirectory() + "/repos.lock.json")
+}

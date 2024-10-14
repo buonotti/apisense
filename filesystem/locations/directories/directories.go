@@ -20,3 +20,15 @@ func ConfigDirectory() string {
 	}
 	return filepath.ToSlash(configDir)
 }
+
+func ValidatorsDirectory() string {
+	return AppDirectory() + "/validators"
+}
+
+func ValidatorRepoDirectory() string {
+	return ValidatorsDirectory() + "/repo"
+}
+
+func ValidatorCustomDirectory() string {
+	return ValidatorsDirectory() + "/custom"
+}
