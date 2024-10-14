@@ -15,10 +15,15 @@ var templatesCreateCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		lang, err := cmd.Flags().GetString("lang")
 		if err != nil {
-			log.DefaultLogger().Fatal(errors.CannotGetFlagValueError.Wrap(err, "cannot get value of flag 'lang'"))
+			log.DefaultLogger().Fatal(errors.CannotGetFlagValueError.WrapWithNoMessage(err))
 		}
+		force, err := cmd.Flags().GetBool("force")
+		if err != nil {
+			log.DefaultLogger().Fatal(errors.CannotGetFlagValueError.WrapWithNoMessage(err))
+		}
+
 		dest := args[0]
-		err = repo.Create(lang, dest)
+		err = repo.Create(lang, dest, force)
 		if err != nil {
 			log.DefaultLogger().Fatal(err)
 		}
@@ -27,6 +32,7 @@ var templatesCreateCmd = &cobra.Command{
 
 func init() {
 	templatesCreateCmd.Flags().StringP("lang", "l", "", "The language of the template to use")
+	templatesCreateCmd.Flags().BoolP("force", "f", false, "Force the creation. Overrides already existing validators. Use with caution")
 
 	templatesCmd.AddCommand(templatesCreateCmd)
 }

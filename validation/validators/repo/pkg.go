@@ -15,7 +15,6 @@ import (
 	"github.com/ldez/go-git-cmd-wrapper/v2/clone"
 	"github.com/ldez/go-git-cmd-wrapper/v2/commit"
 	"github.com/ldez/go-git-cmd-wrapper/v2/git"
-	pinit "github.com/ldez/go-git-cmd-wrapper/v2/init"
 	"github.com/plus3it/gorecurcopy"
 )
 
@@ -104,7 +103,7 @@ func Update() error {
 	return saveLockfile(lockfile)
 }
 
-func Create(lang string, name string) error {
+func Create(lang string, name string, force bool) error {
 	lockfile, err := loadLockfile()
 	if err != nil {
 		return err
@@ -116,8 +115,15 @@ func Create(lang string, name string) error {
 	langPath := filepath.FromSlash(directories.ValidatorRepoDirectory() + "/" + lang)
 	destPath := filepath.FromSlash(directories.ValidatorCustomDirectory() + "/" + name)
 	if util.Exists(destPath) {
-		log.DefaultLogger().Warn("Destination path already exists. Aborting", "path", destPath)
-		return nil
+		if force {
+			err := os.RemoveAll(destPath)
+			if err != nil {
+				return errors.CannotRemoveFileError.WrapWithNoMessage(err)
+			}
+		} else {
+			log.DefaultLogger().Warn("Destination path already exists. Aborting", "path", destPath)
+			return nil
+		}
 	}
 	err = gorecurcopy.CopyDirectory(langPath, destPath)
 	if err != nil {
@@ -128,7 +134,12 @@ func Create(lang string, name string) error {
 		return errors.CannotRemoveFileError.WrapWithNoMessage(err)
 	}
 
-	out, err := git.Init(pinit.Directory(destPath))
+	err = os.Chdir(destPath)
+	if err != nil {
+		return errors.CannotChangeDirectoryError.WrapWithNoMessage(err)
+	}
+
+	out, err := git.Init()
 	if err != nil {
 		return errors.CannotInitRepoError.Wrap(err, "cannot init repo. error: %s", out)
 	}
@@ -145,4 +156,20 @@ func Create(lang string, name string) error {
 
 	log.DefaultLogger().Info("Created new validator from template", "lang", lang, "path", destPath)
 	return nil
+}
+
+func AddCustomRepo(lang string, url string) error {
+	lockfile, err := loadLockfile()
+	if err != nil {
+		return err
+	}
+	_, ok := lockfile.Templates[lang]
+	if ok {
+		return errors.LanguageAlreadyExistsError.New("language '%s' already has a template", lang)
+	}
+	if lockfile.Templates == nil {
+		lockfile.Templates = make(map[string]string)
+	}
+	lockfile.Templates[lang] = url
+	return saveLockfile(lockfile)
 }

@@ -17,4 +17,5 @@ var (
 	CannotAddError             = GitErrors.NewType("cannot_add")
 	CannotCommitError          = GitErrors.NewType("cannot_commit")
 	LanguageNotAvailableError  = RepoErrors.NewType("language_not_available")
+	LanguageAlreadyExistsError = RepoErrors.NewType("language_already_exists")
 )
