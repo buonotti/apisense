@@ -16,6 +16,7 @@ import (
 	"github.com/ldez/go-git-cmd-wrapper/v2/commit"
 	"github.com/ldez/go-git-cmd-wrapper/v2/git"
 	pinit "github.com/ldez/go-git-cmd-wrapper/v2/init"
+	"github.com/plus3it/gorecurcopy"
 )
 
 type Lockfile struct {
@@ -114,22 +115,34 @@ func Create(lang string, name string) error {
 	}
 	langPath := filepath.FromSlash(directories.ValidatorRepoDirectory() + "/" + lang)
 	destPath := filepath.FromSlash(directories.ValidatorCustomDirectory() + "/" + name)
-	err = os.Mkdir(destPath, os.ModePerm)
-	if err != nil {
-		return errors.CannotCreateDirectoryError.WrapWithNoMessage(err)
+	if util.Exists(destPath) {
+		log.DefaultLogger().Warn("Destination path already exists. Aborting", "path", destPath)
+		return nil
 	}
-	out, err := git.Init(pinit.Directory(destPath), pinit.Template(langPath))
+	err = gorecurcopy.CopyDirectory(langPath, destPath)
+	if err != nil {
+		return errors.CannotCopyDirectoryError.WrapWithNoMessage(err)
+	}
+	err = os.RemoveAll(destPath + "/.git")
+	if err != nil {
+		return errors.CannotRemoveFileError.WrapWithNoMessage(err)
+	}
+
+	out, err := git.Init(pinit.Directory(destPath))
 	if err != nil {
 		return errors.CannotInitRepoError.Wrap(err, "cannot init repo. error: %s", out)
 	}
+
 	out, err = git.Add(add.PathSpec("."))
 	if err != nil {
 		return errors.CannotAddError.Wrap(err, "cannot add to working tree. error: %s", out)
 	}
+
 	out, err = git.Commit(commit.Message("Initial commit"))
 	if err != nil {
 		return errors.CannotCommitError.Wrap(err, "cannot commit changes. error: %s", out)
 	}
+
 	log.DefaultLogger().Info("Created new validator from template", "lang", lang, "path", destPath)
 	return nil
 }

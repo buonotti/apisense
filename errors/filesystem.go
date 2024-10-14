@@ -22,4 +22,5 @@ var (
 	CannotCloseFileError           = FileSystemErrors.NewType("cannot_close_file")
 	CannotUmarshalError            = FileSystemErrors.NewType("cannot_umarshal")
 	CannotChangeDirectoryError     = FileSystemErrors.NewType("cannot_cd")
+	CannotCopyDirectoryError       = FileSystemErrors.NewType("cannot_copy_directory")
 )
