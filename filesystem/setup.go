@@ -46,5 +46,20 @@ func createDirectories() error {
 		return errors.CannotCreateDirectoryError.Wrap(err, "cannot create reports directory: "+directories.ReportsDirectory())
 	}
 
+	err = os.MkdirAll(filepath.FromSlash(directories.ValidatorsDirectory()), os.ModePerm)
+	if err != nil {
+		return errors.CannotCreateDirectoryError.Wrap(err, "cannot create validators directory: "+directories.ValidatorRepoDirectory())
+	}
+
+	err = os.MkdirAll(filepath.FromSlash(directories.ValidatorRepoDirectory()), os.ModePerm)
+	if err != nil {
+		return errors.CannotCreateDirectoryError.Wrap(err, "cannot create validators repo directory: "+directories.ValidatorRepoDirectory())
+	}
+
+	err = os.MkdirAll(filepath.FromSlash(directories.ValidatorCustomDirectory()), os.ModePerm)
+	if err != nil {
+		return errors.CannotCreateDirectoryError.Wrap(err, "cannot create validators custom directory: "+directories.ValidatorCustomDirectory())
+	}
+
 	return nil
 }

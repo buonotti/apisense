@@ -1,10 +1,11 @@
 package definitions
 
 import (
-	"github.com/santhosh-tekuri/jsonschema/v6"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/santhosh-tekuri/jsonschema/v6"
 
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
@@ -13,16 +14,6 @@ import (
 	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/log"
 )
-
-// SchemaEntry is a field definition of the response
-type SchemaEntry struct {
-	Name       string        `yaml:"name" json:"name" validate:"required"`         // Name is the name of the field
-	Type       string        `yaml:"type" json:"type" validate:"required"`         // Type is the type of the field
-	Minimum    interface{}   `yaml:"min" json:"min"`                               // Minimum is the minimum allowed value of the field
-	Maximum    interface{}   `yaml:"max" json:"max"`                               // Maximum is the maximum allowed value of the field
-	IsRequired bool          `yaml:"required" json:"required" validate:"required"` // Required is true if the field is required (not null or not empty in case of an array)
-	Fields     []SchemaEntry `yaml:"fields" json:"fields" validate:"required"`     // Fields describe the children of this field if the field is an object or array
-}
 
 type JwtLoginOptions struct {
 	Url          string         `yaml:"url" json:"url" validate:"required"`   // Url is the url to the login endpoint
@@ -117,7 +108,6 @@ func validateDefinition(definitions []Endpoint, definition Endpoint) bool {
 	compiler := jsonschema.NewCompiler()
 	err := compiler.AddResource("schema.json", definition.ResponseSchema)
 	_, err = compiler.Compile("schema.json")
-
 	if err != nil {
 		log.DaemonLogger().Error("Definition has an invalid schema: "+err.Error(), "name", definition.Name)
 		return false

@@ -20,4 +20,6 @@ var (
 	CannotReadDirectoryError       = FileSystemErrors.NewType("cannot_read_directory")
 	CannotRemoveFileError          = FileSystemErrors.NewType("cannot_remove_file")
 	CannotCloseFileError           = FileSystemErrors.NewType("cannot_close_file")
+	CannotUmarshalError            = FileSystemErrors.NewType("cannot_umarshal")
+	CannotChangeDirectoryError     = FileSystemErrors.NewType("cannot_cd")
 )
