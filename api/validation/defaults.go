@@ -1,12 +1,13 @@
 package validation
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/buonotti/apisense/errors"
-	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/buonotti/apisense/errors"
+	"github.com/goccy/go-json"
+	"github.com/goccy/go-reflect"
 )
 
 func FillDefaults(obj any) error {
@@ -14,7 +15,7 @@ func FillDefaults(obj any) error {
 
 	accessAsPointer := false
 
-	if t.Kind() == reflect.Pointer {
+	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 		accessAsPointer = true
 	}

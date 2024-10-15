@@ -5,14 +5,12 @@ import (
 	"time"
 
 	"github.com/buonotti/apisense/api/db"
-
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
 	"github.com/buonotti/apisense/conversion"
 	"github.com/buonotti/apisense/util"
 	"github.com/buonotti/apisense/validation/definitions"
 	"github.com/buonotti/apisense/validation/pipeline"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func validReportsFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {

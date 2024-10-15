@@ -1,11 +1,10 @@
 package cmd
 
 import (
+	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	"github.com/buonotti/apisense/errors"
 )
 
 var configSetCmd = &cobra.Command{

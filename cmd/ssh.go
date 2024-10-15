@@ -2,9 +2,8 @@ package cmd
 
 import (
 	"github.com/buonotti/apisense/log"
-	"github.com/spf13/cobra"
-
 	"github.com/buonotti/apisense/ssh"
+	"github.com/spf13/cobra"
 )
 
 var sshCmd = &cobra.Command{

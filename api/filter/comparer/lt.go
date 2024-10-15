@@ -1,10 +1,10 @@
 package comparer
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/buonotti/apisense/util"
+	"github.com/goccy/go-reflect"
 )
 
 type ltComparer struct{}

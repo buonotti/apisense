@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/buonotti/apisense/log"
 
 	"github.com/buonotti/apisense/daemon"
+	"github.com/buonotti/apisense/log"
+	"github.com/goccy/go-json"
 	"github.com/spf13/cobra"
 )
 

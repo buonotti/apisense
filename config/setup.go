@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	FileName string = "apisense.config"
+	FileName    string = "apisense.config"
+	SecretsName string = "apisense.secrets"
 )
 
 // Setup loads the config file with viper.ReadInConfig and creates the default config if it doesn't exist.
@@ -26,32 +27,26 @@ func Setup() error {
 
 	setupDefaults()
 
-	err = setupEnv()
-	if err != nil {
-		return err
-	}
-
 	if !util.Exists(configFile) {
 		file, err := os.Create(configFile)
 		if err != nil {
 			return errors.CannotCreateFileError.Wrap(err, "cannot create config file")
 		}
-		err = viper.WriteConfig()
-		if err != nil {
-			return errors.CannotWriteConfigError.WrapWithNoMessage(err)
-		}
 
 		defer file.Close()
 	}
 
-	viper.SetConfigName(FileName)
 	viper.AddConfigPath(filepath.FromSlash(directories.ConfigDirectory()))
-
-	err = viper.MergeInConfig()
-
-	if _, ok := err.(viper.ConfigFileNotFoundError); err == nil && ok {
-		viper.WatchConfig()
+	viper.SetConfigName(FileName)
+	err = viper.ReadInConfig()
+	if err != nil {
+		return errors.CannotReadInConfigError.Wrap(err, "cannot read main config file")
 	}
+
+	viper.SetConfigName(SecretsName)
+	_ = viper.MergeInConfig()
+
+	viper.WatchConfig()
 
 	return nil
 }

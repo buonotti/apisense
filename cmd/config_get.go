@@ -2,15 +2,14 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/log"
 	"sort"
 
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/util"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/util"
 )
 
 var configGetCmd = &cobra.Command{

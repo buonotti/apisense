@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"time"
@@ -11,6 +10,7 @@ import (
 	"github.com/buonotti/apisense/filesystem/locations/files"
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/util"
+	"github.com/goccy/go-json"
 	"github.com/ldez/go-git-cmd-wrapper/v2/add"
 	"github.com/ldez/go-git-cmd-wrapper/v2/clone"
 	"github.com/ldez/go-git-cmd-wrapper/v2/commit"

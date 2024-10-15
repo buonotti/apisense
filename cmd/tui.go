@@ -3,9 +3,8 @@ package cmd
 import (
 	"github.com/buonotti/apisense/daemon"
 	"github.com/buonotti/apisense/log"
-	"github.com/spf13/cobra"
-
 	"github.com/buonotti/apisense/tui"
+	"github.com/spf13/cobra"
 )
 
 var tuiCmd = &cobra.Command{

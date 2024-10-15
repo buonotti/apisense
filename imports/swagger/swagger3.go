@@ -1,7 +1,6 @@
 package swagger
 
 import (
-	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"regexp"
@@ -14,7 +13,8 @@ import (
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/util"
 	"github.com/buonotti/apisense/validation/definitions"
-	"gopkg.in/yaml.v3"
+	"github.com/goccy/go-json"
+	"github.com/goccy/go-yaml"
 )
 
 type pathSpecV3 struct {

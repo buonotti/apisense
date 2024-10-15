@@ -3,14 +3,13 @@ package daemon
 import (
 	"os"
 
-	lf "github.com/nightlyone/lockfile"
-	"github.com/spf13/viper"
-
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/files"
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/validation/pipeline"
 	"github.com/buonotti/apisense/validation/validators"
+	lf "github.com/nightlyone/lockfile"
+	"github.com/spf13/viper"
 )
 
 func Setup() error {

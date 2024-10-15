@@ -5,14 +5,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/santhosh-tekuri/jsonschema/v6"
-
-	"github.com/spf13/viper"
-	"gopkg.in/yaml.v3"
-
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/log"
+	"github.com/goccy/go-yaml"
+	"github.com/santhosh-tekuri/jsonschema/v6"
+	"github.com/spf13/viper"
 )
 
 type JwtLoginOptions struct {

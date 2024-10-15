@@ -1,14 +1,13 @@
 package pipeline
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 
+	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/util"
-
-	"github.com/buonotti/apisense/errors"
+	"github.com/goccy/go-json"
 )
 
 // Report is a report of a test run

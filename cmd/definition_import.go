@@ -1,12 +1,13 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/imports"
 	"github.com/buonotti/apisense/imports/swagger"
 	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var definitionImportCmd = &cobra.Command{

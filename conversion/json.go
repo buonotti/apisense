@@ -1,9 +1,8 @@
 package conversion
 
 import (
-	"encoding/json"
-
 	"github.com/buonotti/apisense/validation/pipeline"
+	"github.com/goccy/go-json"
 )
 
 func Json() Converter {

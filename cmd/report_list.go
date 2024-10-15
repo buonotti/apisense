@@ -2,13 +2,12 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/log"
 	"time"
 
-	"github.com/spf13/cobra"
-
+	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/util"
 	"github.com/buonotti/apisense/validation/pipeline"
+	"github.com/spf13/cobra"
 )
 
 var reportListCmd = &cobra.Command{

@@ -2,22 +2,19 @@ package controllers
 
 import (
 	"github.com/buonotti/apisense/api/validation"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
-func requestValid(ctx *gin.Context, request any) bool {
-	if err := ctx.ShouldBindJSON(request); err != nil {
-		ctx.AbortWithStatusJSON(400, ErrorResponse{Message: err.Error()})
-		return false
+func requestValid(ctx *fiber.Ctx, request any) error {
+	if err := ctx.BodyParser(request); err != nil {
+		return err
 	}
 	err := validation.FillDefaults(request)
 	if err != nil {
-		ctx.AbortWithStatusJSON(400, ErrorResponse{Message: err.Error()})
-		return false
+		return err
 	}
 	if err := validation.Validate(request); err != nil {
-		ctx.AbortWithStatusJSON(400, ErrorResponse{Message: err.Error()})
-		return false
+		return err
 	}
-	return true
+	return nil
 }

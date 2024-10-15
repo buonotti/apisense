@@ -2,8 +2,9 @@ package validation
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
+
+	"github.com/goccy/go-reflect"
 )
 
 type Failure error

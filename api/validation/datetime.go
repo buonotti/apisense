@@ -1,9 +1,10 @@
 package validation
 
 import (
-	"reflect"
 	"strings"
 	"time"
+
+	"github.com/goccy/go-reflect"
 )
 
 type datetimeValidator struct{}

@@ -1,14 +1,12 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-
-	clog "github.com/charmbracelet/log"
-	cc "github.com/ivanpirog/coloredcobra"
-
 	"github.com/buonotti/apisense/config"
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
+	clog "github.com/charmbracelet/log"
+	cc "github.com/ivanpirog/coloredcobra"
+	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{

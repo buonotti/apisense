@@ -14,8 +14,8 @@ type AlertData struct {
 }
 
 func SendAlert(data AlertData) error {
-	emailUser := viper.GetString("APISENSE_EMAIL_USER")
-	emailPass := viper.GetString("APISENSE_EMAIL_PASS")
+	emailUser := viper.GetString("daemon.notification.username")
+	emailPass := viper.GetString("daemon.notification.password")
 	sendOnErrors := viper.GetBool("daemon.notification.only_on_error")
 	sender := viper.GetString("daemon.notification.sender")
 	receiver := viper.GetString("daemon.notification.receiver")

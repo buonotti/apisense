@@ -5,10 +5,6 @@ import (
 )
 
 func setupDefaults() {
-	viper.SetDefault("APISENSE_EMAIL_USER", "")
-	viper.SetDefault("APISENSE_EMAIL_PASS", "")
-	viper.SetDefault("APISENSE_SIGNING_KEY", "")
-
 	viper.SetDefault("log.level", "info")
 	viper.SetDefault("log.file", "")
 
@@ -22,6 +18,8 @@ func setupDefaults() {
 	viper.SetDefault("daemon.notification.sender", "")
 	viper.SetDefault("daemon.notification.receiver", "")
 	viper.SetDefault("daemon.notification.smtp_server", "")
+	viper.SetDefault("daemon.notification.username", "")
+	viper.SetDefault("daemon.notification.password", "")
 	viper.SetDefault("daemon.notification.smtp_port", 587)
 	viper.SetDefault("daemon.rpc", true)
 
@@ -33,6 +31,7 @@ func setupDefaults() {
 	viper.SetDefault("api.host", "")
 	viper.SetDefault("api.port", 8080)
 	viper.SetDefault("api.auth", true)
+	viper.SetDefault("api.signing_key", "")
 
 	viper.SetDefault("validation.external_validators", []any{})
 	viper.SetDefault("validation.excluded_builtin_validators", []string{})

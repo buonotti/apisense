@@ -1,7 +1,6 @@
 package validation
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"html/template"
@@ -11,6 +10,7 @@ import (
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/validation/definitions"
 	"github.com/go-resty/resty/v2"
+	"github.com/goccy/go-json"
 )
 
 // rest return the rest client with the set headers

@@ -1,8 +1,9 @@
 package validation
 
 import (
-	"reflect"
 	"strings"
+
+	"github.com/goccy/go-reflect"
 )
 
 type oneofValidator struct{}

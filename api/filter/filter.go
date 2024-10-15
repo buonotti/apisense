@@ -1,17 +1,16 @@
 package filter
 
 import (
-	"encoding/json"
 	"strings"
 	"time"
-
-	"github.com/gin-gonic/gin"
-	"github.com/tidwall/gjson"
 
 	"github.com/buonotti/apisense/api/filter/comparer"
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/util"
+	"github.com/goccy/go-json"
+	"github.com/gofiber/fiber/v2"
+	"github.com/tidwall/gjson"
 )
 
 type Filter[T any] struct {
@@ -57,7 +56,7 @@ func Parse[T any](query string) (*Filter[T], error) {
 	}, nil
 }
 
-func ParseFromContext[T any](c *gin.Context) (*Filter[T], error) {
+func ParseFromContext[T any](c *fiber.Ctx) (*Filter[T], error) {
 	whereClause := c.Query("where")
 	if whereClause == "" {
 		return &Filter[T]{

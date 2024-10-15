@@ -1,7 +1,6 @@
 package swagger
 
 import (
-	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"regexp"
@@ -10,11 +9,11 @@ import (
 	"strings"
 
 	"github.com/buonotti/apisense/filesystem/locations/directories"
-	"github.com/buonotti/apisense/util"
-	"gopkg.in/yaml.v3"
-
 	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/util"
 	"github.com/buonotti/apisense/validation/definitions"
+	"github.com/goccy/go-json"
+	"github.com/goccy/go-yaml"
 )
 
 type parameterSpecV2 struct {

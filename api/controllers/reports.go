@@ -1,15 +1,15 @@
 package controllers
 
 import (
+	"net/http"
 	"strings"
-
-	"github.com/gin-gonic/gin"
 
 	"github.com/buonotti/apisense/api/filter"
 	"github.com/buonotti/apisense/conversion"
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/util"
 	"github.com/buonotti/apisense/validation/pipeline"
+	"github.com/gofiber/fiber/v2"
 )
 
 // AllReports godoc
@@ -24,22 +24,20 @@ import (
 //	@Success		200		array		pipeline.Report
 //	@Failure		500		{object}	ErrorResponse
 //	@Router			/reports [get]
-func AllReports(c *gin.Context) {
+func AllReports(c *fiber.Ctx) error {
 	allReports, err := pipeline.Reports()
 	if err != nil {
-		c.AbortWithStatusJSON(500, ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusInternalServerError).JSON(Err(err))
 	}
 
 	whereFilter, err := filter.ParseFromContext[pipeline.Report](c)
 	allReports = whereFilter.Apply(allReports)
 
 	if err != nil {
-		c.AbortWithStatusJSON(500, ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusInternalServerError).JSON(Err(err))
 	}
 
-	writeFormattedReport(c, allReports...)
+	return writeFormattedReport(c, allReports...)
 }
 
 // Report godoc
@@ -55,18 +53,16 @@ func AllReports(c *gin.Context) {
 //	@Failure		404		{object}	ErrorResponse
 //	@Failure		500		{object}	ErrorResponse
 //	@Router			/reports/:id [get]
-func Report(c *gin.Context) {
-	id := c.Param("id")
+func Report(c *fiber.Ctx) error {
+	id := c.Params("id")
 	if id == "" {
 		err := errors.IdRequiredError.New("")
-		c.AbortWithStatusJSON(400, ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusBadRequest).JSON(Err(err))
 	}
 
 	reports, err := pipeline.Reports()
 	if err != nil {
-		c.AbortWithStatusJSON(500, ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusInternalServerError).JSON(Err(err))
 	}
 
 	report := util.FindFirst(reports, func(report pipeline.Report) bool {
@@ -75,14 +71,13 @@ func Report(c *gin.Context) {
 
 	if report == nil {
 		err = errors.CannotFindReportError.New("cannot find report with id: " + id)
-		c.AbortWithStatusJSON(404, ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusNotFound).JSON(Err(err))
 	}
 
-	writeFormattedReport(c, *report)
+	return writeFormattedReport(c, *report)
 }
 
-func writeFormattedReport(c *gin.Context, reports ...pipeline.Report) {
+func writeFormattedReport(c *fiber.Ctx, reports ...pipeline.Report) error {
 	body := strings.Builder{}
 	format := c.Query("format")
 	if format == "" {
@@ -92,15 +87,15 @@ func writeFormattedReport(c *gin.Context, reports ...pipeline.Report) {
 	formatter := conversion.Get(format)
 	if formatter == nil {
 		err := errors.UnknownFormatError.New("unknown format: " + format)
-		c.AbortWithStatusJSON(400, ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{Message: err.Error()})
 	}
 
 	convertedReports, err := formatter.Convert(reports...)
 	if err != nil {
-		c.AbortWithStatusJSON(500, ErrorResponse{Message: err.Error()})
+		return c.Status(http.StatusInternalServerError).JSON(Err(err))
 	}
 
 	body.Write(convertedReports)
-	c.Data(200, "application/"+format, []byte(body.String()))
+	c.Set("Content-Type", "application/"+format)
+	return c.Status(200).Send([]byte(body.String()))
 }

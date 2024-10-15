@@ -4,25 +4,23 @@ import (
 	"net/http"
 
 	"github.com/buonotti/apisense/api/db"
-
 	"github.com/buonotti/apisense/api/jwt"
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	goJWT "github.com/golang-jwt/jwt/v4"
 )
 
 const BearerSchema = "Bearer "
 
 // Auth is a middleware that checks if the request has a valid JWT token and then authorizes the request
-func Auth() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func Auth() func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
 		// Get the token string from the header
-		authHeader := c.GetHeader("Authorization")
+		authHeader := c.Get("Authorization")
 		if authHeader == "" || len(authHeader) <= len(BearerSchema)+1 {
 			err := errors.TokenError.New("missing auth token")
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
-			return
+			return c.Status(http.StatusUnauthorized).JSON(map[string]any{"message": err.Error()})
 		}
 
 		// Cut off the "Bearer " part of the header
@@ -35,11 +33,11 @@ func Auth() gin.HandlerFunc {
 			uid := claims["uid"].(string)
 			log.ApiLogger().Info("Authorizing user", "user", claims["uid"].(string))
 			if !db.IsUserEnabled(uid) {
-				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "user is not allowed to use the API"})
-				return
+				return c.Status(http.StatusForbidden).JSON(map[string]any{"message": "user is not allowed to use the API"})
 			}
 		} else {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+			return c.Status(http.StatusUnauthorized).JSON(map[string]any{"message": err.Error()})
 		}
+		return c.Next()
 	}
 }

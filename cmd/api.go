@@ -3,13 +3,11 @@ package cmd
 import (
 	"strconv"
 
+	"github.com/buonotti/apisense/api"
 	"github.com/buonotti/apisense/api/db"
 	"github.com/buonotti/apisense/log"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	"github.com/buonotti/apisense/api"
 )
 
 var apiCmd = &cobra.Command{
@@ -24,7 +22,8 @@ The port and interface can be changed with the --port and --host flags. The flag
 		if err != nil {
 			log.DefaultLogger().Fatal(err)
 		}
-		if api.Start(host, portParsed) != nil {
+		err = api.Start(host, portParsed)
+		if err != nil {
 			log.DefaultLogger().Fatal(err)
 		}
 	},

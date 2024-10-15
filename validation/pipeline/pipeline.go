@@ -5,13 +5,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/speps/go-hashids/v2"
-
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/util"
 	"github.com/buonotti/apisense/validation"
 	"github.com/buonotti/apisense/validation/definitions"
 	"github.com/buonotti/apisense/validation/validators"
+	"github.com/speps/go-hashids/v2"
 )
 
 // Pipeline represents the validation pipeline

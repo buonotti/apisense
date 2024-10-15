@@ -1,7 +1,6 @@
 package validators
 
 import (
-	"encoding/json"
 	errs "errors"
 	"fmt"
 	"os/exec"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
+	"github.com/goccy/go-json"
 	"github.com/spf13/viper"
 )
 

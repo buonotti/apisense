@@ -2,16 +2,15 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/log"
 	"path/filepath"
 
+	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/theme"
+	"github.com/buonotti/apisense/validation/definitions"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/termenv"
 	"github.com/spf13/cobra"
-
-	"github.com/buonotti/apisense/filesystem/locations/directories"
-	"github.com/buonotti/apisense/theme"
-	"github.com/buonotti/apisense/validation/definitions"
 )
 
 var definitionListCmd = &cobra.Command{
