@@ -3,10 +3,11 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
+	clog "github.com/charmbracelet/log"
 	cc "github.com/ivanpirog/coloredcobra"
 
-	"github.com/buonotti/apisense/api/db"
 	"github.com/buonotti/apisense/config"
+	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
 )
 
@@ -19,10 +20,18 @@ There are multiple subcommands that can be used to interact with the daemon. For
 	Run: func(cmd *cobra.Command, _ []string) {
 		cobra.CheckErr(cmd.Help())
 	},
-	PersistentPreRun: func(_ *cobra.Command, _ []string) {
+	PersistentPreRun: func(cmd *cobra.Command, _ []string) {
 		cobra.CheckErr(config.Setup())
 		cobra.CheckErr(log.Setup())
-		cobra.CheckErr(db.Setup())
+
+		if ll, err := cmd.Root().PersistentFlags().GetString("log-level"); err == nil && ll != "" {
+			parsed, err := clog.ParseLevel(ll)
+			if err == nil {
+				clog.SetLevel(parsed)
+			} else {
+				log.DefaultLogger().Warn("Log level invalid. Falling back to config", "reason", err.Error())
+			}
+		}
 	},
 	PersistentPostRun: func(_ *cobra.Command, _ []string) {
 		cobra.CheckErr(log.CloseLogFile())
@@ -32,6 +41,11 @@ There are multiple subcommands that can be used to interact with the daemon. For
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+	rootCmd.PersistentFlags().String("log-level", "", "Override the log level in the config")
+	err := rootCmd.RegisterFlagCompletionFunc("log-level", validLogLevelsFunc())
+	if err != nil {
+		log.DefaultLogger().Fatal(errors.CannotRegisterCompletionFunction.WrapWithNoMessage(err))
+	}
 	cobra.CheckErr(rootCmd.Execute())
 }
 

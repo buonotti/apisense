@@ -59,6 +59,7 @@ func (d daemon) run(runOnStart bool) error {
 	}
 
 	cronScheduler := cron.New()
+	log.DaemonLogger().Debug("Starting with cron expr", "cron", viper.GetString("daemon.interval"))
 	workFunctionId, err := cronScheduler.AddFunc(viper.GetString("daemon.interval"), d.work)
 	if err != nil {
 		return errors.CannotAddWorkFunctionToCronSchedulerError.Wrap(err, "cannot add work function to cron scheduler")

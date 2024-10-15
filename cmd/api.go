@@ -1,10 +1,13 @@
 package cmd
 
 import (
-	"github.com/buonotti/apisense/log"
 	"strconv"
 
+	"github.com/buonotti/apisense/api/db"
+	"github.com/buonotti/apisense/log"
+
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/buonotti/apisense/api"
 )
@@ -23,6 +26,12 @@ The port and interface can be changed with the --port and --host flags. The flag
 		}
 		if api.Start(host, portParsed) != nil {
 			log.DefaultLogger().Fatal(err)
+		}
+	},
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		cmd.Root().PersistentPreRun(cmd, args)
+		if viper.GetBool("api.auth") {
+			cobra.CheckErr(db.Setup())
 		}
 	},
 }

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/buonotti/apisense/daemon"
 	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
 
@@ -16,6 +17,9 @@ var tuiCmd = &cobra.Command{
 		if err != nil {
 			log.DefaultLogger().Fatal(err)
 		}
+	},
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		cobra.CheckErr(daemon.Setup())
 	},
 }
 

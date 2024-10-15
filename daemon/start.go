@@ -1,8 +1,6 @@
 package daemon
 
 import (
-	errs "errors"
-	"net/http"
 	"os"
 
 	lf "github.com/nightlyone/lockfile"
@@ -15,18 +13,29 @@ import (
 	"github.com/buonotti/apisense/validation/validators"
 )
 
-// Start starts the daemon. If the daemon is already running it returns an
-// *errors.CannotLockFileError because the already running daemon has the lock on
-// the file.
-func Start(runOnStart bool) error {
+func Setup() error {
 	file, err := os.Create(files.DaemonStatusFile())
 	if err != nil {
 		return errors.CannotCreateFileError.Wrap(err, "cannot create status file")
 	}
+	defer file.Close()
 
-	err = file.Close()
+	pFile, err := os.Create(files.DaemonPidFile())
 	if err != nil {
-		return errors.CannotCloseFileError.Wrap(err, "cannot close status file")
+		return errors.CannotCreateFileError.Wrap(err, "cannot create pid file")
+	}
+	defer pFile.Close()
+
+	return nil
+}
+
+// Start starts the daemon. If the daemon is already running it returns an
+// *errors.CannotLockFileError because the already running daemon has the lock on
+// the file.
+func Start(runOnStart bool) error {
+	err := Setup()
+	if err != nil {
+		return err
 	}
 
 	lock, err := lockfile()
@@ -57,12 +66,13 @@ func Start(runOnStart bool) error {
 	}
 
 	if viper.GetBool("daemon.rpc") {
-		go func() {
-			startErr := startRpcServer(&d)
-			if startErr != nil && !errs.Is(startErr, http.ErrServerClosed) {
-				log.DaemonLogger().Fatal(startErr)
-			}
-		}()
+		log.DaemonLogger().Warn("Rpc is currently not available") // TODO
+		// go func() {
+		// 	startErr := startRpcServer(&d)
+		// 	if startErr != nil && !errs.Is(startErr, http.ErrServerClosed) {
+		// 		log.DaemonLogger().Fatal(startErr)
+		// 	}
+		// }()
 	}
 
 	return d.run(runOnStart)

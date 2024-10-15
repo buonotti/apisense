@@ -114,3 +114,9 @@ func validDisabledUserFunc() func(cmd *cobra.Command, args []string, toComplete 
 		}), cobra.ShellCompDirectiveNoFileComp
 	}
 }
+
+func validLogLevelsFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"debug", "info", "warning", "error", "fatal"}, cobra.ShellCompDirectiveNoFileComp
+	}
+}
