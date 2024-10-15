@@ -13,19 +13,8 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-type Filter[T any] struct {
-	predicate func(T) bool
-}
-
-func New[T any]() *Filter[T] {
-	return &Filter[T]{
-		predicate: func(T) bool {
-			return true
-		},
-	}
-}
-
-func Parse[T any](query string) (*Filter[T], error) {
+// Parse parses the given query and creates an appropriate filter function
+func Parse[T any](query string) (func(T) bool, error) {
 	comparerType := comparer.ExtractOperator(query)
 	if comparerType == "" {
 		return nil, errors.InvalidWhereClauseError.New("invalid where clause (no valid operator found): %s", query)
@@ -51,25 +40,16 @@ func Parse[T any](query string) (*Filter[T], error) {
 		return comp.Compare(data.Value(), value)
 	}
 
-	return &Filter[T]{
-		predicate: filterPredicate,
-	}, nil
+	return filterPredicate, nil
 }
 
-func ParseFromContext[T any](c *fiber.Ctx) (*Filter[T], error) {
+// ParseFromContext is the same as Parse it just auto-extracts the query from the given fiber.Ctx
+func ParseFromContext[T any](c *fiber.Ctx) (func(T) bool, error) {
 	whereClause := c.Query("where")
 	if whereClause == "" {
-		return &Filter[T]{
-			predicate: func(T) bool {
-				return true
-			},
-		}, nil
+		return func(_ T) bool { return true }, nil
 	}
 
 	whereClause = strings.ReplaceAll(whereClause, "$", "#")
 	return Parse[T](whereClause)
-}
-
-func (f *Filter[T]) Apply(items []T) []T {
-	return util.Where(items, f.predicate)
 }

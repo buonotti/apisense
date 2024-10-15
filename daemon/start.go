@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Setup creates the necessary files for the daemon. Is called also on daemon start
 func Setup() error {
 	file, err := os.Create(files.DaemonStatusFile())
 	if err != nil {
@@ -77,10 +78,9 @@ func Start(runOnStart bool) error {
 	return d.run(runOnStart)
 }
 
+// NewPipeline creates a new validation pipeline
 func NewPipeline() (*pipeline.Pipeline, error) {
-	pipelineWithValidators, err := pipeline.NewPipelineWithValidators(
-		validators.Without(viper.GetStringSlice("validation.excluded_builtin_validators")...)...,
-	)
+	pipelineWithValidators, err := pipeline.NewPipelineWithValidators(validators.NewSchemaValidator())
 	if err != nil {
 		return nil, err
 	}

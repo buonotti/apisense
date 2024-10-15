@@ -82,6 +82,3 @@
 # validation:
   # Define external validators that can be used in the definitions.
   # external_validators: []
-
-  # Define build-in validators that should be disabled.
-  # excluded_builtin_validators: []

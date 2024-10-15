@@ -164,6 +164,7 @@ func (d daemon) work() {
 	}
 }
 
+// countErrors counts the amount of errors in the report
 func countErrors(report pipeline.Report) uint {
 	count := 0
 	for _, endpoint := range report.Endpoints {
@@ -178,6 +179,7 @@ func countErrors(report pipeline.Report) uint {
 	return uint(count)
 }
 
+// cleanupReports cleans up old reports in the report directory
 func (d daemon) cleanupReports() error {
 	if !viper.GetBool("daemon.discard.enabled") {
 		return nil

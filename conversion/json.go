@@ -5,6 +5,7 @@ import (
 	"github.com/goccy/go-json"
 )
 
+// Json returns a new jsonConverter
 func Json() Converter {
 	return jsonConverter{}
 }

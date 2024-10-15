@@ -8,56 +8,47 @@ import (
 	"github.com/spf13/viper"
 )
 
-type JwtService interface {
-	GenerateToken(userId string) (string, error)
-	ValidateToken(token string) (*jwt.Token, error)
-	RefreshToken(token string, userId string) (string, error)
-}
+// Issuer holds the issuer of the token
+const Issuer string = "Apisense WEB-API"
 
+// authCustomClaims is the data held by the token
 type authCustomClaims struct {
 	Uid string `json:"uid"`
 	jwt.RegisteredClaims
 }
 
-type jwtServices struct {
-	secretKey string
-	issure    string
-}
-
-func Service() JwtService {
-	return &jwtServices{
-		secretKey: viper.GetString("APISENSE_SIGNING_KEY"),
-		issure:    "Apisense WEB-API",
-	}
-}
-
-func (service *jwtServices) GenerateToken(uid string) (string, error) {
+// GenerateToken generates a new token for the given user
+func GenerateToken(uid string) (string, error) {
+	secretKey := viper.GetString("api.signing_key")
 	claims := &authCustomClaims{
 		uid,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 48)),
-			Issuer:    service.issure,
+			Issuer:    Issuer,
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString([]byte(service.secretKey))
+	return token.SignedString([]byte(secretKey))
 }
 
-func (service *jwtServices) ValidateToken(encodedToken string) (*jwt.Token, error) {
+// ValidateToken validates if the given token is valid. Returns the decoded token
+func ValidateToken(encodedToken string) (*jwt.Token, error) {
+	secretKey := viper.GetString("api.signing_key")
 	return jwt.Parse(encodedToken, func(token *jwt.Token) (interface{}, error) {
 		if _, isvalid := token.Method.(*jwt.SigningMethodHMAC); !isvalid {
 			return nil, errors.TokenError.New("invalid token %s", token.Header["alg"])
 		}
-		return []byte(service.secretKey), nil
+		return []byte(secretKey), nil
 	})
 }
 
-func (service *jwtServices) RefreshToken(token string, userId string) (string, error) {
-	if _, err := service.ValidateToken(token); err != nil {
+// RefreshToken takes a valid token and generates a new one from it
+func RefreshToken(token string, userId string) (string, error) {
+	if _, err := ValidateToken(token); err != nil {
 		return "", err
 	}
 
-	return service.GenerateToken(userId)
+	return GenerateToken(userId)
 }

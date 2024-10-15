@@ -6,7 +6,6 @@ import (
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/directories"
-	"github.com/buonotti/apisense/filesystem/locations/files"
 	"github.com/buonotti/apisense/util"
 	"github.com/spf13/viper"
 )
@@ -47,17 +46,6 @@ func Setup() error {
 	_ = viper.MergeInConfig()
 
 	viper.WatchConfig()
-
-	return nil
-}
-
-func setupEnv() error {
-	viper.SetConfigFile(files.DotenvFile())
-	err := viper.ReadInConfig()
-
-	if err != nil && !os.IsNotExist(err) {
-		return errors.CannotReadFileError.Wrap(err, "cannot read config file")
-	}
 
 	return nil
 }

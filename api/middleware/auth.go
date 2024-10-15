@@ -11,10 +11,9 @@ import (
 	goJWT "github.com/golang-jwt/jwt/v4"
 )
 
-const BearerSchema = "Bearer "
-
 // Auth is a middleware that checks if the request has a valid JWT token and then authorizes the request
 func Auth() func(c *fiber.Ctx) error {
+	const BearerSchema = "Bearer "
 	return func(c *fiber.Ctx) error {
 		// Get the token string from the header
 		authHeader := c.Get("Authorization")
@@ -27,7 +26,7 @@ func Auth() func(c *fiber.Ctx) error {
 		tokenString := authHeader[len(BearerSchema):]
 
 		// Parse and validate the token
-		token, err := jwt.Service().ValidateToken(tokenString)
+		token, err := jwt.ValidateToken(tokenString)
 		if err == nil && token.Valid {
 			claims := token.Claims.(goJWT.MapClaims)
 			uid := claims["uid"].(string)

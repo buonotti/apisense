@@ -31,7 +31,7 @@ func AllReports(c *fiber.Ctx) error {
 	}
 
 	whereFilter, err := filter.ParseFromContext[pipeline.Report](c)
-	allReports = whereFilter.Apply(allReports)
+	allReports = util.Where(allReports, whereFilter)
 
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(Err(err))
@@ -77,6 +77,7 @@ func Report(c *fiber.Ctx) error {
 	return writeFormattedReport(c, *report)
 }
 
+// writeFormattedReport sends all the given reports in the format set in the "format" query parameter
 func writeFormattedReport(c *fiber.Ctx, reports ...pipeline.Report) error {
 	body := strings.Builder{}
 	format := c.Query("format")

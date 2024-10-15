@@ -39,7 +39,7 @@ func Start() error {
 		wish.WithHostKeyPath(os.Getenv("HOME")+"/.ssh/apisense_rsa"),
 		wish.WithMiddleware(
 			bm.Middleware(teaHandler),
-			log.WishMiddleware(),
+			log.NewWish(),
 			activeterm.Middleware(),
 			scp.Middleware(fsHandler, nil),
 		),

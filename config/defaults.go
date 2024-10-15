@@ -34,5 +34,4 @@ func setupDefaults() {
 	viper.SetDefault("api.signing_key", "")
 
 	viper.SetDefault("validation.external_validators", []any{})
-	viper.SetDefault("validation.excluded_builtin_validators", []string{})
 }

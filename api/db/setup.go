@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 `
 
+// Setup sets up the connection to the local sqlite db. Creates the user table if it not exists
 func Setup() error {
 	if db != nil {
 		return nil

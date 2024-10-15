@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/buonotti/apisense/util"
 	"github.com/buonotti/apisense/validation/pipeline"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
@@ -89,7 +88,7 @@ func getValidatorOutputRows(validatorOutputs []pipeline.ValidatorResult) []table
 	for i, output := range validatorOutputs {
 		s := strings.Split(output.Message, ": ")
 		if len(s) > 1 {
-			q := util.Join(s[1:], "")
+			q := strings.Join(s[1:], "")
 			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Name, q, string(output.Status)})
 		} else {
 			rows = append(rows, table.Row{fmt.Sprintf("%v", i), output.Name, "", string(output.Status)})

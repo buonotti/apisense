@@ -19,6 +19,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Start starts the web api accoring to configuation. host and port can be used to override the values in the config
 func Start(host string, port int) error {
 	if viper.GetString("api.signing_key") == "" {
 		return errors.MissingSigningKeyError.New("Missing api.signing_key value in either config or secrets file")

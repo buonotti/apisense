@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// JwtLoginOptions is the definition of optional authentication options for jwt
 type JwtLoginOptions struct {
 	Url          string         `yaml:"url" json:"url" validate:"required"`   // Url is the url to the login endpoint
 	LoginPayload map[string]any `yaml:"login_payload" json:"login_payload"`   // LoginPayload is the json or yml payload to send
@@ -83,7 +84,8 @@ func parseDefinition(filename string) (Endpoint, error) {
 	return definition, nil
 }
 
-func validateDefinition(definitions []Endpoint, definition Endpoint) bool {
+// validateDefinitions validates the definitions to check if they are correct
+func validateDefinitions(definitions []Endpoint, definition Endpoint) bool {
 	for _, def := range definitions {
 		if def.Name == definition.Name {
 			log.DaemonLogger().Error("Duplicate definition found", "name", definition.Name, "filename", definition.FileName)
@@ -102,7 +104,6 @@ func validateDefinition(definitions []Endpoint, definition Endpoint) bool {
 		return false
 	}
 
-	// TODO keep schema in mem?
 	compiler := jsonschema.NewCompiler()
 	err := compiler.AddResource("schema.json", definition.ResponseSchema)
 	_, err = compiler.Compile("schema.json")
@@ -132,7 +133,7 @@ func Endpoints() ([]Endpoint, error) {
 			if err != nil {
 				return []Endpoint{}, err
 			}
-			if !validateDefinition(definitions, definition) {
+			if !validateDefinitions(definitions, definition) {
 				log.DaemonLogger().Error("Validation failed for definition. skipping", "name", definition.Name, "filename", definition.FileName)
 				continue
 			}

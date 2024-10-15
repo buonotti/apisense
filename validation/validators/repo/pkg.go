@@ -18,11 +18,13 @@ import (
 	"github.com/plus3it/gorecurcopy"
 )
 
+// Lockfile
 type Lockfile struct {
 	LastUpdate util.ApisenseTime
 	Templates  map[string]string
 }
 
+// loadLockfile loads the lockfile from disk
 func loadLockfile() (Lockfile, error) {
 	if !util.Exists(files.PkgLockFile()) {
 		defaultLockfile := Lockfile{LastUpdate: util.ApisenseTime(time.Now().UTC())}
@@ -44,6 +46,7 @@ func loadLockfile() (Lockfile, error) {
 	return lockfile, err
 }
 
+// saveLockfile saves the lockfile to disk
 func saveLockfile(lockfile Lockfile) error {
 	marshalled, _ := json.MarshalIndent(lockfile, "", "  ")
 	err := os.WriteFile(files.PkgLockFile(), marshalled, os.ModePerm)
@@ -53,6 +56,7 @@ func saveLockfile(lockfile Lockfile) error {
 	return nil
 }
 
+// Update updates all the templates
 func Update() error {
 	lockfile, err := loadLockfile()
 	if err != nil {
@@ -103,6 +107,7 @@ func Update() error {
 	return saveLockfile(lockfile)
 }
 
+// Create creates a new validator from the given template
 func Create(lang string, name string, force bool) error {
 	lockfile, err := loadLockfile()
 	if err != nil {
@@ -158,6 +163,7 @@ func Create(lang string, name string, force bool) error {
 	return nil
 }
 
+// AddCustomRepo adds a language with a custom git repo to the lockfile
 func AddCustomRepo(lang string, url string) error {
 	lockfile, err := loadLockfile()
 	if err != nil {

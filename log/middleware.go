@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// NewFiber returns a new middleware for fiber used to log requests
 func NewFiber() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		url := c.Path()
@@ -27,8 +28,8 @@ func NewFiber() func(c *fiber.Ctx) error {
 	}
 }
 
-// WishMiddleware returns a custom logging middleware that uses log.SSHLogger instead of the wish default logger
-func WishMiddleware() wish.Middleware {
+// NewWish returns a custom logging middleware that uses log.SSHLogger instead of the wish default logger
+func NewWish() wish.Middleware {
 	return func(sh ssh.Handler) ssh.Handler {
 		return func(s ssh.Session) {
 			ct := time.Now()

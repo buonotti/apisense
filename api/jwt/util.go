@@ -5,15 +5,17 @@ import (
 	jwt "github.com/golang-jwt/jwt/v4"
 )
 
+// ExtractUidFromToken extracts the uid from a given token
 func ExtractUidFromToken(token *jwt.Token) string {
 	return token.Claims.(jwt.MapClaims)["uid"].(string)
 }
 
+// ExtractUidFromHeader extracts the uid from the token in the Authorization header
 func ExtractUidFromHeader(c *fiber.Ctx) string {
-	const BEARER_SCHEMA = "Bearer "
+	const bearerSchema = "Bearer "
 	authHeader := c.Get("Authorization")
-	tokenString := authHeader[len(BEARER_SCHEMA):]
-	token, err := Service().ValidateToken(tokenString)
+	tokenString := authHeader[len(bearerSchema):]
+	token, err := ValidateToken(tokenString)
 	if err != nil {
 		return ""
 	}
