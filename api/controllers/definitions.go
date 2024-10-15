@@ -109,6 +109,11 @@ func CreateDefinition(c *fiber.Ctx) error {
 		return c.Status(http.StatusConflict).JSON(Err(err))
 	}
 
+	err = definitions.ValidateDefinition(&definition)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(Err(err))
+	}
+
 	fileName := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + definition.Name + ".apisensedef.yml")
 	data, err := yaml.Marshal(definition)
 	if err != nil {

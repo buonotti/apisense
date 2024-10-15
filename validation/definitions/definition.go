@@ -89,6 +89,10 @@ func parseDefinition(filename string) (Endpoint, error) {
 
 // ValidateDefinition validates the definition and adds sensible defaults if needed
 func ValidateDefinition(definition *Endpoint) error {
+	if strings.Contains(definition.Name, ".") || strings.Contains(definition.Name, "/") {
+		return errors.InvalidCharacterError.New("definition name: %s contains invalid characters ('.', '/')", definition.Name)
+	}
+
 	if definition.BaseUrl == "" {
 		return errors.NoBaseUrlError.New("definition file: %s has no base url", definition.FileName)
 	}
