@@ -18,9 +18,6 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 	github.com/swaggo/swag v1.16.3
-)
-
-require (
 	github.com/auribuo/userdir v1.0.1
 	github.com/charmbracelet/huh v0.6.0
 	github.com/charmbracelet/log v0.4.0

@@ -28,6 +28,7 @@ type ValidatedEndpoint struct {
 
 // TestCaseResult is the result of validating a single api call
 type TestCaseResult struct {
+	Name             string            `json:"name"`             // Name is the name of the test case result
 	Url              string            `json:"url"`              // Url is the url of the api call (with query parameters)
 	ValidatorResults []ValidatorResult `json:"validatorResults"` // ValidatorResults is the collection of ValidatorResult that describe the result of each validator
 }
@@ -96,14 +97,14 @@ func (p *Pipeline) Validate() (Report, error) {
 
 		for i, endpointTestCase := range testCases {
 			wg.Add(1)
-			go func(results *[]ValidatedEndpoint, slot int, testCases validation.EndpointTestCases) {
+			go func(results *[]ValidatedEndpoint, slot int, testCases validation.EndpointTestCases, definition definitions.Endpoint) {
 				validatorResults := p.testCaseResults(testCases)
 				(*results)[slot] = ValidatedEndpoint{
 					EndpointName:    testCases.Definition.Name,
 					TestCaseResults: validatorResults,
 				}
 				wg.Done()
-			}(&results, i, endpointTestCase)
+			}(&results, i, endpointTestCase, enabledDefinitions[i])
 		}
 
 		wg.Wait()
@@ -136,7 +137,8 @@ func (p *Pipeline) testCaseResults(testCases validation.EndpointTestCases) []Tes
 			response, err := validation.Fetch(request, endpoint)
 			if err != nil {
 				testCaseResults[i] = TestCaseResult{
-					Url: response.Url,
+					Name: endpoint.TestCaseNames[slot],
+					Url:  response.Url,
 					ValidatorResults: []ValidatorResult{
 						{
 							Name:    "fetcher",
@@ -147,6 +149,7 @@ func (p *Pipeline) testCaseResults(testCases validation.EndpointTestCases) []Tes
 				}
 			} else {
 				testCaseResults[i] = TestCaseResult{
+					Name:             endpoint.TestCaseNames[slot],
 					Url:              response.Url,
 					ValidatorResults: p.validateTestCase(response, endpoint),
 				}

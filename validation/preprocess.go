@@ -97,20 +97,6 @@ func Preprocess(definition definitions.Endpoint) (EndpointTestCases, error) {
 
 // normalizeVariables converts all given variables in the definition of an endpoint to a collection of variables.EndpointParameter
 func normalizeVariables(definition definitions.Endpoint) ([]definitions.Variable, error) {
-	// get the length of the first non-constant element of the variables. if there are only constants the valueCount is 1
-	firstVariableVar := util.FindFirst(definition.Variables, func(param definitions.Variable) bool { return !param.IsConstant })
-	valueCount := 1
-	if firstVariableVar != nil {
-		valueCount = len(firstVariableVar.Values)
-	}
-
-	// check if any of the non-constant variables has a different length of values than the first non-constant variable
-	for _, param := range definition.Variables {
-		if !param.IsConstant && len(param.Values) != valueCount {
-			return nil, errors.VariableValueLengthMismatchError.New("variable %s has %d values, but %d are expected", param.Name, len(param.Values), valueCount)
-		}
-	}
-
 	// create a new variables.EndpointParameter for each variable. a constant
 	// parameter is created for constants and a variable parameter for variable
 	// values
