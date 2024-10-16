@@ -35,7 +35,6 @@ require (
 	github.com/spf13/viper v1.19.0
 	github.com/swaggo/swag v1.16.3
 	github.com/tidwall/gjson v1.18.0
-	golang.org/x/term v0.25.0
 )
 
 require (
