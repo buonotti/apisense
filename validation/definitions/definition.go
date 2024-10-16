@@ -15,6 +15,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+const SpecVersion int = 1
+
 // JwtLoginOptions is the definition of optional authentication options for jwt
 type JwtLoginOptions struct {
 	Url          string         `yaml:"url" json:"url" validate:"required"`   // Url is the url to the login endpoint
@@ -31,6 +33,7 @@ type QueryDefinition struct {
 // Endpoint is the definition of an endpoint to test with all its query
 // parameters, variables and its result schema
 type Endpoint struct {
+	Version            int               `json:"version" yaml:"version"`                                            // Version is the version of the definition
 	FileName           string            `yaml:"-" json:"-"`                                                        // FileName is the name of the file that contains the definition
 	FullPath           string            `yaml:"-" json:"-"`                                                        // FullPath is the full path of the file that contains the definition
 	Secrets            map[string]any    `yaml:"-" json:"-"`                                                        // Secrets are the secrets for this definition loaded from the secrets file
@@ -89,6 +92,10 @@ func parseDefinition(filename string) (Endpoint, error) {
 
 // ValidateDefinition validates the definition and adds sensible defaults if needed
 func ValidateDefinition(definition *Endpoint) error {
+	if definition.Version != SpecVersion {
+		return errors.InvalidVersionError.New("definition file: %s has an invalid version (%d). This apisense version only supports %d", definition.FileName, definition.Version, SpecVersion)
+	}
+
 	if strings.Contains(definition.Name, ".") || strings.Contains(definition.Name, "/") {
 		return errors.InvalidCharacterError.New("definition name: %s contains invalid characters ('.', '/')", definition.Name)
 	}
