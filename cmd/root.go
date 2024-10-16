@@ -14,6 +14,7 @@ var rootCmd = &cobra.Command{
 	Short: "apisense is a tool to monitor data from a REST web service",
 	Long: `This cli is used to start and interface with the apisense daemon. The daemon is used to monitor data from a REST web service.
 There are multiple subcommands that can be used to interact with the daemon. For more information about a specific subcommand use the --help flag.`,
+	Args:    cobra.NoArgs,
 	Version: "1.0.0",
 	Run: func(cmd *cobra.Command, _ []string) {
 		cobra.CheckErr(cmd.Help())

@@ -14,8 +14,9 @@ import (
 
 var configGetCmd = &cobra.Command{
 	Use:   "get",
-	Short: "Get a configuration value",
-	Long:  `Get a configuration value`, // TODO: Add more info
+	Short: "Get configuration values",
+	Long:  `Get all configuration values or only one when the --key flag is set.`,
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, _ []string) {
 		key := cmd.Flag("key").Value.String()
 		if key == "" {

@@ -57,7 +57,7 @@ func saveLockfile(lockfile Lockfile) error {
 }
 
 // Update updates all the templates
-func Update() error {
+func Update(force bool) error {
 	lockfile, err := loadLockfile()
 	if err != nil {
 		return err
@@ -69,7 +69,7 @@ func Update() error {
 
 	for lang, url := range remoteTemplates {
 		_, ok := lockfile.Templates[lang]
-		if !ok {
+		if !ok || force {
 			log.DefaultLogger().Info("Found new language. Adding to templates", "lang", lang)
 			if lockfile.Templates == nil {
 				lockfile.Templates = make(map[string]string)

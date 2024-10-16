@@ -10,7 +10,8 @@ import (
 var configSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Set a configuration value",
-	Long:  `Set a configuration value`, // TODO: Add more info
+	Long:  `Set a configuration value in the current config and save it to disk.`,
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, _ []string) {
 		key := cmd.Flag("key").Value.String()
 		if key == "" {

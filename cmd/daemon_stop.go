@@ -10,6 +10,7 @@ var daemonStopCmd = &cobra.Command{
 	Use:   "stop",
 	Short: "Stop the daemon",
 	Long:  `This command stops a running daemon. If there is no daemon running the command does nothing.`,
+	Args:  cobra.NoArgs,
 	Run: func(_ *cobra.Command, _ []string) {
 		err := daemon.Stop()
 		if err != nil {

@@ -17,7 +17,8 @@ var definitionListCmd = &cobra.Command{
 	Use:     "list",
 	Aliases: []string{"ls"},
 	Short:   "List definitions",
-	Long:    `List definitions`, // TODO: Add more info
+	Long:    `List all definitions`,
+	Args:    cobra.NoArgs,
 	Run: func(cmd *cobra.Command, _ []string) {
 		definitions, err := definitions.Endpoints()
 		if err != nil {
@@ -25,12 +26,15 @@ var definitionListCmd = &cobra.Command{
 		}
 		concise := cmd.Flag("concise").Value.String() == "true"
 
-		if !concise {
-			fmt.Println(yellowStyle().Bold(true).Render("# Definitions \n"))
-		}
-
-		for _, def := range definitions {
-			printDefinition(def, concise)
+		if len(definitions) == 0 {
+			fmt.Println("No definitions")
+		} else {
+			if !concise {
+				fmt.Println(yellowStyle().Bold(true).Render("# Definitions \n"))
+			}
+			for _, def := range definitions {
+				printDefinition(def, concise)
+			}
 		}
 	},
 }

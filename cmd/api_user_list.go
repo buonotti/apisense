@@ -12,6 +12,7 @@ var apiUserListCmd = &cobra.Command{
 	Use:     "list",
 	Short:   "List users",
 	Aliases: []string{"ls"},
+	Args:    cobra.NoArgs,
 	Long:    `This command allows to list the users of the API.`,
 	Run: func(_ *cobra.Command, _ []string) {
 		users, err := db.ListUsers()

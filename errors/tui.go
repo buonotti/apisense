@@ -5,9 +5,10 @@ import (
 )
 
 var (
-	TuiErrors    = errorx.NewNamespace("tui")
-	WatcherError = TuiErrors.NewType("watcher_error")
-	NotifyError  = TuiErrors.NewType("notify_error")
-	UnknownError = TuiErrors.NewType("unknown_error")
-	ModelError   = TuiErrors.NewType("model_error")
+	TuiErrors            = errorx.NewNamespace("tui")
+	WatcherError         = TuiErrors.NewType("watcher_error")
+	NotifyError          = TuiErrors.NewType("notify_error")
+	UnknownError         = TuiErrors.NewType("unknown_error")
+	ModelError           = TuiErrors.NewType("model_error")
+	CannotRunPromptError = TuiErrors.NewType("cannot_run_prompt")
 )

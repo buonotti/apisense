@@ -15,6 +15,7 @@ var reportListCmd = &cobra.Command{
 	Aliases: []string{"ls"},
 	Short:   "List all available reports",
 	Long:    "This command lists all available reports.",
+	Args:    cobra.NoArgs,
 	Run: func(cmd *cobra.Command, _ []string) {
 		verbose, err := cmd.Flags().GetBool("verbose")
 		if err != nil {

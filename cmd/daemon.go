@@ -10,6 +10,7 @@ var daemonCmd = &cobra.Command{
 	Aliases: []string{"d"},
 	Short:   "Manage the daemon",
 	Long:    `This command is used to manage the daemon functionalities. It provides subcommands to start, stop and check the status of the daemon.`,
+	Args:    cobra.NoArgs,
 	Run: func(cmd *cobra.Command, _ []string) {
 		cobra.CheckErr(cmd.Help())
 	},

@@ -12,9 +12,10 @@ import (
 )
 
 var reportExportCmd = &cobra.Command{
-	Use:   "export [FLAGS] [REPORTS]...",
+	Use:   "export [REPORTS]...",
 	Short: "Export reports in various formats",
 	Long:  "This command exports all the reports in the report directory in one of the specified formats.",
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		format, err := cmd.Flags().GetString("format")
 		if err != nil {

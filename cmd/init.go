@@ -10,6 +10,7 @@ var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize apisense directories",
 	Long:  `This command initialize apisense directories. It creates the config directory and the reports and definitions directories.`,
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 	},
 	PostRun: func(_ *cobra.Command, _ []string) {

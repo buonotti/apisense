@@ -9,7 +9,8 @@ import (
 var templatesCmd = &cobra.Command{
 	Use:   "templates",
 	Short: "Manage validator templates",
-	Long:  "Manage validator templates",
+	Long:  "This command is used to install and update validator templates from official and non-official repositories",
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := repo.Update()
 		if err != nil {

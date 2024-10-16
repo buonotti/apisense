@@ -125,8 +125,10 @@ func ValidateDefinition(definition *Endpoint) error {
 			return errors.TestCaseNamesLengthMismatchError.New("test_case_names length (%d) does not match with the amount of test cases generated (%d)", len(definition.TestCaseNames), valueCount)
 		}
 	} else {
-		if len(definition.TestCaseNames) != 0 {
-			return errors.TestCaseNamesLengthMismatchError.New("no variables set so no test case names will be used")
+		if len(definition.TestCaseNames) == 0 {
+			definition.TestCaseNames = []string{"TestCase1"}
+		} else if len(definition.TestCaseNames) > 1 {
+			return errors.TestCaseNamesLengthMismatchError.New("no variables set so only one test case will be generated")
 		}
 	}
 

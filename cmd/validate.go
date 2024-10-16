@@ -12,7 +12,7 @@ import (
 var validateCmd = &cobra.Command{
 	Use:   "validate",
 	Short: "One-shot validation",
-	Long:  "Validate all the definitions only once, print the report then exit",
+	Long:  "Validate all the definitions only once, print the report then exit.",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		validationPipeline, err := daemon.NewPipeline()

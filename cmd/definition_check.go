@@ -14,7 +14,7 @@ import (
 var definitionCheckCmd = &cobra.Command{
 	Use:   "check",
 	Short: "Check if a definition file is valid",
-	Long:  "Validates the given definition file and checks whether its structure is valid",
+	Long:  "Validates the given definition file and checks whether its structure is valid.",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		file := args[0]

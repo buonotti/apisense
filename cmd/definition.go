@@ -7,7 +7,8 @@ import (
 var definitionCmd = &cobra.Command{
 	Use:   "definition",
 	Short: "Manage definitions",
-	Long:  `Manage definitions`, // TODO: Add more info
+	Long:  `This command is used to manage the definition files.`,
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, _ []string) {
 		cobra.CheckErr(cmd.Help())
 	},
