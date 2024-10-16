@@ -52,9 +52,7 @@ var definitionImportCmd = &cobra.Command{
 
 func init() {
 	definitionImportCmd.Flags().String("fmt", "swagger2", "Set the swagger document version")
-	err := definitionImportCmd.RegisterFlagCompletionFunc("fmt", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return []string{"swagger2", "swagger3"}, cobra.ShellCompDirectiveNoFileComp
-	})
+	err := definitionImportCmd.RegisterFlagCompletionFunc("fmt", validImportFormatsFunc())
 	if err != nil {
 		log.DefaultLogger().Fatal(errors.CannotRegisterCompletionFunction.Wrap(err, "cannot register fmt completion func"))
 	}

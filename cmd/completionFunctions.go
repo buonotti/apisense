@@ -118,3 +118,15 @@ func validLogLevelsFunc() func(cmd *cobra.Command, args []string, toComplete str
 		return []string{"debug", "info", "warning", "error", "fatal"}, cobra.ShellCompDirectiveNoFileComp
 	}
 }
+
+func validImportFormatsFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"swagger2", "swagger3"}, cobra.ShellCompDirectiveNoFileComp
+	}
+}
+
+func validExportFormatsFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return conversion.Converters(), cobra.ShellCompDirectiveNoFileComp
+	}
+}

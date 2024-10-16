@@ -12,14 +12,14 @@ var tuiCmd = &cobra.Command{
 	Short: "Start the TUI",
 	Long:  `This command starts the text user interface in the current terminal. Refer to the help menu in the TUI for keybindings and more.`,
 	Args:  cobra.NoArgs,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		cobra.CheckErr(daemon.Setup())
+	},
 	Run: func(_ *cobra.Command, _ []string) {
 		err := tui.Run()
 		if err != nil {
 			log.DefaultLogger().Fatal(err)
 		}
-	},
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		cobra.CheckErr(daemon.Setup())
 	},
 }
 

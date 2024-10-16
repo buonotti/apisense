@@ -16,6 +16,12 @@ var apiCmd = &cobra.Command{
 	Long: `This command starts the api server. By default it runs on port 8080. and listens on all hosts.
 The port and interface can be changed with the --port and --host flags. The flags override the values in the config file.`,
 	Args: cobra.NoArgs,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		cmd.Root().PersistentPreRun(cmd, args)
+		if viper.GetBool("api.auth") {
+			cobra.CheckErr(db.Setup())
+		}
+	},
 	Run: func(cmd *cobra.Command, _ []string) {
 		host := cmd.Flag("host").Value.String()
 		port := cmd.Flag("port").Value.String()
@@ -26,12 +32,6 @@ The port and interface can be changed with the --port and --host flags. The flag
 		err = api.Start(host, portParsed)
 		if err != nil {
 			log.DefaultLogger().Fatal(err)
-		}
-	},
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		cmd.Root().PersistentPreRun(cmd, args)
-		if viper.GetBool("api.auth") {
-			cobra.CheckErr(db.Setup())
 		}
 	},
 }

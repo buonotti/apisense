@@ -11,9 +11,11 @@ import (
 )
 
 var definitionDisableCmd = &cobra.Command{
-	Use:   "disable [DEFINITION]",
-	Short: "Disable a definition",
-	Long:  `This command is used to disable a given definition.`,
+	Use:               "disable [DEFINITION]",
+	Short:             "Disable a definition",
+	Long:              `This command is used to disable a given definition.`,
+	Args:              cobra.ExactArgs(1),
+	ValidArgsFunction: validEnabledDefinitionFunc(),
 	Run: func(_ *cobra.Command, args []string) {
 		fileName := args[0]
 		fullPath := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + fileName)
@@ -27,8 +29,6 @@ var definitionDisableCmd = &cobra.Command{
 			log.DefaultLogger().Error("Definition not found", "filename", fileName)
 		}
 	},
-	ValidArgsFunction: validEnabledDefinitionFunc(),
-	Args:              cobra.ExactArgs(1),
 }
 
 func init() {

@@ -12,8 +12,6 @@ var initCmd = &cobra.Command{
 	Long:  `This command initialize apisense directories. It creates the config directory and the reports and definitions directories.`,
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-	},
-	PostRun: func(_ *cobra.Command, _ []string) {
 		err := filesystem.Setup()
 		if err != nil {
 			log.DefaultLogger().Fatal(err)

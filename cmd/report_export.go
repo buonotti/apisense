@@ -71,9 +71,7 @@ var reportExportCmd = &cobra.Command{
 func init() {
 	reportExportCmd.Flags().StringP("format", "f", "", "Specify the export format")
 	reportExportCmd.Flags().Bool("all", false, "Export all reports")
-	err := reportExportCmd.RegisterFlagCompletionFunc("format", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return conversion.Converters(), cobra.ShellCompDirectiveNoFileComp
-	})
+	err := reportExportCmd.RegisterFlagCompletionFunc("format", validExportFormatsFunc())
 	if err != nil {
 		log.DefaultLogger().Fatal(errors.CannotRegisterCompletionFunction.Wrap(err, "cannot register completion function for reports"))
 	}

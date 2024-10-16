@@ -7,10 +7,11 @@ import (
 )
 
 var apiUserEnableCmd = &cobra.Command{
-	Use:   "enable [USERNAME]",
-	Short: "Enable a user",
-	Long:  `This command allows to enable a user of the API.`,
-	Args:  cobra.ExactArgs(1),
+	Use:               "enable [USERNAME]",
+	Short:             "Enable a user",
+	Long:              `This command allows to enable a user of the API.`,
+	Args:              cobra.ExactArgs(1),
+	ValidArgsFunction: validDisabledUserFunc(),
 	Run: func(_ *cobra.Command, args []string) {
 		username := args[0]
 
@@ -21,7 +22,6 @@ var apiUserEnableCmd = &cobra.Command{
 
 		log.DefaultLogger().Info("User enabled", "username")
 	},
-	ValidArgsFunction: validDisabledUserFunc(),
 }
 
 func init() {
