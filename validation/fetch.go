@@ -3,8 +3,8 @@ package validation
 import (
 	"encoding/xml"
 	"fmt"
-	"html/template"
 	"strings"
+	"text/template"
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
@@ -28,25 +28,35 @@ type EndpointResponse struct {
 	UsedQueryParameters map[string][]string // UsedQueryParameters are the query parameters that were used in the request
 }
 
+func applyPayload(payload any, varMap definitions.VariableMap) ([]byte, error) {
+	payloadString, err := json.Marshal(payload)
+	if err != nil {
+		return nil, errors.CannotSerializeItemError.Wrap(err, "cannot serialize login payload")
+	}
+	return applyPayloadString(string(payloadString), varMap)
+}
+
+func applyPayloadString(payloadString string, varMap definitions.VariableMap) ([]byte, error) {
+	templ, err := template.New("template").Parse(payloadString)
+	if err != nil {
+		return nil, errors.CannotApplyTemplateError.Wrap(err, "cannot parse template")
+	}
+	payloadBuilder := strings.Builder{}
+	err = templ.Execute(&payloadBuilder, varMap)
+	if err != nil {
+		return nil, errors.CannotApplyTemplateError.Wrap(err, "cannot apply template")
+	}
+	return []byte(payloadBuilder.String()), nil
+}
+
 func retrieveToken(definition definitions.Endpoint) (string, error) {
 	log.DaemonLogger().Debug("Retrieving jwt token")
-	payload, err := json.Marshal(definition.JwtLogin.LoginPayload)
+	bodyContent, err := applyPayload(definition.JwtLogin.LoginPayload, definitions.VariableMap(definition.Secrets))
 	if err != nil {
-		return "", errors.CannotSerializeItemError.Wrap(err, "cannot serialize login payload")
-	}
-	temp := template.New("Login" + definition.JwtLogin.Url)
-
-	temp, err = temp.Parse(string(payload))
-	if err != nil {
-		return "", errors.CannotApplyTemplateError.Wrap(err, "cannot parse template")
+		return "", err
 	}
 
-	payloadBuilder := strings.Builder{}
-	err = temp.Execute(&payloadBuilder, definition.Secrets)
-	if err != nil {
-		return "", errors.CannotApplyTemplateError.Wrap(err, "cannot apply template")
-	}
-	resp, err := rest().R().SetBody(payloadBuilder.String()).SetHeader("Content-Type", "application/json").Post(definition.JwtLogin.Url)
+	resp, err := rest().R().SetBody(bodyContent).SetHeader("Content-Type", "application/json").Post(definition.JwtLogin.Url)
 	if err != nil {
 		return "", errors.CannotRequestDataError.Wrap(err, "cannot send login request")
 	}
@@ -84,18 +94,12 @@ func prepareRequest(request EndpointRequest, definition definitions.Endpoint) (*
 
 		req.SetHeader("Authorization", fmt.Sprintf("Bearer %s", token))
 	} else if definition.Authorization != "" {
-		temp := template.New("Authorization" + request.Url)
-		temp, err := temp.Parse(definition.Authorization)
+		authHeaderVal, err := applyPayloadString(definition.Authorization, definitions.VariableMap(definition.Secrets))
 		if err != nil {
-			return nil, errors.CannotApplyTemplateError.Wrap(err, "cannot parse tempalte")
-		}
-		headerBuilder := strings.Builder{}
-		err = temp.Execute(&headerBuilder, definition.Secrets)
-		if err != nil {
-			return nil, errors.CannotApplyTemplateError.Wrap(err, "cannot apply template")
+			return nil, err
 		}
 
-		req.SetHeader("Authorization", headerBuilder.String())
+		req.SetHeader("Authorization", string(authHeaderVal))
 	}
 
 	return req, nil
@@ -116,12 +120,20 @@ func Fetch(request EndpointRequest, definition definitions.Endpoint) (EndpointRe
 	switch definition.Method {
 	case "POST":
 		{
-			resp, err = req.SetBody(definition.Payload).Post(request.Url)
+			payload, err := applyPayload(definition.Payload, request.Variables)
+			if err != nil {
+				return EndpointResponse{}, err
+			}
+			resp, err = req.SetBody(payload).Post(request.Url)
 			break
 		}
 	case "PUT":
 		{
-			resp, err = req.SetBody(definition.Payload).Post(request.Url)
+			payload, err := applyPayload(definition.Payload, request.Variables)
+			if err != nil {
+				return EndpointResponse{}, err
+			}
+			resp, err = req.SetBody(payload).Post(request.Url)
 			break
 		}
 	case "DELETE":

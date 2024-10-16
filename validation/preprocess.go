@@ -13,6 +13,7 @@ type EndpointRequest struct {
 	Url             string
 	QueryParameters map[string]string
 	Payload         string
+	Variables       definitions.VariableMap
 }
 
 type EndpointTestCases struct {
@@ -87,6 +88,7 @@ func Preprocess(definition definitions.Endpoint) (EndpointTestCases, error) {
 		requests = append(requests, EndpointRequest{
 			Url:             parsedUrl,
 			QueryParameters: queryParams,
+			Variables:       variableMap,
 		})
 	}
 	return EndpointTestCases{

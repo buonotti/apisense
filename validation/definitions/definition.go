@@ -33,9 +33,9 @@ type QueryDefinition struct {
 type Endpoint struct {
 	FileName           string            `yaml:"-" json:"-"`                                                        // FileName is the name of the file that contains the definition
 	FullPath           string            `yaml:"-" json:"-"`                                                        // FullPath is the full path of the file that contains the definition
-	Secrets            map[string]string `yaml:"-" json:"-"`                                                        // Secrets are the secrets for this definition loaded from the secrets file
+	Secrets            map[string]any    `yaml:"-" json:"-"`                                                        // Secrets are the secrets for this definition loaded from the secrets file
+	IsEnabled          bool              `yaml:"-,omitempty" json:"-,omitempty"`                                    // IsEnabled is a boolean that indicates if the endpoint is enabled (not contained in the definition)
 	Name               string            `yaml:"name,omitempty" json:"name,omitempty" validate:"required"`          // Name is the name of the endpoint
-	IsEnabled          bool              `yaml:"enabled,omitempty" json:"enabled,omitempty"`                        // IsEnabled is a boolean that indicates if the endpoint is enabled (not contained in the definition)
 	BaseUrl            string            `yaml:"base_url,omitempty" json:"baseUrl,omitempty" validate:"required"`   // BaseUrl is the base path of the endpoint
 	Method             string            `yaml:"method,omitempty" json:"method,omitempty"`                          // Method is the name of the http-method to use for the request
 	Payload            map[string]any    `yaml:"payload,omitempty" json:"payload,omitempty"`                        // Payload is the payload to use in case of a POST or PUT request
@@ -76,7 +76,7 @@ func parseDefinition(filename string) (Endpoint, error) {
 			return Endpoint{}, errors.FileNotFoundError.Wrap(err, "cannot read secrets file")
 		}
 
-		var secrets map[string]string
+		var secrets map[string]any
 		err = yaml.Unmarshal(secretsContent, &secrets)
 		if err != nil {
 			return Endpoint{}, errors.CannotParseDefinitionFileError.Wrap(err, "cannot parse secrets file")
@@ -103,27 +103,37 @@ func ValidateDefinition(definition *Endpoint) error {
 		return errors.InvalidFormatError.New("definition file: %s has invalid format. Expected either 'json' or 'xml', got %s", definition.FileName, definition.Format)
 	}
 
-	firstVariableVar := util.FindFirst(definition.Variables, func(param Variable) bool { return !param.IsConstant })
-	valueCount := 1
-	if firstVariableVar != nil {
-		valueCount = len(firstVariableVar.Values)
-	}
-
-	// check if any of the non-constant variables has a different length of values than the first non-constant variable
-	for _, param := range definition.Variables {
-		if !param.IsConstant && len(param.Values) != valueCount {
-			return errors.VariableValueLengthMismatchError.New("variable %s has %d values, but %d are expected", param.Name, len(param.Values), valueCount)
+	if len(definition.Variables) > 0 {
+		firstVariableVar := util.FindFirst(definition.Variables, func(param Variable) bool { return !param.IsConstant })
+		valueCount := 1
+		if firstVariableVar != nil {
+			valueCount = len(firstVariableVar.Values)
+		}
+		// check if any of the non-constant variables has a different length of values than the first non-constant variable
+		for _, param := range definition.Variables {
+			if !param.IsConstant && len(param.Values) != valueCount {
+				return errors.VariableValueLengthMismatchError.New("variable %s has %d values, but %d are expected", param.Name, len(param.Values), valueCount)
+			}
+		}
+		if definition.TestCaseNames == nil || len(definition.TestCaseNames) == 0 {
+			definition.TestCaseNames = make([]string, 0)
+			for i := range valueCount {
+				definition.TestCaseNames = append(definition.TestCaseNames, fmt.Sprintf("TestCase%d", i+1))
+			}
+		}
+		if len(definition.TestCaseNames) != valueCount {
+			return errors.TestCaseNamesLengthMismatchError.New("test_case_names length (%d) does not match with the amount of test cases generated (%d)", len(definition.TestCaseNames), valueCount)
+		}
+	} else {
+		if len(definition.TestCaseNames) != 0 {
+			return errors.TestCaseNamesLengthMismatchError.New("no variables set so no test case names will be used")
 		}
 	}
 
-	if definition.TestCaseNames == nil || len(definition.TestCaseNames) == 0 {
-		definition.TestCaseNames = make([]string, 0)
-		for i := range valueCount {
-			definition.TestCaseNames = append(definition.TestCaseNames, fmt.Sprintf("TestCase%d", i+1))
+	for k, v := range definition.Secrets {
+		if _, ok := v.(string); !ok {
+			return errors.InvalidSecretsError.New("secrets %s is not of type string", k)
 		}
-	}
-	if len(definition.TestCaseNames) != valueCount {
-		return errors.TestCaseNamesLengthMismatchError.New("test_case_names length (%d) does not match with the amount of test cases generated (%d)", len(definition.TestCaseNames), valueCount)
 	}
 
 	compiler := jsonschema.NewCompiler()

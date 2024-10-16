@@ -14,6 +14,7 @@ var (
 	TestCaseNamesLengthMismatchError = InvalidDefinitionErrors.NewType("test_case_names_length_mismatch")
 	InvalidSchemaError               = InvalidDefinitionErrors.NewType("invalid_schema")
 	InvalidCharacterError            = InvalidDefinitionErrors.NewType("invalid_character")
+	InvalidSecretsError              = InvalidDefinitionErrors.NewType("invalid_secrets")
 	ValidationError                  = ValidationErrors.NewType("validation_error")
 	CannotSerializeItemError         = ValidationErrors.NewType("cannot_serialize_item")
 	ExternalValidatorParseError      = ValidationErrors.NewType("external_validator_parse_error")
