@@ -1,16 +1,7 @@
-# This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
-
-# The lines below are called `modelines`. See `:help modeline`
-# Feel free to remove those if you don't want/need to use them.
-# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
-# vim: set ts=2 sw=2 tw=0 fo=cnqoj
-
 version: 2
 
 before:
   hooks:
-    # You may remove this if you don't use go modules.
     - go mod tidy
 
 builds:
@@ -23,7 +14,6 @@ builds:
 
 archives:
   - format: tar.gz
-    # this name template makes the OS and Arch compatible with the results of `uname`.
     name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
@@ -31,7 +21,6 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
-    # use zip for windows archives
     format_overrides:
       - goos: windows
         format: zip
@@ -43,165 +32,3 @@ changelog:
       - "^docs:"
       - "^test:"
       - "^examples:"
-
-nfpms:
-  # note that this is an array of nfpm configs
-  - 
-    # ID of the nfpm config, must be unique.
-    #
-    # Default: 'default'.
-    id: apisense
-
-    # Name of the package.
-    #
-    # Default: ProjectName.
-    # Templates: allowed.
-    package_name: apisense
-
-    # You can change the file name of the package.
-    #
-    # Default: '{{ .PackageName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}'.
-    # Templates: allowed.
-    file_name_template: "{{ .ConventionalFileName }}"
-
-    # Build IDs for the builds you want to create NFPM packages for.
-    # Default: '' (no filtering).
-    # builds:
-    #   - foo
-    #   - bar
-
-    # Allows to further filter the artifacts.
-    #
-    # Artifacts that do not match this expression will be ignored.
-    #
-    # Since: v2.4 (pro).
-    # Templates: allowed.
-    # if: '{{ eq .Os "linux" }}'
-
-    # Your app's vendor.
-    vendor: Buonotti
-
-    # Your app's homepage.
-    #
-    # Default: inferred from global metadata.
-    homepage: https://github.com/buonotti/apisense
-
-    # Your app's maintainer (probably you).
-    #
-    # Default: inferred from global metadata.
-    maintainer: auribuo <48835871+auribuo@users.noreply.github.com>
-
-    # Your app's description.
-    #
-    # Default: inferred from global metadata.
-    description: |-
-      Apisense installer package 
-      Apisense is a tool to monitor rest-api data
-
-    # Your app's license.
-    #
-    # Default: inferred from global metadata.
-    license: MIT
-
-    # Formats to be generated.
-    formats:
-      - apk
-      - deb
-      - rpm
-      - termux.deb
-      - archlinux
-
-    # Umask to be used on files without explicit mode set. (overridable)
-    #
-    # Default: 0o002 (will remove world-writable permissions).
-    umask: 0o002
-
-    # Packages your package depends on. (overridable)
-    # dependencies:
-      # - git
-      # - zsh
-
-    # Packages it provides. (overridable)
-    provides:
-      - apisense
-
-    # Packages your package recommends installing. (overridable)
-    # recommends:
-    #   - bzr
-    #   - gtk
-
-    # Packages your package suggests installing. (overridable)
-    # suggests:
-    #   - cvs
-    #   - ksh
-
-    # Packages that conflict with your package. (overridable)
-    # conflicts:
-    #   - svn
-    #   - bash
-
-    # Packages it replaces. (overridable)
-    # replaces:
-    #   - fish
-
-    # Path that the binaries should be installed.
-    #
-    # Default: '/usr/bin'.
-    bindir: /usr/bin
-
-    # Paths to the directories where to put specific types of libraries that
-    # GoReleaser built.
-    #
-    # This should be used together with `builds.buildmode`
-    #
-    # Templates: allowed.
-    # libdirs:
-    #   # Default: '/usr/include'.
-    #   headers: /usr/include/something
-    #
-    #   # Default: '/usr/lib'.
-    #   cshared: /usr/lib/foo
-    #
-    #   # Default: '/usr/lib'.
-    #   carchive: /usr/lib/foobar
-
-    # Version Epoch.
-    #
-    # Default: extracted from `version` if it is semver compatible.
-    # epoch: 2
-
-    # Version Prerelease.
-    #
-    # Default: extracted from `version` if it is semver compatible.
-    # prerelease: beta1
-
-    # Version Metadata (previously deb.metadata).
-    # Setting metadata might interfere with version comparisons depending on the
-    # packager.
-    #
-    # Default: extracted from `version` if it is semver compatible.
-    # version_metadata: git
-
-    # Version Release.
-    release: 1
-
-    # Section.
-    section: default
-
-    # Priority.
-    priority: extra
-
-    # Makes a meta package - an empty package that contains only supporting
-    # files and dependencies.
-    # When set to `true`, the `builds` option is ignored.
-    meta: true
-
-    # Changelog YAML file, see: https://github.com/goreleaser/chglog
-    #
-    # You can use goreleaser/chglog to create the changelog for your project,
-    # pass that changelog yaml file to GoReleaser,
-    # and it should in turn setup it accordingly for the given available
-    # formats (deb and rpm at the moment).
-    #
-    # Experimental.
-    # changelog: ./foo.yml
