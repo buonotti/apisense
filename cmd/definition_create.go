@@ -3,12 +3,11 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	_ "embed"
 
 	"github.com/buonotti/apisense/examples"
-	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/filesystem/locations"
 	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
 )
@@ -20,7 +19,7 @@ var definitionCreateCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(_ *cobra.Command, args []string) {
 		name := args[0]
-		fileName := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + name + ".apisensedef.yml")
+		fileName := locations.Definition(name)
 		err := os.WriteFile(fileName, []byte(fmt.Sprintf(examples.Boilerplate, name)), os.ModePerm)
 		if err != nil {
 			log.DefaultLogger().Fatal(err)

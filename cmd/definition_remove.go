@@ -2,9 +2,8 @@ package cmd
 
 import (
 	"os"
-	"path/filepath"
 
-	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/filesystem/locations"
 	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
 )
@@ -16,8 +15,8 @@ var definitionRemoveCmd = &cobra.Command{
 	Args:              cobra.MinimumNArgs(1),
 	ValidArgsFunction: validDefinitionsFunc(),
 	Run: func(_ *cobra.Command, args []string) {
-		for _, definition := range args {
-			fullPath := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + definition)
+		for _, fileName := range args {
+			fullPath := locations.DefinitionExt(fileName)
 			err := os.Remove(fullPath)
 			if err != nil {
 				log.DefaultLogger().Fatal(err)

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/filesystem/locations"
 	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/util"
@@ -57,7 +58,7 @@ type Endpoint struct {
 // parseDefinition reads a given file and returns and EndpointDefinition.
 // If the file could not be parsed the function returns an *errors.FileNotFoundError
 func parseDefinition(filename string) (Endpoint, error) {
-	definitionFile := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + filename)
+	definitionFile := locations.DefinitionExt(filename)
 	definitionContent, err := os.ReadFile(definitionFile)
 	if err != nil {
 		return Endpoint{}, errors.FileNotFoundError.Wrap(err, "cannot read definition file")
@@ -69,7 +70,7 @@ func parseDefinition(filename string) (Endpoint, error) {
 		return Endpoint{}, errors.CannotParseDefinitionFileError.Wrap(err, "cannot parse definition file")
 	}
 	definition.FileName = filename
-	definition.FullPath = filepath.FromSlash(directories.DefinitionsDirectory() + "/" + filename)
+	definition.FullPath = definitionFile
 	definition.IsEnabled = !strings.HasPrefix(filename, viper.GetString("daemon.ignore_prefix"))
 	if definition.Authorization != "" || definition.JwtLogin.Url != "" {
 		secretsFileName, _ := strings.CutSuffix(filename, ".apisensedef.yml")
