@@ -1,8 +1,8 @@
 module github.com/buonotti/apisense
 
-go 1.22.0
+go 1.23.0
 
-toolchain go1.23.1
+toolchain go1.23.2
 
 require (
 	github.com/76creates/stickers v0.0.0-20221228130522-99e8eca7151c
@@ -27,6 +27,7 @@ require (
 	github.com/kopoli/go-terminal-size v0.0.0-20170219200355-5c97524c8b54
 	github.com/ldez/go-git-cmd-wrapper/v2 v2.7.0
 	github.com/muesli/termenv v0.15.3-0.20240618155329-98d742f6907a
+	github.com/pb33f/libopenapi v0.18.3
 	github.com/plus3it/gorecurcopy v0.0.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.1
@@ -43,6 +44,8 @@ require (
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
+	github.com/bahlo/generic-list-go v0.2.0 // indirect
+	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/catppuccin/go v0.2.0 // indirect
 	github.com/charmbracelet/keygen v0.5.1 // indirect
 	github.com/charmbracelet/x/ansi v0.3.2 // indirect
@@ -53,6 +56,7 @@ require (
 	github.com/charmbracelet/x/term v0.2.0 // indirect
 	github.com/charmbracelet/x/termios v0.1.0 // indirect
 	github.com/creack/pty v1.1.23 // indirect
+	github.com/dprotaso/go-yit v0.0.0-20240618133044-5a0af90af097 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
 	github.com/fatih/color v1.17.0 // indirect
@@ -88,6 +92,8 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.56.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
+	github.com/vmware-labs/yaml-jsonpath v0.3.2 // indirect
+	github.com/wk8/go-ordered-map/v2 v2.1.9-0.20240815153524-6ea36470d1bd // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.28.0 // indirect
