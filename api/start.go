@@ -35,18 +35,20 @@ func Start(host string, port int) error {
 	app.Use(cors.New())
 	app.Use(log.NewFiber())
 
-	app.Get("/swagger/*", swagger.New())
 	app.Get("/health", controllers.GetHealth)
 
 	api := app.Group("/api")
-
 	api.Get("/health", controllers.GetHealth)
 	api.Post("/login", controllers.LoginUser)
 	api.Get("/reports", controllers.AllReports)
 	api.Get("/reports/:id", controllers.Report)
-	api.Get("/swagger", func(c *fiber.Ctx) error {
-		return c.Redirect("/swagger/index.html", http.StatusMovedPermanently)
-	})
+
+	if viper.GetBool("api.swagger") {
+		app.Get("/swagger/*", swagger.New())
+		api.Get("/swagger", func(c *fiber.Ctx) error {
+			return c.Redirect("/swagger/index.html", http.StatusMovedPermanently)
+		})
+	}
 
 	if viper.GetBool("api.auth") {
 		api.Use(middleware.Auth())

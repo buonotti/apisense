@@ -78,6 +78,9 @@
   # Enable authentication
   # auth: true
 
+  # Enable swagger
+  # swagger: true
+
 ### EXTERNAL VALIDATORS ###
 # validation:
   # Define external validators that can be used in the definitions.
