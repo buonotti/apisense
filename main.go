@@ -5,7 +5,7 @@ import (
 )
 
 //	@title			    Apisense API
-//	@version		    1.0
+//	@version		    1.0.0
 //	@description	  Api specification for the Apisense API
 
 //	@contact.name	  buonotti

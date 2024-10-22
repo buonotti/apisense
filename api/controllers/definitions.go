@@ -3,10 +3,9 @@ package controllers
 import (
 	"net/http"
 	"os"
-	"path/filepath"
 
 	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/filesystem/locations"
 	"github.com/buonotti/apisense/util"
 	"github.com/buonotti/apisense/validation/definitions"
 	"github.com/goccy/go-yaml"
@@ -114,7 +113,7 @@ func CreateDefinition(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(Err(err))
 	}
 
-	fileName := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + definition.Name + ".apisensedef.yml")
+	fileName := locations.Definition(definition.Name)
 	data, err := yaml.Marshal(definition)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(Err(err))

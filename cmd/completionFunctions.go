@@ -31,7 +31,7 @@ func validConfigKeysFunc() func(cmd *cobra.Command, args []string, toComplete st
 
 func validFormatsFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return conversion.Converters(), cobra.ShellCompDirectiveNoFileComp
+		return []string{"json", "yaml"}, cobra.ShellCompDirectiveNoFileComp
 	}
 }
 

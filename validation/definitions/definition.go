@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/filesystem/locations"
 	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/util"
@@ -37,7 +38,7 @@ type Endpoint struct {
 	FileName           string            `yaml:"-" json:"-"`                                                        // FileName is the name of the file that contains the definition
 	FullPath           string            `yaml:"-" json:"-"`                                                        // FullPath is the full path of the file that contains the definition
 	Secrets            map[string]any    `yaml:"-" json:"-"`                                                        // Secrets are the secrets for this definition loaded from the secrets file
-	IsEnabled          bool              `yaml:"-,omitempty" json:"-,omitempty"`                                    // IsEnabled is a boolean that indicates if the endpoint is enabled (not contained in the definition)
+	IsEnabled          bool              `yaml:"-" json:"-"`                                                        // IsEnabled is a boolean that indicates if the endpoint is enabled (not contained in the definition)
 	Name               string            `yaml:"name,omitempty" json:"name,omitempty" validate:"required"`          // Name is the name of the endpoint
 	BaseUrl            string            `yaml:"base_url,omitempty" json:"baseUrl,omitempty" validate:"required"`   // BaseUrl is the base path of the endpoint
 	Method             string            `yaml:"method,omitempty" json:"method,omitempty"`                          // Method is the name of the http-method to use for the request
@@ -49,15 +50,15 @@ type Endpoint struct {
 	QueryParameters    []QueryDefinition `yaml:"query_parameters,omitempty" json:"queryParameters,omitempty"`       // QueryParameters are all the query parameters that should be added to the call
 	Format             string            `yaml:"format,omitempty" json:"format,omitempty" validate:"required"`      // Format is the response format of the
 	Variables          []Variable        `yaml:"variables,omitempty" json:"variables,omitempty"`                    // Variables are all the variables that should be interpolated in the base url and the query parameters
-	TestCaseNames      []string          `yaml:"test_case_names" json:"test_case_names,omitempty"`
+	TestCaseNames      []string          `yaml:"test_case_names,omitempty" json:"test_case_names,omitempty"`
 	OkCode             int               `yaml:"ok_code,omitempty" json:"ok_code,omitempty"`                                    // The expected status code
-	ResponseSchema     map[string]any    `yaml:"response_schema,omitempty" json:"responseSchema,omitempty" validate:"required"` // ResponseSchema describes how the response should look like
+	ResponseSchema     any               `yaml:"response_schema,omitempty" json:"responseSchema,omitempty" validate:"required"` // ResponseSchema describes how the response should look like
 }
 
 // parseDefinition reads a given file and returns and EndpointDefinition.
 // If the file could not be parsed the function returns an *errors.FileNotFoundError
 func parseDefinition(filename string) (Endpoint, error) {
-	definitionFile := filepath.FromSlash(directories.DefinitionsDirectory() + "/" + filename)
+	definitionFile := locations.DefinitionExt(filename)
 	definitionContent, err := os.ReadFile(definitionFile)
 	if err != nil {
 		return Endpoint{}, errors.FileNotFoundError.Wrap(err, "cannot read definition file")
@@ -69,7 +70,7 @@ func parseDefinition(filename string) (Endpoint, error) {
 		return Endpoint{}, errors.CannotParseDefinitionFileError.Wrap(err, "cannot parse definition file")
 	}
 	definition.FileName = filename
-	definition.FullPath = filepath.FromSlash(directories.DefinitionsDirectory() + "/" + filename)
+	definition.FullPath = definitionFile
 	definition.IsEnabled = !strings.HasPrefix(filename, viper.GetString("daemon.ignore_prefix"))
 	if definition.Authorization != "" || definition.JwtLogin.Url != "" {
 		secretsFileName, _ := strings.CutSuffix(filename, ".apisensedef.yml")

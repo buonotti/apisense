@@ -2,68 +2,21 @@ package swagger
 
 import (
 	"fmt"
-	"path/filepath"
 	"regexp"
-	"slices"
 	"strconv"
 	"strings"
 
 	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/filesystem/locations"
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/util"
 	"github.com/buonotti/apisense/validation/definitions"
-	"github.com/goccy/go-json"
 	"github.com/goccy/go-yaml"
+	"github.com/pb33f/libopenapi"
+	v3 "github.com/pb33f/libopenapi/datamodel/high/v3"
 )
 
-type pathSpecV3 struct {
-	Responses  map[string]responseSpecV3
-	Parameters []any
-}
-
-type responseSpecV3 struct {
-	Description string
-	Content     map[string]struct {
-		Schema map[string]any
-	}
-}
-
-type componentsSpecV3 struct {
-	Parameters map[string]any
-	Schemas    map[string]map[string]any
-}
-
-type specV3 struct {
-	Openapi string
-	Info    struct {
-		Title string
-	}
-	Servers []struct {
-		Url string
-	}
-	Paths      map[string]map[string]pathSpecV3
-	Components componentsSpecV3
-}
-
 type V3Importer struct{}
-
-func setOkCodeV3(responses map[string]responseSpecV3, endpoint *definitions.Endpoint) error {
-	for code := range responses {
-		statusCode, err := strconv.Atoi(code)
-		if err != nil {
-			return err
-		}
-		if statusCode >= 200 && statusCode < 300 {
-			(*endpoint).OkCode = statusCode
-			break
-		}
-	}
-	if endpoint.OkCode == 0 {
-		(*endpoint).OkCode = 200
-	}
-	return nil
-}
 
 func addPathVariablesV3(host string, path string, endpoint *definitions.Endpoint) {
 	pathSegments := strings.Split(path, "/")
@@ -82,56 +35,56 @@ func addPathVariablesV3(host string, path string, endpoint *definitions.Endpoint
 	(*endpoint).BaseUrl = fmt.Sprintf("http://%s%s", host, strings.Join(pathSegments, "/"))
 }
 
-func addQueryParametersV3(parameters []any, defs componentsSpecV3, endpoint *definitions.Endpoint) {
-	// TODO
+func addQueryParametersV3(parameters []*v3.Parameter, endpoint *definitions.Endpoint) {
+	for _, parameter := range parameters {
+		if parameter.In == "query" {
+			endpoint.QueryParameters = append(endpoint.QueryParameters, definitions.QueryDefinition{
+				Name:  parameter.Name,
+				Value: "TODO: edit me",
+			})
+		}
+	}
 }
 
-func addResponseSchemaV3(response responseSpecV3, defs map[string]map[string]any, endpoint *definitions.Endpoint) error {
-	for media, schema := range response.Content {
+func addResponseSchemaV3(response *v3.Response, endpoint *definitions.Endpoint) error {
+	for pair := response.Content.Oldest(); pair != nil; pair = pair.Next() {
+		media := pair.Key
+		schema := pair.Value.Schema
 		if media == "application/json" {
+			rendered, err := schema.Schema().RenderInline()
+			if err != nil {
+				return errors.CannotSerializeItemError.Wrap(err, "cannot render schema to yaml")
+			}
+			var marshalled any
+			err = yaml.Unmarshal(rendered, &marshalled)
+			if err != nil {
+				return errors.CannotUmarshalError.Wrap(err, "cannot remarshal schema")
+			}
+
+			endpoint.ResponseSchema = marshalled
 			endpoint.Format = "json"
-			endpoint.ResponseSchema = schema.Schema
-			if endpoint.ResponseSchema != nil {
-				endpoint.ResponseSchema["definitions"] = defs
-			}
+
 			return nil
-		} else if media == "appliaction/xml" {
-			endpoint.Format = "xml"
-			endpoint.ResponseSchema = schema.Schema
-			if endpoint.ResponseSchema != nil {
-				endpoint.ResponseSchema["definitions"] = defs
+		}
+		if media == "application/xml" {
+			rendered, err := schema.Schema().RenderInline()
+			if err != nil {
+				return errors.CannotSerializeItemError.Wrap(err, "cannot render schema to yaml")
 			}
+			var marshalled any
+			err = yaml.Unmarshal(rendered, &marshalled)
+			if err != nil {
+				return errors.CannotUmarshalError.Wrap(err, "cannot remarshal schema")
+			}
+
+			endpoint.ResponseSchema = marshalled
+			endpoint.Format = "xml"
+
 			return nil
 		}
 	}
 
 	return errors.InvalidContentTypeError.New("Found no supported content type in endpoint " + endpoint.Name)
-}
-
-func convertPathMethodV3(title string, host string, path string, method string, spec pathSpecV3, defs componentsSpecV3) (definitions.Endpoint, error) {
-	apiPath := fmt.Sprintf("http://%s%s", host, path)
-	log.DefaultLogger().Info("Converting call to path", "path", apiPath, "method", method)
-
-	result := definitions.Endpoint{}
-	result.IsEnabled = true
-	result.Method = strings.ToUpper(method)
-	result.Variables = make([]definitions.Variable, 0)
-	result.FileName = generateDefinitionNameV3(title, path, method)
-	result.Name = result.FileName
-	result.FullPath = filepath.FromSlash(directories.DefinitionsDirectory() + "/" + result.FileName + ".apisensedef.yml")
-
-	err := setOkCodeV3(spec.Responses, &result)
-	if err != nil {
-		return definitions.Endpoint{}, err
-	}
-	addPathVariablesV3(host, path, &result)
-	addQueryParametersV3(spec.Parameters, defs, &result)
-	err = addResponseSchemaV3(spec.Responses[strconv.Itoa(result.OkCode)], defs.Schemas, &result)
-	if err != nil {
-		return definitions.Endpoint{}, err
-	}
-
-	return result, nil
 }
 
 func generateDefinitionNameV3(title string, path string, method string) string {
@@ -145,63 +98,84 @@ func generateDefinitionNameV3(title string, path string, method string) string {
 	return fmt.Sprintf("%s_%s_%s", title, method, path)
 }
 
-func convertPathsV3(title string, host string, path string, spec map[string]pathSpecV3, defs componentsSpecV3) ([]definitions.Endpoint, error) {
+func convertPathV3(results *[]definitions.Endpoint, title string, host string, path string, method string, operation *v3.Operation) error {
+	if operation == nil || operation.Responses == nil || operation.Responses.Codes == nil {
+		log.DefaultLogger().Debug("Skipping method with no response", "path", path, "method", method)
+		return nil
+	}
+	responses := operation.Responses.Codes
+	var response *v3.Response
+	var okCode int
+	for pair := responses.Oldest(); pair != nil; pair = pair.Next() {
+		intCode, err := strconv.Atoi(pair.Key)
+		if err == nil && intCode >= 200 && intCode < 300 {
+			log.DefaultLogger().Debug("Found first ok code", "path", path, "method", method, "code", intCode)
+			response = pair.Value
+			okCode = intCode
+		}
+	}
+	if response == nil {
+		log.DefaultLogger().Warn("Skipping method on path with no response code matching 200 >= response < 300", "path", path, "method", method)
+		return nil
+	}
+
+	result := definitions.Endpoint{}
+	result.Version = 1
+	result.FileName = generateDefinitionNameV3(title, path, method)
+	result.FullPath = locations.Definition(result.FileName)
+	result.OkCode = okCode
+	result.Name = result.FileName
+	addPathVariablesV3(host, path, &result)
+	result.Method = method
+	result.IsEnabled = true
+	addResponseSchemaV3(response, &result)
+	addQueryParametersV3(operation.Parameters, &result)
+	*results = append(*results, result)
+	return nil
+}
+
+func convertModelV3(model libopenapi.DocumentModel[v3.Document]) ([]definitions.Endpoint, error) {
+	title := model.Model.Info.Title
+	host := "undefined"
+	if len(model.Model.Servers) > 0 {
+		host = model.Model.Servers[0].URL
+	}
+	fmt.Println(title, host)
 	converted := make([]definitions.Endpoint, 0)
-	for method, pathSpec := range spec {
-		conv, err := convertPathMethodV3(title, host, path, method, pathSpec, defs)
+	paths := model.Model.Paths.PathItems
+	for pair := paths.Oldest(); pair != nil; pair = pair.Next() {
+		err := convertPathV3(&converted, title, host, pair.Key, "GET", pair.Value.Get)
 		if err != nil {
 			return nil, err
 		}
-		converted = append(converted, conv)
+		err = convertPathV3(&converted, title, host, pair.Key, "POST", pair.Value.Post)
+		if err != nil {
+			return nil, err
+		}
+		err = convertPathV3(&converted, title, host, pair.Key, "PUT", pair.Value.Put)
+		if err != nil {
+			return nil, err
+		}
+		err = convertPathV3(&converted, title, host, pair.Key, "DELETE", pair.Value.Delete)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return converted, nil
 }
 
-func (_ *V3Importer) Import(file string, content []byte) ([]definitions.Endpoint, error) {
-	var swaggerSpec specV3
-	if strings.HasSuffix(file, ".json") {
-		err := json.Unmarshal(content, &swaggerSpec)
-		if err != nil {
-			return []definitions.Endpoint{}, err
+func (_ *V3Importer) Import(content []byte) ([]definitions.Endpoint, error) {
+	doc, err := libopenapi.NewDocument(content)
+	if err != nil {
+		return nil, errors.CannotUmarshalError.Wrap(err, "cannot create openapi document")
+	}
+	v3Model, errors := doc.BuildV3Model()
+	if len(errors) > 0 {
+		for _, err := range errors {
+			log.DefaultLogger().Error("Error: " + err.Error())
 		}
-	} else {
-		err := yaml.Unmarshal(content, &swaggerSpec)
-		if err != nil {
-			return []definitions.Endpoint{}, err
-		}
+		log.DefaultLogger().Fatal("One or more errors occured while creating model", "amount", len(errors))
 	}
 
-	converted := make([]definitions.Endpoint, 0)
-	server := "/"
-	if len(swaggerSpec.Servers) > 0 {
-		server = swaggerSpec.Servers[0].Url
-	}
-
-	for name, pathSpec := range swaggerSpec.Paths {
-		conv, err := convertPathsV3(swaggerSpec.Info.Title, server, name, pathSpec, swaggerSpec.Components)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, c := range conv {
-			converted = append(converted, c)
-		}
-	}
-
-	slices.SortFunc(converted, func(e1, e2 definitions.Endpoint) int {
-		urlCmp := strings.Compare(e1.BaseUrl, e2.BaseUrl)
-		if urlCmp == 0 {
-			return strings.Compare(e1.Method, e2.Method)
-		}
-		return urlCmp
-	})
-
-	for _, c := range converted {
-		b, _ := yaml.Marshal(c)
-		fmt.Println(c.FullPath)
-		fmt.Println(string(b))
-		fmt.Println("---")
-	}
-
-	return converted, nil
+	return convertModelV3(*v3Model)
 }

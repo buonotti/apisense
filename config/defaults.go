@@ -31,6 +31,7 @@ func setupDefaults() {
 	viper.SetDefault("api.host", "")
 	viper.SetDefault("api.port", 8080)
 	viper.SetDefault("api.auth", true)
+	viper.SetDefault("api.swagger", true)
 	viper.SetDefault("api.signing_key", "")
 
 	viper.SetDefault("validation.external_validators", []any{})
