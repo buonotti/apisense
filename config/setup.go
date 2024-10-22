@@ -18,6 +18,7 @@ const (
 // Setup loads the config file with viper.ReadInConfig and creates the default config if it doesn't exist.
 func Setup() error {
 	configFile := filepath.FromSlash(directories.ConfigDirectory() + "/" + FileName + ".yml")
+	secretsFile := filepath.FromSlash(directories.ConfigDirectory() + "/" + SecretsName + ".yml")
 
 	err := os.MkdirAll(filepath.FromSlash(directories.ConfigDirectory()), 0o755)
 	if err != nil {
@@ -42,8 +43,10 @@ func Setup() error {
 		return errors.CannotReadInConfigError.Wrap(err, "cannot read main config file")
 	}
 
-	viper.SetConfigName(SecretsName)
-	_ = viper.MergeInConfig()
+	if util.Exists(secretsFile) {
+		viper.SetConfigName(SecretsName)
+		_ = viper.MergeInConfig()
+	}
 
 	viper.WatchConfig()
 
