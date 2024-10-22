@@ -9,7 +9,6 @@ import (
 	"github.com/buonotti/apisense/validation/pipeline"
 	"github.com/buonotti/apisense/validation/validators"
 	lf "github.com/nightlyone/lockfile"
-	"github.com/spf13/viper"
 )
 
 // Setup creates the necessary files for the daemon. Is called also on daemon start
@@ -63,16 +62,6 @@ func Start(runOnStart bool) error {
 
 	d := daemon{
 		Pipeline: pipe,
-	}
-
-	if viper.GetBool("daemon.rpc") {
-		log.DaemonLogger().Warn("Rpc is currently not available") // TODO
-		// go func() {
-		// 	startErr := startRpcServer(&d)
-		// 	if startErr != nil && !errs.Is(startErr, http.ErrServerClosed) {
-		// 		log.DaemonLogger().Fatal(startErr)
-		// 	}
-		// }()
 	}
 
 	return d.run(runOnStart)

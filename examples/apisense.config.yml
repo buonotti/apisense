@@ -20,9 +20,6 @@
   # Definition files that start with this prefix are not included
   # ignore_prefix: "_"
 
-  # Enable or disable rpc. Note that if rpc is disabled some commands will not work.
-  # rpc: true 
-
   # Set the discard times of reports. Reports older than this will be discarded.
   # discard:
     # Enable discarding of reports
