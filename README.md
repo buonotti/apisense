@@ -1,6 +1,6 @@
 # 🔍 Apisense
 
-<img src="./logo.svg" style="border-radius: 10px" width="100%" alt="apisense logo" />
+<img src="./assets/logo.svg" style="border-radius: 10px" width="100%" alt="apisense logo" />
 
 ![Build](https://github.com/buonotti/apisense/actions/workflows/go.yml/badge.svg)
 ![CodeQL](https://github.com/buonotti/apisense/actions/workflows/codeql.yml/badge.svg)
