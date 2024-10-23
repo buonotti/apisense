@@ -1,7 +1,7 @@
 package validation
 
 import (
-	"reflect"
+	"github.com/goccy/go-reflect"
 )
 
 type requiredValidator struct{}

@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/util"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/util"
 )
 
 var configGetCmd = &cobra.Command{
 	Use:   "get",
-	Short: "Get a configuration value",
-	Long:  `Get a configuration value`, // TODO: Add more info
+	Short: "Get configuration values",
+	Long:  `Get all configuration values or only one when the --key flag is set.`,
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, _ []string) {
 		key := cmd.Flag("key").Value.String()
 		if key == "" {
@@ -57,14 +57,16 @@ func printConfigValue(key string, maxKeyLength int) {
 			styledVal = greyedOutStyle().Italic(true).Render(fmt.Sprintf("%v", val))
 		}
 	}
-	log.CliLogger.Infof("%s%s", styledKey, styledVal)
+	fmt.Printf("%s%s\n", styledKey, styledVal)
 }
 
 func init() {
 	configGetCmd.Flags().StringP("key", "k", "", "The key to get")
 
 	err := configGetCmd.RegisterFlagCompletionFunc("key", validConfigKeysFunc())
-	errors.CheckErr(errors.SafeWrap(errors.CannotRegisterCompletionFunction, err, "cannot register completion function for config get"))
+	if err != nil {
+		log.DefaultLogger().Fatal(errors.CannotRegisterCompletionFunction.Wrap(err, "cannot register completion function for config get"))
+	}
 
 	configCmd.AddCommand(configGetCmd)
 }

@@ -1,14 +1,14 @@
 package validators
 
 import (
-	"encoding/json"
+	errs "errors"
 	"fmt"
 	"os/exec"
 	"strings"
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
-	"github.com/buonotti/apisense/validation/fetcher"
+	"github.com/goccy/go-json"
 	"github.com/spf13/viper"
 )
 
@@ -56,7 +56,8 @@ func parse() ([]ValidatorDefinition, error) {
 	return validators, nil
 }
 
-func parseArgs(obj interface{}) ([]string, error) {
+// parseArgs parses the args to pass to the validator
+func parseArgs(obj any) ([]string, error) {
 	arr, isArray := obj.([]interface{})
 	if !isArray {
 		return nil, errors.ExternalValidatorParseError.New("cannot parse external validator. expected []interface{}, got %T", obj)
@@ -77,6 +78,7 @@ func parseArgs(obj interface{}) ([]string, error) {
 	return args, nil
 }
 
+// LoadExternalValidators loads the exernal validators from the definitions
 func LoadExternalValidators() ([]Validator, error) {
 	definitions, err := parse()
 	if err != nil {
@@ -112,7 +114,7 @@ func (v externalValidator) Name() string {
 // Validate validates an item by serializing it and sending it to the external
 // process then returning an error according to the status code of the external
 // program
-func (v externalValidator) Validate(item fetcher.TestCase) error {
+func (v externalValidator) Validate(item ValidationItem) error {
 	jsonString, err := json.Marshal(item)
 	outString := &strings.Builder{}
 	if err != nil {
@@ -129,18 +131,17 @@ func (v externalValidator) Validate(item fetcher.TestCase) error {
 
 	err = cmd.Run()
 
-	log.DaemonLogger.WithField("validator", fmt.Sprintf("external.%s", v.Definition.Name)).Debugf("validator output: %s", validatorOut.String())
-	log.DaemonLogger.WithField("validator", fmt.Sprintf("external.%s", v.Definition.Name)).Debugf("validator error: %s", validatorErr.String())
+	log.DaemonLogger().With("validator", fmt.Sprintf("external.%s", v.Definition.Name)).Debugf("validator output: %s", validatorOut.String())
+	log.DaemonLogger().With("validator", fmt.Sprintf("external.%s", v.Definition.Name)).Debugf("validator error: %s", validatorErr.String())
 
 	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
+		var exitErr *exec.ExitError
+		if errs.As(err, &exitErr) {
 			if exitErr.ExitCode() == 1 {
-				return errors.NewF(errors.ValidationError, "validation failed for endpoint %s: %s", item.EndpointName, validatorErr.String())
+				return errors.ValidationError.New("validation failed for endpoint %s: %s", item.Definition.Name, validatorErr.String())
 			} else {
-				return errors.NewF(errors.ValidationError, "validation failed: unexpected exit code from external validator: %d", exitErr.ExitCode())
+				return errors.ValidationError.New("validation failed: unexpected exit code from external validator: %d", exitErr.ExitCode())
 			}
-		} else {
-			return errors.WrapF(errors.ValidationError, err, "validation failed: unexpected error from external validator")
 		}
 	}
 	return nil

@@ -1,12 +1,13 @@
 package tui
 
 import (
-	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/log"
+	"strconv"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"strconv"
 )
 
 var (
@@ -22,7 +23,6 @@ type configModel struct {
 }
 
 func ConfigModel() tea.Model {
-
 	t := table.New(
 		table.WithColumns(getConfigColumns()),
 		table.WithRows(getConfigRows()),
@@ -51,11 +51,9 @@ func getConfigColumns() []table.Column {
 		{Title: "Config", Width: 30},
 		{Title: "Description", Width: 42},
 	}
-
 }
 
 func getConfigRows() []table.Row {
-
 	rows := []table.Row{
 		{"0", "env", "Edit env values"},
 		{"1", "daemon", "Configure daemon"},
@@ -88,7 +86,9 @@ func (c configModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return c, tea.Quit
 			case key.Matches(msg, c.keymap.choose):
 				i, err := strconv.Atoi(c.table.SelectedRow()[0])
-				errors.CheckErr(err)
+				if err != nil {
+					log.TuiLogger().Fatal(err)
+				}
 				if choiceConfigModel != "configModel" {
 					c.editConfigModel, cmdModel = c.editConfigModel.Update(msg)
 					c.table, cmd = c.table.Update(msg)
@@ -103,7 +103,9 @@ func (c configModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case errMsg:
 			c.err = msg
-			errors.CheckErr(c.err)
+			if c.err != nil {
+				log.TuiLogger().Fatal(c.err)
+			}
 		}
 
 		c.editConfigModel, cmdModel = c.editConfigModel.Update(msg)

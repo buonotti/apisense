@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"github.com/buonotti/apisense/log"
 	"net/url"
 	"sort"
 	"strconv"
@@ -30,7 +31,6 @@ type resultModel struct {
 }
 
 func ResultModel() tea.Model {
-
 	t := table.New(
 		table.WithColumns(getResultColumns()),
 		table.WithRows(nil),
@@ -87,9 +87,13 @@ func (r resultModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return r, tea.Quit
 			case key.Matches(msg, r.keymap.choose):
 				i, err := strconv.Atoi(r.table.SelectedRow()[0])
-				errors.CheckErr(err)
+				if err != nil {
+					log.TuiLogger().Fatal(err)
+				}
 				res, err := getSelectedResult(selectedValidatedEndpoint, i)
-				errors.CheckErr(err)
+				if err != nil {
+					log.TuiLogger().Fatal(err)
+				}
 				selectedResult = res
 				validatorOutputRows = getValidatorOutputRows(selectedResult.ValidatorResults)
 				if choiceReportModel != "resultModel" {
@@ -123,7 +127,9 @@ func getResultRows(results []pipeline.TestCaseResult) []table.Row {
 	queriesToRender := make([]string, 0)
 	for _, result := range results {
 		u, err := url.Parse(result.Url)
-		errors.CheckErr(err)
+		if err != nil {
+			log.TuiLogger().Fatal(err)
+		}
 		query := make([]string, 0)
 		for value := range u.Query() {
 			query = append(query, value+"="+u.Query().Get(value))

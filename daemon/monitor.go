@@ -1,14 +1,12 @@
 package daemon
 
 import (
-	"net/rpc"
 	"os"
 	"strconv"
 
-	lf "github.com/nightlyone/lockfile"
-
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/files"
+	lf "github.com/nightlyone/lockfile"
 )
 
 // State represents the possible states of the daemon
@@ -45,24 +43,10 @@ func Pid() (int, error) {
 	return pid, nil
 }
 
-// ReloadDaemon sends a SIGHUP to the daemon to force it to reload its configuration.
-// If an error occurs the error will be of type *errors.CannotReloadDaemonError.
-func ReloadDaemon() error {
-	client, err := rpc.DialHTTP("tcp", "127.0.0.1:1234")
-	errors.CheckErr(err)
-	var reply int
-	err = client.Call("RpcDaemonManager.ReloadDaemon", 0, &reply)
-	errors.CheckErr(err)
-	if reply != 0 {
-		return errors.CannotReloadDaemonError.New("cannot reload daemon")
-	}
-	return nil
-}
-
 // writeStatus is a helper function to write a daemon status to file.
 // If an error occurs the error will be of type *errors.CannotWriteStatusFileError.
 func writeStatus(state State) error {
-	err := os.WriteFile(files.DaemonStatusFile(), []byte(state), 0644)
+	err := os.WriteFile(files.DaemonStatusFile(), []byte(state), 0o644)
 	if err != nil {
 		return errors.CannotWriteFileError.Wrap(err, "cannot write status file")
 	}
@@ -73,7 +57,7 @@ func writeStatus(state State) error {
 // writePid is a helper function to write a daemon pid to file.
 // If an error occurs the error will be of type *errors.CannotWritePidFileError.
 func writePid(pid int) error {
-	err := os.WriteFile(files.DaemonPidFile(), []byte(strconv.Itoa(pid)), 0644)
+	err := os.WriteFile(files.DaemonPidFile(), []byte(strconv.Itoa(pid)), 0o644)
 	if err != nil {
 		return errors.CannotWriteFileError.Wrap(err, "cannot write pid file")
 	}

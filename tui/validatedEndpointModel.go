@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"github.com/buonotti/apisense/log"
 	"strconv"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -27,7 +28,6 @@ type validationEndpointModel struct {
 }
 
 func ValidationEndpointModel() tea.Model {
-
 	t := table.New(
 		table.WithColumns(getValidatedEndpointColumns()),
 		table.WithFocused(true),
@@ -81,9 +81,13 @@ func (v validationEndpointModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, v.keymap.choose):
 				if allowEndpointSelection {
 					i, err := strconv.Atoi(v.table.SelectedRow()[0])
-					errors.CheckErr(err)
+					if err != nil {
+						log.TuiLogger().Fatal(err)
+					}
 					val, err := getSelectedValidatedEndpoint(selectedReport, i)
-					errors.CheckErr(err)
+					if err != nil {
+						log.TuiLogger().Fatal(err)
+					}
 					selectedValidatedEndpoint = val
 					resultRows = getResultRows(selectedValidatedEndpoint.TestCaseResults)
 					if choiceReportModel != "validatedEndpointModel" {

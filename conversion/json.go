@@ -1,11 +1,11 @@
 package conversion
 
 import (
-	"encoding/json"
-
 	"github.com/buonotti/apisense/validation/pipeline"
+	"github.com/goccy/go-json"
 )
 
+// Json returns a new jsonConverter
 func Json() Converter {
 	return jsonConverter{}
 }

@@ -7,7 +7,6 @@
 *.dll
 *.so
 *.dylib
-apisense
 .ssh/
 .ssh/*
 release/
@@ -23,4 +22,7 @@ release/
 # vendor/
 dist/
 
+apisense
 token.sh
+tmp/
+node_modules/

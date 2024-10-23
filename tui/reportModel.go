@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"github.com/buonotti/apisense/log"
 	"strconv"
 	"time"
 
@@ -27,9 +28,10 @@ type reportModel struct {
 }
 
 func ReportModel() tea.Model {
-
 	r, err := pipeline.Reports()
-	errors.CheckErr(err)
+	if err != nil {
+		log.TuiLogger().Fatal(err)
+	}
 	reports = r
 
 	t := table.New(
@@ -92,9 +94,13 @@ func (r reportModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, r.keymap.choose):
 				if allowReportSelection {
 					i, err := strconv.Atoi(r.table.SelectedRow()[0])
-					errors.CheckErr(err)
+					if err != nil {
+						log.TuiLogger().Fatal(err)
+					}
 					rep, err := getSelectedReport(reports, i)
-					errors.CheckErr(err)
+					if err != nil {
+						log.TuiLogger().Fatal(err)
+					}
 					selectedReport = rep
 					validatedEndpointRows = getValidatedEndpointRows(selectedReport)
 					if choiceReportModel != "reportModel" {
@@ -113,7 +119,6 @@ func (r reportModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return r, tea.Batch(cmd, cmdModel)
 	}
 	return r, nil
-
 }
 
 func (r reportModel) View() string {

@@ -1,9 +1,5 @@
 package util
 
-import (
-	"strings"
-)
-
 // FindFirst return a reference to the first element of the slice that matches
 // the predicate. It returns nil if the slice is nil or empty or if no item
 // matches the predicate.
@@ -56,6 +52,7 @@ func Any[T any](s []T, f func(T) bool) bool {
 	return false
 }
 
+// Map maps the sequence of items to another using the given transformer function
 func Map[TIn any, TOut any](s []TIn, f func(TIn) TOut) []TOut {
 	res := make([]TOut, 0)
 	for _, v := range s {
@@ -93,25 +90,24 @@ func Transpose[T any](slice [][]T) [][]T {
 	return result
 }
 
-func Join(arr []string, joiner string) string {
-	res := strings.Builder{}
-	for _, elem := range arr[:len(arr)-1] {
-		res.Write([]byte(elem))
-		res.Write([]byte(joiner))
-	}
-	res.Write([]byte(arr[len(arr)-1]))
-	return res.String()
-}
-
+// Max returns the max in a slice of integers
 func Max(arr []int) int {
 	if len(arr) == 0 {
 		panic("cannot find max of empty slice")
 	}
-	max := arr[0]
-	for _, elem := range arr {
-		if elem > max {
-			max = elem
+	maxVal := arr[0]
+	for _, elem := range arr[1:] {
+		if elem > maxVal {
+			maxVal = elem
 		}
 	}
-	return max
+	return maxVal
+}
+
+// FirstOrDefault returns the first value in arr if it has items else fallback
+func FirstOrDefault[T any](arr []T, fallback T) T {
+	if len(arr) == 0 {
+		return fallback
+	}
+	return arr[0]
 }

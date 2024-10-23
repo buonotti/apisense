@@ -1,9 +1,11 @@
 package tui
 
 import (
-	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/log"
 	"path/filepath"
 	"time"
+
+	"github.com/buonotti/apisense/filesystem/locations/directories"
 
 	"github.com/76creates/stickers"
 	"github.com/charmbracelet/bubbles/help"
@@ -83,19 +85,27 @@ func (m Model) Init() tea.Cmd {
 	m.configModel.Init()
 	fileWatcher := filesystem.NewFileWatcher()
 	err := fileWatcher.AddFile(files.DaemonPidFile())
-	errors.CheckErr(err)
+	if err != nil {
+		log.TuiLogger().Fatal(err)
+	}
 
 	directoryWatcher := filesystem.NewDirectoryWatcher()
 	err = directoryWatcher.SetDirectory(filepath.FromSlash(directories.ReportsDirectory()))
-	errors.CheckErr(err)
+	if err != nil {
+		log.TuiLogger().Fatal(err)
+	}
 	go func() {
 		err := fileWatcher.Start()
-		errors.CheckErr(err)
+		if err != nil {
+			log.TuiLogger().Fatal(err)
+		}
 	}()
 
 	go func() {
 		err := directoryWatcher.Start()
-		errors.CheckErr(err)
+		if err != nil {
+			log.TuiLogger().Fatal(err)
+		}
 	}()
 
 	go func() {
@@ -109,7 +119,9 @@ func (m Model) Init() tea.Cmd {
 			<-directoryWatcher.Events
 			directoryUpdate = true
 			r, err := pipeline.Reports()
-			errors.CheckErr(err)
+			if err != nil {
+				log.TuiLogger().Fatal(err)
+			}
 			reports = r
 		}
 	}()
@@ -198,7 +210,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if choiceMainMenu == "Report" {
 		if choiceReportModel == "" {
 			r, err := pipeline.Reports()
-			errors.CheckErr(err)
+			if err != nil {
+				log.TuiLogger().Fatal(err)
+			}
 			reports = r
 			choiceReportModel = "reportModel"
 		}
@@ -211,15 +225,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(cmdElapsedTrigger, cmdConfigModel)
 	}
 	return m, cmdElapsedTrigger
-
 }
 
 // View Redraws the UI after every Update
 func (m Model) View() string {
-
 	// Handle ErrorMsg received during Update()
 	if m.err != nil {
-		errors.CheckErr(errors.UnknownError.Wrap(m.err, "Unknown error"))
+		log.TuiLogger().Fatal(errors.UnknownError.Wrap(m.err, "Unknown error"))
 	}
 
 	// Render Title
@@ -257,5 +269,4 @@ func (m Model) View() string {
 	// Render help menu
 	m.flexbox.Row(2).Cell(0).SetContent(m.help.View(m.keymap))
 	return m.flexbox.Render()
-
 }

@@ -8,6 +8,10 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/tui"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
@@ -15,11 +19,6 @@ import (
 	bm "github.com/charmbracelet/wish/bubbletea"
 	"github.com/charmbracelet/wish/scp"
 	"github.com/spf13/viper"
-
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/filesystem/locations/directories"
-	"github.com/buonotti/apisense/log"
-	"github.com/buonotti/apisense/tui"
 )
 
 // host returns the host value from the config
@@ -40,7 +39,7 @@ func Start() error {
 		wish.WithHostKeyPath(os.Getenv("HOME")+"/.ssh/apisense_rsa"),
 		wish.WithMiddleware(
 			bm.Middleware(teaHandler),
-			log.WishMiddleware(),
+			log.NewWish(),
 			activeterm.Middleware(),
 			scp.Middleware(fsHandler, nil),
 		),
@@ -50,25 +49,23 @@ func Start() error {
 		return err
 	}
 
-	log.SSHLogger.WithField("address", fmt.Sprintf("%v:%v", host(), port())).Info("starting ssh server")
+	log.SshLogger().Info("Starting ssh server", "address", fmt.Sprintf("%v:%v", host(), port()))
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt)
 
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
-			log.SSHLogger.Warn(err.Error())
+			log.SshLogger().Warn(err.Error())
 		}
 	}()
-
-	log.SSHLogger.Infof("ssh server started")
 
 	<-done
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	log.SSHLogger.Infof("stopping ssh server")
+	log.SshLogger().Infof("Stopping ssh server")
 
 	if err := s.Shutdown(ctx); err != nil {
 		err = errors.CannotStopSSHServerError.Wrap(err, "cannot stop ssh server")

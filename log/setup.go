@@ -3,7 +3,8 @@ package log
 import (
 	"os"
 
-	"github.com/apex/log"
+	"github.com/buonotti/apisense/util"
+	"github.com/charmbracelet/log"
 	"github.com/spf13/viper"
 )
 
@@ -13,6 +14,7 @@ func hasLogFile() bool {
 
 var logFile *os.File = nil
 
+// CloseLogFile closes the log file if one is in use
 func CloseLogFile() error {
 	if logFile != nil {
 		err := logFile.Close()
@@ -27,16 +29,22 @@ func CloseLogFile() error {
 func Setup() error {
 	logFilePath := viper.GetString("log.file")
 	if logFilePath != "" {
-		osFile, err := os.OpenFile(viper.GetString("log.file"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		osFile, err := os.OpenFile(viper.GetString("log.file"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 		if err != nil {
 			return err
 		}
 		logFile = osFile
 	}
 
-	log.SetHandler(newHandler())
+	lvl, err := log.ParseLevel(viper.GetString("log.level"))
+	if err != nil {
+		return err
+	}
 
-	log.SetLevelFromString(viper.GetString("log.level"))
+	log.SetLevel(lvl)
+	log.SetTimeFormat(util.ApisenseTimeFormat)
+	log.SetReportCaller(log.GetLevel() == log.DebugLevel)
+	log.SetOutput(getWriter())
 
 	return nil
 }

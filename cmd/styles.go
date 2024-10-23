@@ -1,10 +1,9 @@
 package cmd
 
 import (
+	"github.com/buonotti/apisense/theme"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/termenv"
-
-	"github.com/buonotti/apisense/theme"
 )
 
 func greyedOutStyle() lipgloss.Style {

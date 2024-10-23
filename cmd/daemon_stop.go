@@ -1,20 +1,22 @@
 package cmd
 
 import (
+	"github.com/buonotti/apisense/daemon"
 	"github.com/buonotti/apisense/log"
 	"github.com/spf13/cobra"
-
-	"github.com/buonotti/apisense/daemon"
-	"github.com/buonotti/apisense/errors"
 )
 
 var daemonStopCmd = &cobra.Command{
 	Use:   "stop",
 	Short: "Stop the daemon",
 	Long:  `This command stops a running daemon. If there is no daemon running the command does nothing.`,
+	Args:  cobra.NoArgs,
 	Run: func(_ *cobra.Command, _ []string) {
-		errors.CheckErr(daemon.Stop())
-		log.CliLogger.Infof("daemon stopped")
+		err := daemon.Stop()
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
+		log.DefaultLogger().Info("Daemon stopped")
 	},
 }
 

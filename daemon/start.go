@@ -1,30 +1,40 @@
 package daemon
 
 import (
-	"net/http"
 	"os"
-
-	lf "github.com/nightlyone/lockfile"
-	"github.com/spf13/viper"
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/files"
+	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/validation/pipeline"
 	"github.com/buonotti/apisense/validation/validators"
+	lf "github.com/nightlyone/lockfile"
 )
+
+// Setup creates the necessary files for the daemon. Is called also on daemon start
+func Setup() error {
+	file, err := os.Create(files.DaemonStatusFile())
+	if err != nil {
+		return errors.CannotCreateFileError.Wrap(err, "cannot create status file")
+	}
+	defer file.Close()
+
+	pFile, err := os.Create(files.DaemonPidFile())
+	if err != nil {
+		return errors.CannotCreateFileError.Wrap(err, "cannot create pid file")
+	}
+	defer pFile.Close()
+
+	return nil
+}
 
 // Start starts the daemon. If the daemon is already running it returns an
 // *errors.CannotLockFileError because the already running daemon has the lock on
 // the file.
 func Start(runOnStart bool) error {
-	file, err := os.Create(files.DaemonStatusFile())
+	err := Setup()
 	if err != nil {
-		return errors.CannotCreateFileError.Wrap(err, "cannot create status file")
-	}
-
-	err = file.Close()
-	if err != nil {
-		return errors.CannotCloseFileError.Wrap(err, "cannot close status file")
+		return err
 	}
 
 	lock, err := lockfile()
@@ -38,44 +48,39 @@ func Start(runOnStart bool) error {
 	}
 
 	defer func(lock lf.Lockfile) {
-		err := lock.Unlock()
-		if err != nil {
-			err = errors.CannotUnlockFileError.Wrap(err, "cannot unlock lock file")
-			errors.CheckErr(err)
+		lockErr := lock.Unlock()
+		if lockErr != nil {
+			lockErr = errors.CannotUnlockFileError.Wrap(lockErr, "cannot unlock lock file")
+			log.DaemonLogger().Fatal(lockErr)
 		}
 	}(lock)
 
-	validationPipeline, err := NewPipeline()
+	pipe, err := NewPipeline()
 	if err != nil {
 		return err
 	}
 
 	d := daemon{
-		Pipeline: validationPipeline,
+		Pipeline: pipe,
 	}
-
-	go func() {
-		err := startRpcServer(&d)
-		if err != nil && err != http.ErrServerClosed {
-			errors.CheckErr(err)
-		}
-	}()
 
 	return d.run(runOnStart)
 }
 
+// NewPipeline creates a new validation pipeline
 func NewPipeline() (*pipeline.Pipeline, error) {
-	pipelineWithValidators, err := pipeline.NewPipelineWithValidators(
-		validators.Without(viper.GetStringSlice("validation.excluded_builtin_validators")...)...,
-	)
-
+	pipelineWithValidators, err := pipeline.NewPipelineWithValidators(validators.NewSchemaValidator())
 	if err != nil {
 		return nil, err
 	}
 
 	externalValidators, err := validators.LoadExternalValidators()
+	if err != nil {
+		return nil, err
+	}
 
 	for _, externalValidator := range externalValidators {
+		log.DaemonLogger().Info("Loading external validator", "name", externalValidator.Name())
 		pipelineWithValidators.AddValidator(externalValidator)
 	}
 

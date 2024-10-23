@@ -1,24 +1,28 @@
 package pipeline
 
 import (
-	"encoding/json"
-	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"os"
 	"path/filepath"
 
 	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/util"
+	"github.com/goccy/go-json"
 )
 
 // Report is a report of a test run
 type Report struct {
 	Id        string              `json:"id"`        // Id is a unique identifier for each report
-	Time      ReportTime          `json:"time"`      // Time is the timestamp of the report
+	Time      util.ApisenseTime   `json:"time"`      // Time is the timestamp of the report
 	Endpoints []ValidatedEndpoint `json:"endpoints"` // Endpoints is a collection of ValidatedEndpoint holding the validation results
 }
 
+// GetReport returns the report matching the given filename
 func GetReport(filename string) (*Report, error) {
 	files, err := os.ReadDir(filepath.FromSlash(directories.ReportsDirectory()))
-	errors.CheckErr(err)
+	if err != nil {
+		return nil, errors.CannotReadDirectoryError.WrapWithNoMessage(err)
+	}
 
 	for _, file := range files {
 		if !file.IsDir() && file.Name() == filename {
@@ -43,7 +47,9 @@ func GetReport(filename string) (*Report, error) {
 // Reports returns all the reports in the report directory
 func Reports() ([]Report, error) {
 	files, err := os.ReadDir(filepath.FromSlash(directories.ReportsDirectory()))
-	errors.CheckErr(err)
+	if err != nil {
+		return nil, errors.CannotReadDirectoryError.WrapWithNoMessage(err)
+	}
 
 	reports := make([]Report, 0)
 	for _, file := range files {
@@ -69,7 +75,9 @@ func Reports() ([]Report, error) {
 // RawReports return all the reports in the report directory without unmarshalling them
 func RawReports() ([]map[string]any, error) {
 	files, err := os.ReadDir(filepath.FromSlash(directories.ReportsDirectory()))
-	errors.CheckErr(err)
+	if err != nil {
+		return nil, errors.CannotReadDirectoryError.WrapWithNoMessage(err)
+	}
 
 	reports := make([]map[string]any, 0)
 	for _, file := range files {

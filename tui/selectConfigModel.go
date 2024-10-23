@@ -2,15 +2,16 @@ package tui
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/log"
+	"sort"
+	"strconv"
+	strings2 "strings"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/viper"
-	"sort"
-	"strconv"
-	strings2 "strings"
 )
 
 var (
@@ -87,7 +88,9 @@ func (s selectConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, s.keymap.choose):
 				if allowConfigSelection {
 					i, err := strconv.Atoi(s.table.SelectedRow()[0])
-					errors.CheckErr(err)
+					if err != nil {
+						log.TuiLogger().Fatal(err)
+					}
 
 					if choiceConfigModel == "selectConfigModel" {
 						selectedField = getSelectedFieldName(i)
@@ -106,7 +109,9 @@ func (s selectConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case errMsg:
 			s.err = msg
-			errors.CheckErr(s.err)
+			if s.err != nil {
+				log.TuiLogger().Fatal(s.err)
+			}
 		}
 
 		s.table, cmd = s.table.Update(msg)
@@ -129,7 +134,6 @@ func getSelectConfigColumns() []table.Column {
 		{Title: "Type", Width: 40},
 		{Title: "Value", Width: 32},
 	}
-
 }
 
 func getSelectedFieldName(i int) string {
@@ -137,7 +141,6 @@ func getSelectedFieldName(i int) string {
 }
 
 func getSelectConfigRows() []table.Row {
-
 	rows := make([]table.Row, 0)
 	strings := viper.AllKeys()
 	sort.Strings(strings)

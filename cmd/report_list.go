@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/spf13/cobra"
-
-	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/util"
 	"github.com/buonotti/apisense/validation/pipeline"
+	"github.com/spf13/cobra"
 )
 
 var reportListCmd = &cobra.Command{
@@ -16,11 +15,16 @@ var reportListCmd = &cobra.Command{
 	Aliases: []string{"ls"},
 	Short:   "List all available reports",
 	Long:    "This command lists all available reports.",
+	Args:    cobra.NoArgs,
 	Run: func(cmd *cobra.Command, _ []string) {
 		verbose, err := cmd.Flags().GetBool("verbose")
-		errors.CheckErr(err)
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 		reports, err := pipeline.Reports()
-		errors.CheckErr(err)
+		if err != nil {
+			log.DefaultLogger().Fatal(err)
+		}
 		reportIds := util.Map(reports, func(in pipeline.Report) string {
 			if verbose {
 				return fmt.Sprintf("%s --- %s with %d result(s)", in.Id, time.Time(in.Time).Format("2006-01-02 at 15-04-05.000Z"), len(in.Endpoints))

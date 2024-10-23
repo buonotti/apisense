@@ -1,11 +1,13 @@
 package validation
 
 import (
-	"encoding/json"
 	"fmt"
-	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/buonotti/apisense/errors"
+	"github.com/goccy/go-json"
+	"github.com/goccy/go-reflect"
 )
 
 func FillDefaults(obj any) error {
@@ -13,7 +15,7 @@ func FillDefaults(obj any) error {
 
 	accessAsPointer := false
 
-	if t.Kind() == reflect.Pointer {
+	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 		accessAsPointer = true
 	}
@@ -78,6 +80,8 @@ func parseValue(value reflect.Value, bindValue string) (any, error) {
 			return nil, err
 		}
 		return val, nil
+	default:
+		return nil, errors.UnsupportedTypeError.New("type is unsupported %v", value.Kind())
 	}
 	return nil, fmt.Errorf("unsupported type %s", value.Kind())
 }

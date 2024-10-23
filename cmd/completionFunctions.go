@@ -2,16 +2,15 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/api/db"
 	"time"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
+	"github.com/buonotti/apisense/api/db"
 	"github.com/buonotti/apisense/conversion"
 	"github.com/buonotti/apisense/util"
 	"github.com/buonotti/apisense/validation/definitions"
 	"github.com/buonotti/apisense/validation/pipeline"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func validReportsFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
@@ -32,7 +31,7 @@ func validConfigKeysFunc() func(cmd *cobra.Command, args []string, toComplete st
 
 func validFormatsFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return conversion.Converters(), cobra.ShellCompDirectiveNoFileComp
+		return []string{"json", "yaml"}, cobra.ShellCompDirectiveNoFileComp
 	}
 }
 
@@ -111,5 +110,23 @@ func validDisabledUserFunc() func(cmd *cobra.Command, args []string, toComplete 
 		return util.Where(mappedUsers, func(s string) bool {
 			return s != ""
 		}), cobra.ShellCompDirectiveNoFileComp
+	}
+}
+
+func validLogLevelsFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"debug", "info", "warning", "error", "fatal"}, cobra.ShellCompDirectiveNoFileComp
+	}
+}
+
+func validImportFormatsFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"swagger2", "swagger3"}, cobra.ShellCompDirectiveNoFileComp
+	}
+}
+
+func validExportFormatsFunc() func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return conversion.Converters(), cobra.ShellCompDirectiveNoFileComp
 	}
 }

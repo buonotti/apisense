@@ -12,6 +12,7 @@ type Variable struct {
 	Values     []string `yaml:"values" json:"values" validate:"required"`     // Values are all the possible values of the variable (only 1 in case of a constant)
 }
 
+// Value returns the value of the variable according to the index of the test case
 func (v Variable) Value(index int) any {
 	if v.IsConstant {
 		return v.Values[0]

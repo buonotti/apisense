@@ -19,6 +19,9 @@ definitions:
     type: object
   definitions.Endpoint:
     properties:
+      authorization:
+        description: Authorization is the value to set for the authorization header
+        type: string
       baseUrl:
         description: BaseUrl is the base path of the endpoint
         type: string
@@ -35,14 +38,33 @@ definitions:
       format:
         description: Format is the response format of the
         type: string
+      headers:
+        additionalProperties:
+          type: string
+        description: Headers are additional headers to set for the request
+        type: object
+      jwt_login:
+        allOf:
+        - $ref: '#/definitions/definitions.JwtLoginOptions'
+        description: JwtLogin are options to auto-get a login token for a request.
+      method:
+        description: Method is the name of the http-method to use for the request
+        type: string
       name:
         description: Name is the name of the endpoint
         type: string
+      ok_code:
+        description: The expected status code
+        type: integer
+      payload:
+        additionalProperties: {}
+        description: Payload is the payload to use in case of a POST or PUT request
+        type: object
       queryParameters:
         description: QueryParameters are all the query parameters that should be added
           to the call
         items:
-          $ref: '#/definitions/query.Definition'
+          $ref: '#/definitions/definitions.QueryDefinition'
         type: array
       responseSchema:
         description: ResponseSchema describes how the response should look like
@@ -60,6 +82,34 @@ definitions:
     - format
     - name
     - responseSchema
+    type: object
+  definitions.JwtLoginOptions:
+    properties:
+      login_payload:
+        additionalProperties: {}
+        description: LoginPayload is the json or yml payload to send
+        type: object
+      token_key_name:
+        description: TokenKeyName is the name of the key in the response which contains
+          the token
+        type: string
+      url:
+        description: Url is the url to the login endpoint
+        type: string
+    required:
+    - url
+    type: object
+  definitions.QueryDefinition:
+    properties:
+      name:
+        description: Name is the name of the query parameter
+        type: string
+      value:
+        description: Value is the value of the query parameter
+        type: string
+    required:
+    - name
+    - value
     type: object
   definitions.SchemaEntry:
     properties:
@@ -160,18 +210,6 @@ definitions:
         allOf:
         - $ref: '#/definitions/validators.ValidatorStatus'
         description: Status is the status of the validator (success/fail/skipped)
-    type: object
-  query.Definition:
-    properties:
-      name:
-        description: Name is the name of the query parameter
-        type: string
-      value:
-        description: Value is the value of the query parameter
-        type: string
-    required:
-    - name
-    - value
     type: object
   validators.ValidatorStatus:
     enum:

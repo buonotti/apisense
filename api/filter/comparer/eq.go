@@ -1,7 +1,7 @@
 package comparer
 
 import (
-	"reflect"
+	"github.com/goccy/go-reflect"
 )
 
 type eqComparer struct{}

@@ -1,0 +1,8 @@
+version: 1
+name: "%s"
+# TODO: base url
+base_url: 'edit me'
+test_case_names:
+  - "default"
+# TODO: response schema
+# response_schema:
