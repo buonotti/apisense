@@ -61,5 +61,10 @@ func createDirectories() error {
 		return errors.CannotCreateDirectoryError.Wrap(err, "cannot create validators custom directory: "+directories.ValidatorCustomDirectory())
 	}
 
+	err = os.MkdirAll(filepath.FromSlash(directories.ValidatorsCacheDirectory()), os.ModePerm)
+	if err != nil {
+		return errors.CannotCreateDirectoryError.Wrap(err, "cannot create validators cache directory: "+directories.ValidatorsCacheDirectory())
+	}
+
 	return nil
 }

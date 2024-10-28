@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/buonotti/apisense/log"
-	"github.com/buonotti/apisense/validation/validators/repo"
+	"github.com/buonotti/apisense/validation/validators/pkg"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +13,7 @@ var templatesUpdateCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		force, _ := cmd.Flags().GetBool("force")
-		err := repo.Update(force)
+		err := pkg.Update(force)
 		if err != nil {
 			log.DefaultLogger().Fatal(err)
 		}

@@ -21,6 +21,11 @@ func ConfigDirectory() string {
 	return filepath.ToSlash(configDir)
 }
 
+func CacheDirectory() string {
+	cacheDir, _ := app.Cache()
+	return filepath.ToSlash(cacheDir)
+}
+
 func ValidatorsDirectory() string {
 	return AppDirectory() + "/validators"
 }
@@ -31,4 +36,8 @@ func ValidatorRepoDirectory() string {
 
 func ValidatorCustomDirectory() string {
 	return ValidatorsDirectory() + "/custom"
+}
+
+func ValidatorsCacheDirectory() string {
+	return CacheDirectory() + "/validators"
 }

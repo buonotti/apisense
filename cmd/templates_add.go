@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
-	"github.com/buonotti/apisense/validation/validators/repo"
+	"github.com/buonotti/apisense/validation/validators/pkg"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +21,9 @@ var templatesAddCmd = &cobra.Command{
 		if err != nil {
 			log.DefaultLogger().Fatal(errors.CannotGetFlagValueError.WrapWithNoMessage(err))
 		}
-		err = repo.AddCustomRepo(lang, url)
+		branch, _ := cmd.Flags().GetString("branch")
+		commit, _ := cmd.Flags().GetString("commit")
+		err = pkg.AddTemplateSource(lang, url, branch, commit)
 		if err != nil {
 			log.DefaultLogger().Fatal(err)
 		}
@@ -32,6 +34,8 @@ var templatesAddCmd = &cobra.Command{
 func init() {
 	templatesAddCmd.Flags().StringP("lang", "l", "", "The language of the template")
 	templatesAddCmd.Flags().StringP("url", "u", "", "The remote repo url to clone the template from")
+	templatesAddCmd.Flags().StringP("branch", "b", "main", "The branch to use")
+	templatesAddCmd.Flags().StringP("commit", "c", "*", "The commit to use. Set to * to use the latest")
 	err := templatesAddCmd.MarkFlagRequired("lang")
 	if err != nil {
 		log.DefaultLogger().Fatal(errors.CannotMarkFlagRequiredError.WrapWithNoMessage(err))
