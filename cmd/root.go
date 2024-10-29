@@ -26,6 +26,7 @@ There are multiple subcommands that can be used to interact with the daemon. For
 			parsed, err := clog.ParseLevel(ll)
 			if err == nil {
 				clog.SetLevel(parsed)
+				clog.SetReportCaller(clog.GetLevel() == clog.DebugLevel)
 			} else {
 				log.DefaultLogger().Warn("Log level invalid. Falling back to config", "reason", err.Error())
 			}

@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"github.com/buonotti/apisense/daemon"
+	"github.com/buonotti/apisense/log"
+	clog "github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 )
 
@@ -14,6 +16,15 @@ var daemonCmd = &cobra.Command{
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		cmd.Root().PersistentPreRun(cmd, args)
 		cobra.CheckErr(daemon.Setup())
+		if ll, err := cmd.Root().PersistentFlags().GetString("log-level"); err == nil && ll != "" {
+			parsed, err := clog.ParseLevel(ll)
+			if err == nil {
+				clog.SetLevel(parsed)
+				clog.SetReportCaller(clog.GetLevel() == clog.DebugLevel)
+			} else {
+				log.DefaultLogger().Warn("Log level invalid. Falling back to config", "reason", err.Error())
+			}
+		}
 	},
 	Run: func(cmd *cobra.Command, _ []string) {
 		cobra.CheckErr(cmd.Help())
