@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/smtp"
 
+	"github.com/buonotti/apisense/config"
 	"github.com/buonotti/apisense/util"
 	"github.com/spf13/viper"
 )
@@ -16,8 +17,8 @@ type AlertData struct {
 
 // SendAlert sends an alert to the receiver specified in the config. It uses the AlertData to know what and if to send an alert
 func SendAlert(data AlertData) error {
-	emailUser := viper.GetString("daemon.notification.username")
-	emailPass := viper.GetString("daemon.notification.password")
+	emailUser := config.SecretsViper.GetString("daemon.notification.username")
+	emailPass := config.SecretsViper.GetString("daemon.notification.password")
 	sendOnErrors := viper.GetBool("daemon.notification.only_on_error")
 	sender := viper.GetString("daemon.notification.sender")
 	receiver := viper.GetString("daemon.notification.receiver")

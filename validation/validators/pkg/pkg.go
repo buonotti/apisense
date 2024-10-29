@@ -174,6 +174,9 @@ func Create(lang string, name string, force bool, noCache bool) error {
 			}
 		}
 	}
+	if util.Exists(destPath) && !force {
+		return errors.DirectoryExistsError.New("destination directory already exists: %s", destPath)
+	}
 	err = gorecurcopy.CopyDirectory(cachePath, destPath)
 	if err != nil {
 		return errors.CannotCopyDirectoryError.WrapWithNoMessage(err)

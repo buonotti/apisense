@@ -23,4 +23,5 @@ var (
 	CannotUmarshalError            = FileSystemErrors.NewType("cannot_umarshal")
 	CannotChangeDirectoryError     = FileSystemErrors.NewType("cannot_cd")
 	CannotCopyDirectoryError       = FileSystemErrors.NewType("cannot_copy_directory")
+	DirectoryExistsError           = FileSystemErrors.NewType("directory_exists")
 )

@@ -14,11 +14,10 @@ import (
 
 // ValidatorDefinition is the definition of an external validator
 type ValidatorDefinition struct {
-	Name          string   // Name is the name of the validator
-	Path          string   // Path is the path to the executable
-	Args          []string // Args are the arguments to pass to the executable
-	ReadFromStdin bool     // ReadFromStdin controls whether the validator expects the item to validate on stdin
-	Fatal         bool     // Fatal controls whether the validator is fatal or not that is if it fails the pipeline should stop
+	Name  string   // Name is the name of the validator
+	Path  string   // Path is the path to the executable
+	Args  []string // Args are the arguments to pass to the executable
+	Fatal bool     // Fatal controls whether the validator is fatal or not that is if it fails the pipeline should stop
 }
 
 // parse parses the external validators in the config file and returns a slice containing all validators to later use in the pipeline
