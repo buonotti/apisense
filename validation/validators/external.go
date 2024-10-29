@@ -115,7 +115,20 @@ func (v externalValidator) Name() string {
 // process then returning an error according to the status code of the external
 // program
 func (v externalValidator) Validate(item ValidationItem) error {
-	jsonString, err := json.Marshal(item)
+	var err error
+	var jsonString []byte
+	if v.Definition.Slim {
+		jsonString, err = json.Marshal(SlimValidationItem{
+			response: item.Response(),
+		})
+	} else {
+		jsonString, err = json.Marshal(ExtendedValidationItem{
+			response:   item.Response(),
+			definition: item.Definition(),
+		})
+	}
+
+	jsonString, err = json.Marshal(item)
 	outString := &strings.Builder{}
 	if err != nil {
 		return errors.CannotSerializeItemError.Wrap(err, "cannot serialize item: %s", err)
@@ -149,4 +162,8 @@ func (v externalValidator) Validate(item ValidationItem) error {
 
 func (v externalValidator) IsFatal() bool {
 	return v.Definition.Fatal
+}
+
+func (v externalValidator) IsSlim() bool {
+	return v.Definition.Slim
 }
