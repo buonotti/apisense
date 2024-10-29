@@ -18,6 +18,7 @@ type ValidatorDefinition struct {
 	Path  string   // Path is the path to the executable
 	Args  []string // Args are the arguments to pass to the executable
 	Fatal bool     // Fatal controls whether the validator is fatal or not that is if it fails the pipeline should stop
+	Slim  bool     // Slim controls how much data the validator gets. Setting this to true reduces the context the validator gets
 }
 
 // parse parses the external validators in the config file and returns a slice containing all validators to later use in the pipeline
@@ -137,7 +138,7 @@ func (v externalValidator) Validate(item ValidationItem) error {
 		var exitErr *exec.ExitError
 		if errs.As(err, &exitErr) {
 			if exitErr.ExitCode() == 1 {
-				return errors.ValidationError.New("validation failed for endpoint %s: %s", item.Definition.Name, validatorErr.String())
+				return errors.ValidationError.New("validation failed: %s", validatorErr.String())
 			} else {
 				return errors.ValidationError.New("validation failed: unexpected exit code from external validator: %d", exitErr.ExitCode())
 			}

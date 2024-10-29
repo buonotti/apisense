@@ -92,10 +92,18 @@ func AutoDiscoverExternal(override bool) error {
 		exists := util.FindFirst(externalValidators, func(def ValidatorDefinition) bool {
 			return def.Name == val.Name
 		})
-		if exists == nil || override {
+		if exists == nil {
 			externalValidators = append(externalValidators, val)
 		} else {
-			log.DefaultLogger().Warn("Validator with the same name already exists. Not overriding", "name", val.Name)
+			if override {
+				for i, ext := range externalValidators {
+					if ext.Name == val.Name {
+						externalValidators[i] = val
+					}
+				}
+			} else {
+				log.DefaultLogger().Warn("Validator with the same name already exists. Not overriding", "name", val.Name)
+			}
 		}
 	}
 
