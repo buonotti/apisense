@@ -21,11 +21,18 @@ type tableView struct {
 	allowSelect bool
 }
 
+type selection struct {
+	index       int
+	description string
+	item        interface{}
+}
+
 type reportModel struct {
-	views   []*tableView
-	keymap  keymap
-	flexBox *flexbox.FlexBox
-	reports []pipeline.Report
+	views            []*tableView
+	keymap           keymap
+	flexBox          *flexbox.FlexBox
+	reports          []pipeline.Report
+	selectionHistory []selection
 }
 
 func ReportModel() reportModel {
@@ -76,12 +83,29 @@ func (r reportModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return r, nil
 			case key.Matches(msg, r.keymap.choose):
 				if r.activeView().allowSelect {
-					if len(r.views) == 1 { // In the reports view
+					if len(r.views) == 1 {
+						// In the reports view
 						selectedIdx, _ := strconv.Atoi(r.activeView().table.GetCursorValue())
-						r.pushView(createValidatedEndpointTableView(r.reports[selectedIdx]))
-					} else if len(r.views) == 2 { // In the validated endpoints view
-						//selectedValidatedEndpoint, _ := strconv.Atoi(r.activeView().table.GetCursorValue())
-						// TODO: Display or handle the selected validated endpoint
+						selectedReport := r.reports[selectedIdx]
+						description := selectedReport.Id
+						r.pushView(createValidatedEndpointTableView(selectedReport), selection{
+							index:       selectedIdx,
+							description: description,
+							item:        selectedReport,
+						})
+					} else if len(r.views) == 2 {
+						// In the validated endpoints view
+						lastSelection := r.selectionHistory[len(r.selectionHistory)-1]
+						selectedReport := lastSelection.item.(pipeline.Report)
+
+						selectedIdx, _ := strconv.Atoi(r.activeView().table.GetCursorValue())
+						selectedEndpoint := selectedReport.Endpoints[selectedIdx]
+						description := selectedEndpoint.EndpointName
+						r.pushView(createResultTableView(selectedEndpoint), selection{
+							index:       selectedIdx,
+							description: description,
+							item:        selectedEndpoint,
+						})
 					}
 				}
 				return r, nil
@@ -111,14 +135,16 @@ func (r reportModel) View() string {
 }
 
 // Function to push new view onto stack
-func (r *reportModel) pushView(view *tableView) {
+func (r *reportModel) pushView(view *tableView, selection selection) {
 	r.views = append(r.views, view)
+	r.selectionHistory = append(r.selectionHistory, selection)
 }
 
 // Function to pop top view from stack
 func (r *reportModel) popView() {
 	if len(r.views) > 1 {
 		r.views = r.views[:len(r.views)-1]
+		r.selectionHistory = r.selectionHistory[:len(r.selectionHistory)-1]
 	}
 }
 
@@ -137,7 +163,7 @@ func getReportRows(reports []pipeline.Report) ([][]string, bool) {
 		})
 	}
 	if len(rows) == 0 {
-		rows = append(rows, []string{"", "No reports found!", ""})
+		rows = append(rows, []string{"-1", "", "No reports found"})
 		return rows, false
 	}
 	return rows, true
@@ -146,25 +172,33 @@ func getReportRows(reports []pipeline.Report) ([][]string, bool) {
 func getValidatedEndpointRows(validatedEndpoint pipeline.Report) ([][]string, bool) {
 	rows := make([][]string, 0)
 	for i, endpoint := range validatedEndpoint.Endpoints {
-		row := []string{
+		rows = append(rows, []string{
 			fmt.Sprintf("%d", i),
 			endpoint.EndpointName,
-		}
-		rows = append(rows, row)
+		})
 	}
 	if len(rows) == 0 {
-		rows = append(rows, []string{"", "No endpoints found"})
+		rows = append(rows, []string{"-1", "No endpoints found"})
 		return rows, false
 	}
 
 	return rows, true
 }
 
-func getResultRows(results []pipeline.TestCaseResult) ([][]string, bool) {
+func getResultRows(validatedEndpoint pipeline.ValidatedEndpoint) ([][]string, bool) {
 	rows := make([][]string, 0)
+	results := validatedEndpoint.TestCaseResults
 	for i, result := range results {
-		result.ValidatorResults
+		rows = append(rows, []string{
+			fmt.Sprintf("%d", i),
+			result.Name,
+		})
 	}
+	if len(rows) == 0 {
+		rows = append(rows, []string{"-1", "No results found"})
+		return rows, false
+	}
+	return rows, true
 }
 
 func createReportTableView(reports []pipeline.Report) *tableView {
@@ -189,6 +223,25 @@ func createReportTableView(reports []pipeline.Report) *tableView {
 func createValidatedEndpointTableView(endpoint pipeline.Report) *tableView {
 	headers := []string{"", ""}
 	rows, allowSelection := getValidatedEndpointRows(endpoint)
+	ratio := []int{2, 25}
+	minSize := []int{4, 25}
+	t := table.NewTableSingleType[string](0, 0, headers)
+	t.SetRatio(ratio).SetMinWidth(minSize)
+	t.AddRows(rows).SetStylePassing(true)
+	t.SetStyles(map[table.TableStyleKey]lipgloss.Style{
+		table.TableRowsCursorStyleKey:     styleActive,
+		table.TableRowsSubsequentStyleKey: styleBase,
+		table.TableRowsStyleKey:           styleBase,
+		table.TableHeaderStyleKey:         styleBase,
+		table.TableFooterStyleKey:         styleFooter,
+		table.TableCellCursorStyleKey:     styleActive,
+	})
+	return &tableView{table: t, allowSelect: allowSelection}
+}
+
+func createResultTableView(validatedEndpoint pipeline.ValidatedEndpoint) *tableView {
+	headers := []string{"", ""}
+	rows, allowSelection := getResultRows(validatedEndpoint)
 	ratio := []int{2, 25}
 	minSize := []int{4, 25}
 	t := table.NewTableSingleType[string](0, 0, headers)
