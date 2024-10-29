@@ -32,6 +32,10 @@ var templatesCreateCmd = &cobra.Command{
 
 func init() {
 	templatesCreateCmd.Flags().StringP("lang", "l", "", "The language of the template to use")
+	err := templatesCreateCmd.MarkFlagRequired("lang")
+	if err != nil {
+		log.DefaultLogger().Fatal(errors.CannotMarkFlagRequiredError.WrapWithNoMessage(err))
+	}
 	templatesCreateCmd.Flags().BoolP("force", "f", false, "Force the creation. Overrides already existing validators. Use with caution")
 
 	templatesCmd.AddCommand(templatesCreateCmd)

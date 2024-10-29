@@ -1,14 +1,13 @@
 package pipeline
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 
+	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/directories"
 	"github.com/buonotti/apisense/util"
-
-	"github.com/buonotti/apisense/errors"
+	"github.com/goccy/go-json"
 )
 
 // Report is a report of a test run
@@ -18,6 +17,7 @@ type Report struct {
 	Endpoints []ValidatedEndpoint `json:"endpoints"` // Endpoints is a collection of ValidatedEndpoint holding the validation results
 }
 
+// GetReport returns the report matching the given filename
 func GetReport(filename string) (*Report, error) {
 	files, err := os.ReadDir(filepath.FromSlash(directories.ReportsDirectory()))
 	if err != nil {

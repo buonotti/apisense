@@ -7,24 +7,12 @@ import (
 	"github.com/buonotti/apisense/validation/pipeline"
 )
 
+// Csv returns a new csvConverter
 func Csv() Converter {
 	return csvConverter{}
 }
 
 type csvConverter struct{}
-
-func (c csvConverter) ConvertMany(reports []pipeline.Report) ([]byte, error) {
-	lines := strings.Builder{}
-	for _, r := range reports {
-		d, err := c.Convert(r)
-		if err != nil {
-			return nil, err
-		}
-		lines.Write(d)
-		lines.Write([]byte("\n"))
-	}
-	return []byte(lines.String()), nil
-}
 
 func (csvConverter) Convert(reports ...pipeline.Report) ([]byte, error) {
 	lines := strings.Builder{}

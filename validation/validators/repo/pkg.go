@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"time"
@@ -11,6 +10,7 @@ import (
 	"github.com/buonotti/apisense/filesystem/locations/files"
 	"github.com/buonotti/apisense/log"
 	"github.com/buonotti/apisense/util"
+	"github.com/goccy/go-json"
 	"github.com/ldez/go-git-cmd-wrapper/v2/add"
 	"github.com/ldez/go-git-cmd-wrapper/v2/clone"
 	"github.com/ldez/go-git-cmd-wrapper/v2/commit"
@@ -18,11 +18,13 @@ import (
 	"github.com/plus3it/gorecurcopy"
 )
 
+// Lockfile
 type Lockfile struct {
 	LastUpdate util.ApisenseTime
 	Templates  map[string]string
 }
 
+// loadLockfile loads the lockfile from disk
 func loadLockfile() (Lockfile, error) {
 	if !util.Exists(files.PkgLockFile()) {
 		defaultLockfile := Lockfile{LastUpdate: util.ApisenseTime(time.Now().UTC())}
@@ -44,6 +46,7 @@ func loadLockfile() (Lockfile, error) {
 	return lockfile, err
 }
 
+// saveLockfile saves the lockfile to disk
 func saveLockfile(lockfile Lockfile) error {
 	marshalled, _ := json.MarshalIndent(lockfile, "", "  ")
 	err := os.WriteFile(files.PkgLockFile(), marshalled, os.ModePerm)
@@ -53,7 +56,8 @@ func saveLockfile(lockfile Lockfile) error {
 	return nil
 }
 
-func Update() error {
+// Update updates all the templates
+func Update(force bool) error {
 	lockfile, err := loadLockfile()
 	if err != nil {
 		return err
@@ -65,7 +69,7 @@ func Update() error {
 
 	for lang, url := range remoteTemplates {
 		_, ok := lockfile.Templates[lang]
-		if !ok {
+		if !ok || force {
 			log.DefaultLogger().Info("Found new language. Adding to templates", "lang", lang)
 			if lockfile.Templates == nil {
 				lockfile.Templates = make(map[string]string)
@@ -103,6 +107,7 @@ func Update() error {
 	return saveLockfile(lockfile)
 }
 
+// Create creates a new validator from the given template
 func Create(lang string, name string, force bool) error {
 	lockfile, err := loadLockfile()
 	if err != nil {
@@ -158,6 +163,7 @@ func Create(lang string, name string, force bool) error {
 	return nil
 }
 
+// AddCustomRepo adds a language with a custom git repo to the lockfile
 func AddCustomRepo(lang string, url string) error {
 	lockfile, err := loadLockfile()
 	if err != nil {

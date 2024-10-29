@@ -4,7 +4,6 @@ import (
 	"database/sql"
 
 	"github.com/buonotti/apisense/filesystem/locations/files"
-
 	_ "github.com/glebarez/go-sqlite"
 )
 
@@ -19,6 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 `
 
+// Setup sets up the connection to the local sqlite db. Creates the user table if it not exists
 func Setup() error {
 	if db != nil {
 		return nil

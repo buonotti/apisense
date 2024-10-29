@@ -14,6 +14,7 @@ func hasLogFile() bool {
 
 var logFile *os.File = nil
 
+// CloseLogFile closes the log file if one is in use
 func CloseLogFile() error {
 	if logFile != nil {
 		err := logFile.Close()
@@ -43,6 +44,7 @@ func Setup() error {
 	log.SetLevel(lvl)
 	log.SetTimeFormat(util.ApisenseTimeFormat)
 	log.SetReportCaller(log.GetLevel() == log.DebugLevel)
+	log.SetOutput(getWriter())
 
 	return nil
 }

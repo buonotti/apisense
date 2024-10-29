@@ -8,14 +8,16 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Information used to send an alert
 type AlertData struct {
 	Time        util.ApisenseTime
 	ErrorAmount uint
 }
 
+// SendAlert sends an alert to the receiver specified in the config. It uses the AlertData to know what and if to send an alert
 func SendAlert(data AlertData) error {
-	emailUser := viper.GetString("APISENSE_EMAIL_USER")
-	emailPass := viper.GetString("APISENSE_EMAIL_PASS")
+	emailUser := viper.GetString("daemon.notification.username")
+	emailPass := viper.GetString("daemon.notification.password")
 	sendOnErrors := viper.GetBool("daemon.notification.only_on_error")
 	sender := viper.GetString("daemon.notification.sender")
 	receiver := viper.GetString("daemon.notification.receiver")

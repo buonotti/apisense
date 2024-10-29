@@ -1,15 +1,16 @@
 package repo
 
 import (
-	"encoding/json"
 	"strings"
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/go-resty/resty/v2"
+	"github.com/goccy/go-json"
 )
 
 const repoEndpoint string = "https://api.github.com/orgs/buonotti/repos"
 
+// DiscoverTemplates loads all templates from the official buonotti repos
 func DiscoverTemplates() (map[string]string, error) {
 	resp, err := resty.New().R().Get(repoEndpoint)
 	if err != nil {

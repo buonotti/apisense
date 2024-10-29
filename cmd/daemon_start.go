@@ -12,6 +12,7 @@ var daemonStartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Start the daemon",
 	Long:  `This command starts the daemon. In any case if there is already a daemon running the new one won't start.`,
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, _ []string) {
 		force, err := cmd.Flags().GetBool("force")
 		force = force || viper.GetBool("daemon.run_at_startup")

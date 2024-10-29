@@ -8,9 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/robfig/cron/v3"
-	"github.com/spf13/viper"
-
 	"github.com/buonotti/apisense/alerting"
 	"github.com/buonotti/apisense/conversion"
 	"github.com/buonotti/apisense/errors"
@@ -19,6 +16,8 @@ import (
 	"github.com/buonotti/apisense/util"
 	"github.com/buonotti/apisense/validation/pipeline"
 	"github.com/buonotti/apisense/validation/validators"
+	"github.com/robfig/cron/v3"
+	"github.com/spf13/viper"
 )
 
 // daemon provides simple daemon operations, and it holds the validation.Pipeline
@@ -59,6 +58,7 @@ func (d daemon) run(runOnStart bool) error {
 	}
 
 	cronScheduler := cron.New()
+	log.DaemonLogger().Debug("Starting with cron expr", "cron", viper.GetString("daemon.interval"))
 	workFunctionId, err := cronScheduler.AddFunc(viper.GetString("daemon.interval"), d.work)
 	if err != nil {
 		return errors.CannotAddWorkFunctionToCronSchedulerError.Wrap(err, "cannot add work function to cron scheduler")
@@ -164,6 +164,7 @@ func (d daemon) work() {
 	}
 }
 
+// countErrors counts the amount of errors in the report
 func countErrors(report pipeline.Report) uint {
 	count := 0
 	for _, endpoint := range report.Endpoints {
@@ -178,6 +179,7 @@ func countErrors(report pipeline.Report) uint {
 	return uint(count)
 }
 
+// cleanupReports cleans up old reports in the report directory
 func (d daemon) cleanupReports() error {
 	if !viper.GetBool("daemon.discard.enabled") {
 		return nil

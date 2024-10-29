@@ -11,6 +11,7 @@ var templatesAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a custom repo for a template",
 	Long:  "Add a git repo containing the template code for an apisense validator",
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		lang, err := cmd.Flags().GetString("lang")
 		if err != nil {

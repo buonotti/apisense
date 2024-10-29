@@ -7,7 +7,8 @@ import (
 var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Manage configuration",
-	Long:  `Manage configuration`, // TODO: Add more info
+	Long:  `Manage the main apisense configuration.`,
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, _ []string) {
 		cobra.CheckErr(cmd.Help())
 	},

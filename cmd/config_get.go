@@ -2,21 +2,21 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/log"
 	"sort"
 
+	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/util"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/util"
 )
 
 var configGetCmd = &cobra.Command{
 	Use:   "get",
-	Short: "Get a configuration value",
-	Long:  `Get a configuration value`, // TODO: Add more info
+	Short: "Get configuration values",
+	Long:  `Get all configuration values or only one when the --key flag is set.`,
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, _ []string) {
 		key := cmd.Flag("key").Value.String()
 		if key == "" {

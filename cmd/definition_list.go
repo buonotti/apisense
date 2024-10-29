@@ -2,23 +2,23 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/log"
 	"path/filepath"
 
+	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/theme"
+	"github.com/buonotti/apisense/validation/definitions"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/termenv"
 	"github.com/spf13/cobra"
-
-	"github.com/buonotti/apisense/filesystem/locations/directories"
-	"github.com/buonotti/apisense/theme"
-	"github.com/buonotti/apisense/validation/definitions"
 )
 
 var definitionListCmd = &cobra.Command{
 	Use:     "list",
 	Aliases: []string{"ls"},
 	Short:   "List definitions",
-	Long:    `List definitions`, // TODO: Add more info
+	Long:    `List all definitions`,
+	Args:    cobra.NoArgs,
 	Run: func(cmd *cobra.Command, _ []string) {
 		definitions, err := definitions.Endpoints()
 		if err != nil {
@@ -26,12 +26,15 @@ var definitionListCmd = &cobra.Command{
 		}
 		concise := cmd.Flag("concise").Value.String() == "true"
 
-		if !concise {
-			fmt.Println(yellowStyle().Bold(true).Render("# Definitions \n"))
-		}
-
-		for _, def := range definitions {
-			printDefinition(def, concise)
+		if len(definitions) == 0 {
+			fmt.Println("No definitions")
+		} else {
+			if !concise {
+				fmt.Println(yellowStyle().Bold(true).Render("# Definitions \n"))
+			}
+			for _, def := range definitions {
+				printDefinition(def, concise)
+			}
 		}
 	},
 }

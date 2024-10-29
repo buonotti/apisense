@@ -20,9 +20,6 @@
   # Definition files that start with this prefix are not included
   # ignore_prefix: "_"
 
-  # Enable or disable rpc. Note that if rpc is disabled some commands will not work.
-  # rpc: true 
-
   # Set the discard times of reports. Reports older than this will be discarded.
   # discard:
     # Enable discarding of reports
@@ -78,10 +75,10 @@
   # Enable authentication
   # auth: true
 
+  # Enable swagger
+  # swagger: true
+
 ### EXTERNAL VALIDATORS ###
 # validation:
   # Define external validators that can be used in the definitions.
   # external_validators: []
-
-  # Define build-in validators that should be disabled.
-  # excluded_builtin_validators: []

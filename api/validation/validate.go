@@ -2,12 +2,12 @@ package validation
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
+
+	"github.com/goccy/go-reflect"
 )
 
-type Failure error
-
+// errorf generates a error message telling where the struct failed to validate
 func errorf(field string, validator string, value string, details string) error {
 	base := fmt.Sprintf("field %s failed validation %s", field, validator)
 	if value != "" {
@@ -19,12 +19,13 @@ func errorf(field string, validator string, value string, details string) error 
 	return fmt.Errorf(base)
 }
 
+// Validate validates the given object using annotations
 func Validate(obj any) error {
 	t := reflect.TypeOf(obj)
 
 	accessAsPointer := false
 
-	if t.Kind() == reflect.Pointer {
+	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 		accessAsPointer = true
 	}

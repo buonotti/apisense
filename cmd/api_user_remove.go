@@ -7,10 +7,11 @@ import (
 )
 
 var apiUserRemoveCmd = &cobra.Command{
-	Use:   "remove [USERNAME]",
-	Short: "Remove a user",
-	Long:  `This command allows to remove a user of the API.`,
-	Args:  cobra.ExactArgs(1),
+	Use:               "remove [USERNAME]",
+	Short:             "Remove a user",
+	Long:              `This command allows to remove a user of the API.`,
+	Args:              cobra.ExactArgs(1),
+	ValidArgsFunction: validUsersFunc(),
 	Run: func(_ *cobra.Command, args []string) {
 		username := args[0]
 
@@ -21,7 +22,6 @@ var apiUserRemoveCmd = &cobra.Command{
 
 		log.DefaultLogger().Info("User removed", "username", username)
 	},
-	ValidArgsFunction: validUsersFunc(),
 }
 
 func init() {

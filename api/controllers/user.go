@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/buonotti/apisense/api/db"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
 type LoginRequest struct {
@@ -31,18 +31,16 @@ type LoginResponse struct {
 //	@Failure		401		{object}	ErrorResponse
 //	@Failure		500		{object}	ErrorResponse
 //	@Router			/login [post]
-func LoginUser(c *gin.Context) {
+func LoginUser(c *fiber.Ctx) error {
 	var request LoginRequest
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
-		return
+	if err := c.BodyParser(request); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{Message: err.Error()})
 	}
 
 	userData, err := db.LoginUser(request.Username, request.Password)
 	if err != nil {
-		c.AbortWithStatusJSON(400, ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{Message: err.Error()})
 	}
 
-	c.JSON(200, LoginResponse{Token: userData.Token})
+	return c.JSON(LoginResponse{Token: userData.Token})
 }

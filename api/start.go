@@ -1,59 +1,61 @@
 package api
 
 import (
-	"context"
-	errs "errors"
 	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
-	"time"
-
-	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/buonotti/apisense/api/controllers"
 	"github.com/buonotti/apisense/api/middleware"
 	"github.com/buonotti/apisense/docs"
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
+	"github.com/goccy/go-json"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/swagger"
+	"github.com/spf13/viper"
 )
 
+// Start starts the web api accoring to configuation. host and port can be used to override the values in the config
 func Start(host string, port int) error {
-	if viper.GetString("APISENSE_SIGNING_KEY") == "" {
-		return errors.MissingSigningKeyError.New("Missing APISENSE_SIGNING_KEY value in .env")
+	if viper.GetString("api.signing_key") == "" {
+		return errors.MissingSigningKeyError.New("Missing api.signing_key value in either config or secrets file")
 	}
-
 	docs.SwaggerInfo.BasePath = "/api"
 
-	gin.SetMode(gin.ReleaseMode)
-
-	router := gin.New()
-	router.Use(gin.Recovery())
-	router.Use(log.GinMiddleware())
-	router.Use(middleware.CORS())
-	// router.Use(middleware.Limiter())
-
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-	api := router.Group("/api")
-	api.GET("/health", controllers.GetHealth)
-	api.POST("/login", controllers.LoginUser)
-	api.GET("/reports", controllers.AllReports)
-	api.GET("/reports/:id", controllers.Report)
-	api.GET("/ws", controllers.Ws)
-	api.GET("/swagger", func(c *gin.Context) {
-		c.Redirect(http.StatusMovedPermanently, "/swagger/index.html")
+	app := fiber.New(fiber.Config{
+		DisableStartupMessage: true,
+		JSONEncoder:           json.Marshal,
+		JSONDecoder:           json.Unmarshal,
 	})
+	app.Use(recover.New())
+	app.Use(cors.New())
+	app.Use(log.NewFiber())
+
+	app.Get("/health", controllers.GetHealth)
+
+	api := app.Group("/api")
+	api.Get("/health", controllers.GetHealth)
+	api.Post("/login", controllers.LoginUser)
+	api.Get("/reports", controllers.AllReports)
+	api.Get("/reports/:id", controllers.Report)
+
+	if viper.GetBool("api.swagger") {
+		app.Get("/swagger/*", swagger.New())
+		api.Get("/swagger", func(c *fiber.Ctx) error {
+			return c.Redirect("/swagger/index.html", http.StatusMovedPermanently)
+		})
+	}
 
 	if viper.GetBool("api.auth") {
 		api.Use(middleware.Auth())
 	}
-	api.GET("/definitions", controllers.AllDefinitions)
-	api.POST("/definitions", controllers.CreateDefinition)
-	api.GET("/definitions/:id", controllers.Definition)
+	api.Get("/definitions", controllers.AllDefinitions)
+	api.Post("/definitions", controllers.CreateDefinition)
+	api.Get("/definitions/:id", controllers.Definition)
 
 	apiHost := host
 	if apiHost == "" && viper.GetString("api.host") != "" {
@@ -67,35 +69,20 @@ func Start(host string, port int) error {
 
 	addr := fmt.Sprintf("%s:%d", apiHost, apiPort)
 
-	srv := &http.Server{
-		Addr:    addr,
-		Handler: router,
-	}
-
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt)
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil {
-			if !errs.Is(err, http.ErrServerClosed) {
-				log.ApiLogger().Error("Cannot start api server", "reason", err.Error())
-			} else {
-				log.ApiLogger().Info("Server stopped")
-			}
-		}
+		_ = <-done
+		log.ApiLogger().Info("Interrupt. Stopping server")
+		_ = app.Shutdown()
 	}()
 
-	log.ApiLogger().Info("Server listening", "url", fmt.Sprintf("http://localhost:%v", apiPort))
+	log.ApiLogger().Info("Starting server", "address", addr, "handlers", app.HandlersCount())
 
-	<-done
-
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	log.ApiLogger().Info("Gracefully stopping server")
-
-	if err := srv.Shutdown(ctx); err != nil {
-		return errors.CannotStopApiServiceError.Wrap(err, "cannot stop server")
+	err := app.Listen(addr)
+	if err != nil {
+		return errors.CannotStopApiServiceError.Wrap(err, "failed to start server")
 	}
 
 	return nil

@@ -1,0 +1,92 @@
+# The version of the spec.
+version: 1
+
+# The name of the endpoint (used in the report)
+name: "apisense_demo"
+
+# The format of the response (json or xml). Default json
+format: "json"
+
+# The endpoint to call. Variables can be interpolated with {{ .ParamName }} (Go template syntax)
+# There are also two builtin functions: Now and Env
+# Now is used with the following syntax: {{ .Now "<format>" }} you can find the format here: https://pkg.go.dev/time#Time.Format
+# Env is used with the following syntax: {{ .Env "<env_var_name>" }}
+base_url: 'http://localhost:8080/restricted'
+
+# Query parameters to add to the request. You can interpolate variables in the value of each query parameter
+# query_parameters:
+#   - name: "limit"
+#     value: 33
+
+# Variable definitions
+# For all non-constant variables, the number of values must be the same and will be used in order to call the endpoint
+# variables:
+#   - name: "Name"
+#     constant: false
+#     values:
+#       - "Name1"
+#       - 'Name2'
+#
+#   - name: "ApiVersion"
+#     constant: true
+#     values:
+#       - "2"
+
+# Set names for each test case generated. The length has to match the length of the variable variables length (in this example 2)
+# If left empty the test cases are named TestCase1, TestCase2, ...
+test_case_names:
+  - "default"
+# - "Name2Test"
+
+# Sets the HTTP-Method which is used. Allowed values are GET, POST, PUT, DELETE
+method: 'GET'
+
+# Holds an arbitrary payload to send to the api. You can interpolate variables here 
+# payload:
+#   test_data: {{ .FancyNumber }}
+
+# Ok code is the expected status code. Defaults to 200 if it is omitted
+ok_code: 200
+
+# List of names of validators that should not be run. Keep in mind that external validators are named with external.<name>
+# to better symbolize that they are external
+excluded_validators:
+    - "external.data-hole"
+
+# Set the Authorization header to a given value 
+# authorization: "My-Secret-Api-Key"
+
+# Optional information to add a jwt authentication method.
+# Note that the token is requested on each request sent
+jwt_login:
+  # The endpoint that provides the token
+  url: 'http://localhost:8080/login'
+  # The object sent to the api. It can have any structure. 
+  # You can interpolate variables from the secrets file using the same templating language. The Env function is also supported
+  login_payload: 
+      username: '{{ .Username }}'
+      password: '{{ .Password }}'
+  # Name of the top-level json key that contains the token. Nested structures are not yet supported
+  token_key_name: "token"
+
+# Add additional headers to the request. The Authorization header gets overrideen if it is set using the authorization property or the jwt_login property
+headers:
+  Test-Header: "1231313"
+
+# The expected response schema. Must be a valid json-schema
+response_schema:
+  type: object 
+  properties:
+    text: 
+      type: string 
+    manyNumbers:
+      type: array 
+      items:
+        type: number
+    nestedData:
+      type: object 
+      properties:
+        someText:
+          type: string
+        someOtherText:
+          type: string

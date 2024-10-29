@@ -4,10 +4,9 @@ import (
 	"os"
 	"strconv"
 
-	lf "github.com/nightlyone/lockfile"
-
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/files"
+	lf "github.com/nightlyone/lockfile"
 )
 
 // State represents the possible states of the daemon

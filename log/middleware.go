@@ -6,16 +6,14 @@ import (
 
 	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
-// GinMiddleware returns a custom logging middleware that uses log.ApiLogger instead of the gin default logger
-func GinMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		url := c.FullPath()
-		if url == "" {
-			url = "404"
-		}
+// NewFiber returns a new middleware for fiber used to log requests
+func NewFiber() func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		url := c.Path()
+		ApiLogger().Info("Starting request", "path", url)
 		t := time.Now()
 		c.Next()
 		elapsed := time.Since(t)
@@ -23,14 +21,15 @@ func GinMiddleware() gin.HandlerFunc {
 		ApiLogger().Info("Completed request",
 			"path", url,
 			"time", fmt.Sprintf("%dms", elapsed.Milliseconds()),
-			"status", c.Writer.Status(),
-			"method", c.Request.Method,
-			"remote", c.ClientIP())
+			"status", c.Response().StatusCode(),
+			"method", c.Method(),
+			"remote", c.IP())
+		return nil
 	}
 }
 
-// WishMiddleware returns a custom logging middleware that uses log.SSHLogger instead of the wish default logger
-func WishMiddleware() wish.Middleware {
+// NewWish returns a custom logging middleware that uses log.SSHLogger instead of the wish default logger
+func NewWish() wish.Middleware {
 	return func(sh ssh.Handler) ssh.Handler {
 		return func(s ssh.Session) {
 			ct := time.Now()

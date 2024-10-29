@@ -1,7 +1,6 @@
 package validators
 
 import (
-	"encoding/json"
 	errs "errors"
 	"fmt"
 	"os/exec"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
+	"github.com/goccy/go-json"
 	"github.com/spf13/viper"
 )
 
@@ -56,7 +56,8 @@ func parse() ([]ValidatorDefinition, error) {
 	return validators, nil
 }
 
-func parseArgs(obj interface{}) ([]string, error) {
+// parseArgs parses the args to pass to the validator
+func parseArgs(obj any) ([]string, error) {
 	arr, isArray := obj.([]interface{})
 	if !isArray {
 		return nil, errors.ExternalValidatorParseError.New("cannot parse external validator. expected []interface{}, got %T", obj)
@@ -77,6 +78,7 @@ func parseArgs(obj interface{}) ([]string, error) {
 	return args, nil
 }
 
+// LoadExternalValidators loads the exernal validators from the definitions
 func LoadExternalValidators() ([]Validator, error) {
 	definitions, err := parse()
 	if err != nil {

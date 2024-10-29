@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
 // GetHealth godoc
@@ -13,6 +13,6 @@ import (
 //	@Produce		json
 //	@Success		200
 //	@Router			/health [get]
-func GetHealth(c *gin.Context) {
-	c.JSON(200, gin.H{"message": "ok"})
+func GetHealth(c *fiber.Ctx) error {
+	return c.JSON(map[string]any{"message": "ok"})
 }
