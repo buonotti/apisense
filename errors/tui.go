@@ -6,8 +6,9 @@ import (
 
 var (
 	TuiErrors    = errorx.NewNamespace("tui")
-	WatcherError = TuiErrors.NewType("watcher_error")
-	NotifyError  = TuiErrors.NewType("notify_error")
-	UnknownError = TuiErrors.NewType("unknown_error")
-	ModelError   = TuiErrors.NewType("model_error")
+	WatcherError = TuiErrors.NewType("watcher")
+	NotifyError  = TuiErrors.NewType("notify")
+	UnknownError = TuiErrors.NewType("unknown")
+	ModelError   = TuiErrors.NewType("model")
+	RenderError  = TuiErrors.NewType("render")
 )

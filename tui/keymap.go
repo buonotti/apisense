@@ -12,7 +12,6 @@ type keymap struct {
 	left   key.Binding
 	right  key.Binding
 	choose key.Binding
-	format key.Binding
 	back   key.Binding
 }
 
@@ -25,46 +24,44 @@ func (k keymap) ShortHelp() []key.Binding {
 
 func (k keymap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.help, k.choose, k.up, k.format},
-		{k.quit, k.back, k.down, k.format},
+		{k.up, k.down},
+		{k.left, k.right},
+		{k.back, k.quit},
+		{k.help, k.choose},
 	}
 }
 
 var DefaultKeyMap = keymap{
+	up: key.NewBinding(
+		key.WithKeys("up", "k"),
+		key.WithHelp("↑/k", "up"),
+	),
+	down: key.NewBinding(
+		key.WithKeys("down", "j"),
+		key.WithHelp("↓/j", "down"),
+	),
+	left: key.NewBinding(
+		key.WithKeys("left", "h"),
+		key.WithHelp("←/h", "left"),
+	),
+	right: key.NewBinding(
+		key.WithKeys("right", "l"),
+		key.WithHelp("→/l", "right    "),
+	),
 	help: key.NewBinding(
 		key.WithKeys("?"),
-		key.WithHelp(styleHotkey.Render("?"), styleHelp.Render("help")),
+		key.WithHelp("?", "help"),
 	),
 	quit: key.NewBinding(
 		key.WithKeys("q", "ctrl+c"),
-		key.WithHelp(styleHotkey.Render("q"), styleHelp.Render("quit")),
-	),
-	up: key.NewBinding(
-		key.WithKeys("k", "up"),
-		key.WithHelp(styleHotkey.Render("↑|k"), styleHelp.Render("up")),
-	),
-	down: key.NewBinding(
-		key.WithKeys("j", "down"),
-		key.WithHelp(styleHotkey.Render("↓|j"), styleHelp.Render("down")),
-	),
-	left: key.NewBinding(
-		key.WithKeys("h", "left"),
-		key.WithHelp(styleHotkey.Render("←|h"), styleHelp.Render("left")),
-	),
-	right: key.NewBinding(
-		key.WithKeys("l", "right"),
-		key.WithHelp(styleHotkey.Render("→|l"), styleHelp.Render("right")),
-	),
-	choose: key.NewBinding(
-		key.WithKeys("enter"),
-		key.WithHelp(styleHotkey.Render("↲"), styleHelp.Render("select")),
+		key.WithHelp("q", "quit    "),
 	),
 	back: key.NewBinding(
 		key.WithKeys("esc"),
-		key.WithHelp(styleHotkey.Render("esc"), styleHelp.Render("back")),
+		key.WithHelp("esc", "back"),
 	),
-	format: key.NewBinding(
-		key.WithKeys("f5"),
-		key.WithHelp(styleHotkey.Render(""), styleHelp.Render("")),
+	choose: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "select"),
 	),
 }
