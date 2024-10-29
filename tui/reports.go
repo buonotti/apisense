@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/buonotti/apisense/log"
@@ -127,11 +128,8 @@ func (r reportModel) View() string {
 	cell := row.GetCell(1)
 	r.activeView().table.SetWidth(cell.GetWidth())
 	r.activeView().table.SetHeight(cell.GetHeight())
-	cell.SetContent(r.activeView().table.Render())
-
-	ret := r.flexBox.Render()
-
-	return ret
+	cell.SetContent(r.GetSelectionPath() + "\n" + r.activeView().table.Render())
+	return r.flexBox.Render()
 }
 
 // Function to push new view onto stack
@@ -151,6 +149,15 @@ func (r *reportModel) popView() {
 // Function to get active view from stack
 func (r *reportModel) activeView() *tableView {
 	return r.views[len(r.views)-1]
+}
+
+// Get selectionHistory as path
+func (r *reportModel) GetSelectionPath() string {
+	var pathParts []string
+	for _, selection := range r.selectionHistory {
+		pathParts = append(pathParts, selection.description)
+	}
+	return "/" + strings.Join(pathParts, "/") // Prepend with '/' for filepath style
 }
 
 func getReportRows(reports []pipeline.Report) ([][]string, bool) {
