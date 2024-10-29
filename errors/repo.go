@@ -12,6 +12,7 @@ var (
 	GithubUnreachableError     = RepoErrors.NewType("github_unreachable")
 	InvalidGithubResponseError = RepoErrors.NewType("invalid_response")
 	RepoExistsError            = RepoErrors.NewType("repo_exists")
+	TemplateNotFoundError      = RepoErrors.NewType("template_not_found")
 	CannotCloneRepoError       = GitErrors.NewType("cannot_clone")
 	CannotFetchRepoError       = GitErrors.NewType("cannot_fetch")
 	CannotPullRepoError        = GitErrors.NewType("cannot_pull")

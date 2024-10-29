@@ -127,7 +127,7 @@ func Update(override bool) error {
 		return err
 	}
 	for repoName, repo := range lockfile.Repos {
-		log.DefaultLogger().Info("Updating repo", "repo", repoName)
+		log.PkgLogger().Info("Updating repo", "repo", repoName)
 		remoteTemplates, err := DiscoverTemplates(repo)
 		if err != nil {
 			return err
@@ -137,7 +137,7 @@ func Update(override bool) error {
 				if lockfile.Templates == nil {
 					lockfile.Templates = make(map[string]TemplateEntry)
 				}
-				log.DefaultLogger().Info("Discovered template", "repo", repoName, "lang", lang, "url", temp.Repo)
+				log.PkgLogger().Info("Discovered template", "repo", repoName, "lang", lang, "url", temp.Repo)
 				lockfile.Templates[lang] = temp
 			}
 		}
@@ -156,7 +156,7 @@ func Create(lang string, name string, force bool, noCache bool) error {
 	if !ok {
 		return errors.LanguageNotAvailableError.New("language '%s' is not installed. run 'apisense templates update' to update local templates", lang)
 	}
-	cachePath := filepath.FromSlash(directories.CacheDirectory() + "/" + lang)
+	cachePath := filepath.FromSlash(directories.ValidatorsCacheDirectory() + "/" + lang)
 	destPath := filepath.FromSlash(directories.ValidatorCustomDirectory() + "/" + name)
 	if !util.Exists(cachePath) {
 		out, err := git.Clone(clone.Repository(temp.Repo), clone.Branch(temp.Branch), clone.Directory(cachePath))
@@ -206,7 +206,7 @@ func Create(lang string, name string, force bool, noCache bool) error {
 		return errors.CannotCommitError.Wrap(err, "cannot commit changes. error: %s", out)
 	}
 
-	log.DefaultLogger().Info("Created new validator from template", "lang", lang, "path", destPath)
+	log.PkgLogger().Info("Created new validator from template", "lang", lang, "path", destPath)
 
 	if noCache {
 		err = os.RemoveAll(cachePath)
@@ -215,6 +215,54 @@ func Create(lang string, name string, force bool, noCache bool) error {
 		}
 	}
 
+	return nil
+}
+
+func UpgradeAll() error {
+	lockfile, err := loadLockfile()
+	if err != nil {
+		return err
+	}
+	for name := range lockfile.Templates {
+		err = Upgrade(name)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func Upgrade(name string) error {
+	lockfile, err := loadLockfile()
+	if err != nil {
+		return err
+	}
+	if temp, ok := lockfile.Templates[name]; ok {
+		if temp.Commit != "*" {
+			log.PkgLogger().Warn("Template is locked to commit. Ignoring", "name", name, "commit", temp.Commit)
+		} else {
+			templDir := filepath.FromSlash(directories.ValidatorsCacheDirectory() + "/" + name)
+			if !util.Exists(templDir) {
+				log.PkgLogger().Warn("Template is not cached locally. Cannot upgrade", "name", name)
+				return nil
+			}
+			err = os.Chdir(templDir)
+			if err != nil {
+				return errors.CannotChangeDirectoryError.WrapWithNoMessage(err)
+			}
+			out, err := git.Fetch()
+			if err != nil {
+				return errors.CannotFetchRepoError.Wrap(err, out)
+			}
+			out, err = git.Pull()
+			if err != nil {
+				return errors.CannotPullRepoError.Wrap(err, out)
+			}
+			log.PkgLogger().Info("Upgraded template", "name", name)
+		}
+	} else {
+		return errors.TemplateNotFoundError.New("cannot find template with name: %s", name)
+	}
 	return nil
 }
 
