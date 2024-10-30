@@ -131,7 +131,11 @@ func (t tuiModel) View() string {
 		log.TuiLogger().Fatal(errors.RenderError.Wrap(t.err, "could not find the table cell"))
 	}
 
-	cellStatus.SetContent("Status: " + string(daemonStatus) + "\nPID: " + strconv.Itoa(daemonPid))
+	str := string(daemonStatus)
+	if str == "" {
+		str = "Unknown"
+	}
+	cellStatus.SetContent("Status: " + str + "\nPID: " + strconv.Itoa(daemonPid))
 
 	//Menu render
 	rowMenu := t.flexBox.GetRow(0)

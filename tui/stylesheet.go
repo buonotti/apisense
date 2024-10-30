@@ -39,6 +39,7 @@ var (
 
 // CENTER
 var styleContentCenter = lipgloss.NewStyle().Align(lipgloss.Center)
+var styleContentRight = lipgloss.NewStyle().Align(lipgloss.Right)
 var styleContentCenterT1 = lipgloss.NewStyle().Align(lipgloss.Center).Background(theme.Ansi2Color(termenv.ANSICyan))
 var styleContentCenterT2 = lipgloss.NewStyle().Align(lipgloss.Center).Background(theme.Ansi2Color(termenv.ANSIRed))
 var styleContentCenterT3 = lipgloss.NewStyle().Align(lipgloss.Center).Background(theme.Ansi2Color(termenv.ANSIGreen))
@@ -49,4 +50,4 @@ var styleBase = lipgloss.NewStyle()
 
 // TODO: Change once Flexboxlibrary adds optional footers
 var styleFooter = lipgloss.NewStyle().Align(lipgloss.Right).PaddingTop(1000)
-var styleBold = lipgloss.NewStyle().Bold(true)
+var styleAccent = lipgloss.NewStyle().Foreground(lipgloss.Color("#5e81ac"))

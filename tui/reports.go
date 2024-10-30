@@ -46,12 +46,13 @@ func ReportModel() reportModel {
 	reportTableView := createReportTableView(reports)
 
 	f := flexbox.New(0, 0).SetStyle(styleContentCenter)
-	mainRow := f.NewRow().AddCells(
-		flexbox.NewCell(0, 12),
-		flexbox.NewCell(10, 12),
-		flexbox.NewCell(0, 12),
+	pathRow := f.NewRow().AddCells(
+		flexbox.NewCell(1, 1).SetStyle(styleContentCenter),
 	)
-	f.AddRows([]*flexbox.Row{mainRow})
+	mainRow := f.NewRow().AddCells(
+		flexbox.NewCell(10, 10).SetStyle(styleContentCenter),
+	)
+	f.AddRows([]*flexbox.Row{pathRow, mainRow})
 
 	return reportModel{
 		views:   []*tableView{reportTableView},
@@ -69,7 +70,7 @@ func (r reportModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		r.flexBox.SetWidth(msg.Width)
+		r.flexBox.SetWidth(msg.Width / 4 * 2)
 		r.flexBox.SetHeight(msg.Height / 5 * 4)
 		r.activeView().table.SetWidth(r.flexBox.GetWidth())
 		r.activeView().table.SetHeight(r.flexBox.GetHeight())
@@ -94,11 +95,12 @@ func (r reportModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 							description: description,
 							item:        selectedReport,
 						})
-					} else if len(r.views) == 2 {
+						return r, nil
+					}
+					if len(r.views) == 2 {
 						// In the validated endpoints view
 						lastSelection := r.selectionHistory[len(r.selectionHistory)-1]
 						selectedReport := lastSelection.item.(pipeline.Report)
-
 						selectedIdx, _ := strconv.Atoi(r.activeView().table.GetCursorValue())
 						selectedEndpoint := selectedReport.Endpoints[selectedIdx]
 						description := selectedEndpoint.EndpointName
@@ -107,6 +109,22 @@ func (r reportModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 							description: description,
 							item:        selectedEndpoint,
 						})
+						return r, nil
+					}
+					if len(r.views) == 3 {
+						// In the result view
+						lastSelection := r.selectionHistory[len(r.selectionHistory)-1]
+						selectedValidatedEndpoint := lastSelection.item.(pipeline.ValidatedEndpoint)
+						selectedIdx, _ := strconv.Atoi(r.activeView().table.GetCursorValue())
+						selectedResult := selectedValidatedEndpoint.TestCaseResults[selectedIdx]
+						description := selectedResult.Name
+						//TODO: FIX CRASH
+						r.pushView(createValidatorResultTableView(selectedResult), selection{
+							index:       selectedIdx,
+							description: description,
+							item:        selectedResult,
+						})
+						return r, nil
 					}
 				}
 				return r, nil
@@ -124,11 +142,16 @@ func (r reportModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (r reportModel) View() string {
 	r.flexBox.ForceRecalculate()
-	row := r.flexBox.GetRow(0)
-	cell := row.GetCell(1)
+	rowPath := r.flexBox.GetRow(0)
+	cellPath := rowPath.GetCell(0)
+	cellPath.SetContent(r.GetSelectionPath())
+
+	row := r.flexBox.GetRow(1)
+	cell := row.GetCell(0)
 	r.activeView().table.SetWidth(cell.GetWidth())
 	r.activeView().table.SetHeight(cell.GetHeight())
-	cell.SetContent(r.GetSelectionPath() + "\n" + r.activeView().table.Render())
+	cell.SetContent(r.activeView().table.Render())
+	r.flexBox.ForceRecalculate()
 	return r.flexBox.Render()
 }
 
@@ -140,7 +163,7 @@ func (r *reportModel) pushView(view *tableView, selection selection) {
 
 // Function to pop top view from stack
 func (r *reportModel) popView() {
-	if len(r.views) > 1 {
+	if len(r.views) > 1 && len(r.selectionHistory) > 0 {
 		r.views = r.views[:len(r.views)-1]
 		r.selectionHistory = r.selectionHistory[:len(r.selectionHistory)-1]
 	}
@@ -157,7 +180,10 @@ func (r *reportModel) GetSelectionPath() string {
 	for _, selection := range r.selectionHistory {
 		pathParts = append(pathParts, selection.description)
 	}
-	return "/" + strings.Join(pathParts, "/") // Prepend with '/' for filepath style
+	if len(pathParts) == 0 {
+		return styleAccent.Render("Current") + "@Report" + styleAccent.Render("~") + ">"
+	}
+	return styleAccent.Render("Current") + "@Report" + styleAccent.Render("~/") + styleAccent.Render(strings.Join(pathParts, "/")) + ">" // Prepend with '/' for filepath style
 }
 
 func getReportRows(reports []pipeline.Report) ([][]string, bool) {
@@ -194,8 +220,7 @@ func getValidatedEndpointRows(validatedEndpoint pipeline.Report) ([][]string, bo
 
 func getResultRows(validatedEndpoint pipeline.ValidatedEndpoint) ([][]string, bool) {
 	rows := make([][]string, 0)
-	results := validatedEndpoint.TestCaseResults
-	for i, result := range results {
+	for i, result := range validatedEndpoint.TestCaseResults {
 		rows = append(rows, []string{
 			fmt.Sprintf("%d", i),
 			result.Name,
@@ -208,21 +233,42 @@ func getResultRows(validatedEndpoint pipeline.ValidatedEndpoint) ([][]string, bo
 	return rows, true
 }
 
+func getValidatorResultRows(result pipeline.TestCaseResult) ([][]string, bool) {
+	rows := make([][]string, 0)
+	//WHY TF IS THERE A INDEX OUT OF RANGE IN A FUCKING FOREACH LOOP I HATE MY FUCKING LIFE
+	if result.ValidatorResults == nil {
+		log.TuiLogger().Fatal("FUCK ME IT NIL")
+	}
+	for i, validatorResult := range result.ValidatorResults {
+		rows = append(rows, []string{
+			fmt.Sprintf("%d", i),
+			validatorResult.Name,
+			validatorResult.Message,
+			string(validatorResult.Status),
+		})
+	}
+	if len(rows) == 0 {
+		rows = append(rows, []string{"-1", "No validatorResults found"})
+		return rows, false
+	}
+	return rows, true
+}
+
 func createReportTableView(reports []pipeline.Report) *tableView {
 	headers := []string{"", "", ""}
 	rows, allowSelection := getReportRows(reports)
-	ratio := []int{2, 5, 20}
-	minSize := []int{4, 10, 15}
+	ratio := []int{5, 12, 40}
+	minSize := []int{4, 8, 20}
 	t := table.NewTableSingleType[string](0, 0, headers)
 	t.SetRatio(ratio).SetMinWidth(minSize)
 	t.AddRows(rows).SetStylePassing(true)
 	t.SetStyles(map[table.TableStyleKey]lipgloss.Style{
-		table.TableRowsCursorStyleKey:     styleActive,
-		table.TableRowsSubsequentStyleKey: styleBase,
-		table.TableRowsStyleKey:           styleBase,
-		table.TableHeaderStyleKey:         styleBase,
+		table.TableRowsCursorStyleKey:     styleActive.Align(lipgloss.Right),
+		table.TableRowsSubsequentStyleKey: styleContentRight,
+		table.TableRowsStyleKey:           styleContentRight,
+		table.TableHeaderStyleKey:         styleContentRight,
 		table.TableFooterStyleKey:         styleFooter,
-		table.TableCellCursorStyleKey:     styleActive,
+		table.TableCellCursorStyleKey:     styleActive.Align(lipgloss.Right),
 	})
 	return &tableView{table: t, allowSelect: allowSelection}
 }
@@ -236,12 +282,12 @@ func createValidatedEndpointTableView(endpoint pipeline.Report) *tableView {
 	t.SetRatio(ratio).SetMinWidth(minSize)
 	t.AddRows(rows).SetStylePassing(true)
 	t.SetStyles(map[table.TableStyleKey]lipgloss.Style{
-		table.TableRowsCursorStyleKey:     styleActive,
-		table.TableRowsSubsequentStyleKey: styleBase,
-		table.TableRowsStyleKey:           styleBase,
-		table.TableHeaderStyleKey:         styleBase,
+		table.TableRowsCursorStyleKey:     styleActive.Align(lipgloss.Right),
+		table.TableRowsSubsequentStyleKey: styleContentRight,
+		table.TableRowsStyleKey:           styleContentRight,
+		table.TableHeaderStyleKey:         styleContentRight,
 		table.TableFooterStyleKey:         styleFooter,
-		table.TableCellCursorStyleKey:     styleActive,
+		table.TableCellCursorStyleKey:     styleActive.Align(lipgloss.Right),
 	})
 	return &tableView{table: t, allowSelect: allowSelection}
 }
@@ -255,12 +301,31 @@ func createResultTableView(validatedEndpoint pipeline.ValidatedEndpoint) *tableV
 	t.SetRatio(ratio).SetMinWidth(minSize)
 	t.AddRows(rows).SetStylePassing(true)
 	t.SetStyles(map[table.TableStyleKey]lipgloss.Style{
-		table.TableRowsCursorStyleKey:     styleActive,
-		table.TableRowsSubsequentStyleKey: styleBase,
-		table.TableRowsStyleKey:           styleBase,
-		table.TableHeaderStyleKey:         styleBase,
+		table.TableRowsCursorStyleKey:     styleActive.Align(lipgloss.Right),
+		table.TableRowsSubsequentStyleKey: styleContentRight,
+		table.TableRowsStyleKey:           styleContentRight,
+		table.TableHeaderStyleKey:         styleContentRight,
 		table.TableFooterStyleKey:         styleFooter,
-		table.TableCellCursorStyleKey:     styleActive,
+		table.TableCellCursorStyleKey:     styleActive.Align(lipgloss.Right),
+	})
+	return &tableView{table: t, allowSelect: allowSelection}
+}
+
+func createValidatorResultTableView(result pipeline.TestCaseResult) *tableView {
+	headers := []string{"", ""}
+	rows, allowSelection := getValidatorResultRows(result)
+	ratio := []int{2, 25}
+	minSize := []int{4, 25}
+	t := table.NewTableSingleType[string](0, 0, headers)
+	t.SetRatio(ratio).SetMinWidth(minSize)
+	t.AddRows(rows).SetStylePassing(true)
+	t.SetStyles(map[table.TableStyleKey]lipgloss.Style{
+		table.TableRowsCursorStyleKey:     styleActive.Align(lipgloss.Right),
+		table.TableRowsSubsequentStyleKey: styleContentRight,
+		table.TableRowsStyleKey:           styleContentRight,
+		table.TableHeaderStyleKey:         styleContentRight,
+		table.TableFooterStyleKey:         styleFooter,
+		table.TableCellCursorStyleKey:     styleActive.Align(lipgloss.Right),
 	})
 	return &tableView{table: t, allowSelect: allowSelection}
 }
