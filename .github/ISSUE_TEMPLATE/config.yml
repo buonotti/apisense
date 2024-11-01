@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a issue of the homepage
+    url: https://github.com/buonotti/apisense-homepage/issues/new
+    about: Please report homepage issues in the homepage repo
