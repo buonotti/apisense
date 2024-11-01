@@ -6,8 +6,7 @@ title: "[BUG] "
 body:
   - type: markdown
     attributes:
-      value: |
-        "## Before getting started complete these tasks"
+      value: "## Before getting started complete these tasks"
   - type: checkboxes
     id: required-tasks
     attributes:
@@ -51,6 +50,7 @@ body:
   - type: dropdown
     id: platform
     attributes:
+      multiple: true
       label: The platform you encountered the bug on
       description: Multiple selections are possible
       options:
