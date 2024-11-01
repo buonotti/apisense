@@ -1,0 +1,60 @@
+name: Bug Report
+description: Report a bug you encountered
+labels: 
+  - bug
+title: [BUG] 
+body:
+  - type: markdown
+    attributes:
+      value: |
+        "## Before getting started complete these tasks"
+  - type: checkboxes
+    id: required-tasks
+    attributes:
+      description: Please complete these first
+      options:
+        - label: I have checked there are no other issues reporting this bug
+          required: true
+  - type: markdown
+    attributes:
+      value: "## Please fill out the follwing required fields"
+  - type: textarea
+    id: issue
+    attributes:
+      label: What happened
+      description: Let us know what the issue is you encountered
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected outcome
+      description: What did you expect to happen / What did you want to do
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: "## If possible please provide also the following bits of information"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Stack traces
+      description: Add logs or stack traces emitted by Apisense. (Gets auto-formatted as a code block for you)
+      render: true
+  - type: markdown
+    attributes:
+      value: "### System information"
+  - type: input
+    id: version
+    attributes:
+      label: Apisense version
+  - type: dropdown
+    id: platform
+    attributes:
+      label: The platform you encountered the bug on
+      description: Multiple selections are possible
+      options:
+        - Linux
+        - MacOS
+        - Windows
+    
