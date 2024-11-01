@@ -1,0 +1,45 @@
+name: Feature request
+description: Submit a feature request
+labels: enhancement
+title: "[FEAT] "
+body:
+  - type: markdown
+    attributes:
+      value: "## Before getting started complete these tasks"
+  - value: checkboxes
+    id: required-tasks
+    attributes:
+      label: Please complete these first
+      options:
+      - label: I have checked this feature is not on out roadmap
+        required: true
+      - label: I have checked there is no other feature request describing this feature
+        required: true
+  - type: markdown
+    attributes:
+      value: "## Please fill out the follwing required fields"
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Definitions
+        - Validation
+        - TUI
+        - CLI
+        - API
+        - Other
+      validations:
+        required: true
+  - type: input
+    id: other-category
+    attributes:
+      label: If you selected other, which category not listed above does your feature fall into?
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe your idea
+      description: Please give a detailed description of your feature also outlining the importance for this project
+    validations:
+      required: true
+      
