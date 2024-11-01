@@ -34,7 +34,7 @@ body:
   - type: input
     id: other-category
     attributes:
-      label: If you selected other: In which category not listed above does your feature fall into?
+      label: "If you selected other: In which category not listed above does your feature fall into?"
   - type: textarea
     id: description
     attributes:
