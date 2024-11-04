@@ -7,9 +7,9 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/buonotti/apisense)](https://goreportcard.com/report/github.com/buonotti/apisense)
 
 Apisense is a project that is used to monitor given endpoints in the most flexible way and generate reports about the
-state of the returned data. If you want to know more about the origins check out the [About](./About.md) page
+state of the returned data.
 
-For information about installation and usage, check out the [wiki](https://buonotti.github.io/apisense-homepage/)
+For information about installation and usage, check out the [wiki](https://apisense.dev/)
 
 ## Contribution
 
