@@ -5,6 +5,7 @@
 ![Build](https://github.com/buonotti/apisense/actions/workflows/go.yml/badge.svg)
 ![CodeQL](https://github.com/buonotti/apisense/actions/workflows/codeql.yml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/buonotti/apisense)](https://goreportcard.com/report/github.com/buonotti/apisense)
+[![Go Reference](https://pkg.go.dev/badge/github.com/buonotti/apisense/v2.svg)](https://pkg.go.dev/github.com/buonotti/apisense/v2)
 
 Apisense is a project that is used to monitor given endpoints in the most flexible way and generate reports about the
 state of the returned data.
