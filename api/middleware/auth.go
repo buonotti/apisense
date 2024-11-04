@@ -3,10 +3,10 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/buonotti/apisense/api/db"
-	"github.com/buonotti/apisense/api/jwt"
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/v2/api/db"
+	"github.com/buonotti/apisense/v2/api/jwt"
+	"github.com/buonotti/apisense/v2/errors"
+	"github.com/buonotti/apisense/v2/log"
 	"github.com/gofiber/fiber/v2"
 	goJWT "github.com/golang-jwt/jwt/v4"
 )

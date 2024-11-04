@@ -4,8 +4,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/v2/errors"
+	"github.com/buonotti/apisense/v2/filesystem/locations/directories"
 )
 
 // Setup creates the daemon directory and writes the default files to it.

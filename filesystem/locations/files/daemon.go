@@ -3,7 +3,7 @@ package files
 import (
 	"path/filepath"
 
-	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/v2/filesystem/locations/directories"
 )
 
 func DaemonStatusFile() string {

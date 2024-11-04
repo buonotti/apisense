@@ -4,8 +4,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 
-	"github.com/buonotti/apisense/api/jwt"
-	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/v2/api/jwt"
+	"github.com/buonotti/apisense/v2/errors"
 )
 
 // UserData represents the data generated on login

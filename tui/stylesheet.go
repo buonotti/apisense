@@ -4,7 +4,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/termenv"
 
-	"github.com/buonotti/apisense/theme"
+	"github.com/buonotti/apisense/v2/theme"
 )
 
 // BASE STYLE THAT GOES AROUND THE WHOLE TUI

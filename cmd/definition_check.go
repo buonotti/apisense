@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/log"
-	"github.com/buonotti/apisense/validation/definitions"
+	"github.com/buonotti/apisense/v2/errors"
+	"github.com/buonotti/apisense/v2/log"
+	"github.com/buonotti/apisense/v2/validation/definitions"
 	"github.com/goccy/go-yaml"
 	"github.com/spf13/cobra"
 )

@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/buonotti/apisense/daemon"
-	"github.com/buonotti/apisense/log"
-	"github.com/buonotti/apisense/tui"
+	"github.com/buonotti/apisense/v2/daemon"
+	"github.com/buonotti/apisense/v2/log"
+	"github.com/buonotti/apisense/v2/tui"
 	"github.com/spf13/cobra"
 )
 

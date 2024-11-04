@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/buonotti/apisense/log"
-	"github.com/buonotti/apisense/validation/validators"
+	"github.com/buonotti/apisense/v2/log"
+	"github.com/buonotti/apisense/v2/validation/validators"
 	"github.com/spf13/cobra"
 )
 

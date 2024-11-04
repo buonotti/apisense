@@ -3,7 +3,7 @@ package jwt
 import (
 	"time"
 
-	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/v2/errors"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
 )

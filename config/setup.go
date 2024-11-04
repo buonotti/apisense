@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/filesystem/locations/directories"
-	"github.com/buonotti/apisense/util"
+	"github.com/buonotti/apisense/v2/errors"
+	"github.com/buonotti/apisense/v2/filesystem/locations/directories"
+	"github.com/buonotti/apisense/v2/util"
 	"github.com/spf13/viper"
 )
 

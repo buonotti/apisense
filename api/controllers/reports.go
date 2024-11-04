@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/buonotti/apisense/api/filter"
-	"github.com/buonotti/apisense/conversion"
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation/pipeline"
+	"github.com/buonotti/apisense/v2/api/filter"
+	"github.com/buonotti/apisense/v2/conversion"
+	"github.com/buonotti/apisense/v2/errors"
+	"github.com/buonotti/apisense/v2/util"
+	"github.com/buonotti/apisense/v2/validation/pipeline"
 	"github.com/gofiber/fiber/v2"
 )
 

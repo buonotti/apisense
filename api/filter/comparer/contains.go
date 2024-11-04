@@ -1,7 +1,7 @@
 package comparer
 
 import (
-	"github.com/buonotti/apisense/util"
+	"github.com/buonotti/apisense/v2/util"
 	"github.com/goccy/go-reflect"
 )
 

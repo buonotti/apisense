@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/v2/errors"
 	"github.com/goccy/go-json"
 	"github.com/goccy/go-reflect"
 )

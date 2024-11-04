@@ -1,11 +1,11 @@
 package tui
 
 import (
-	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/v2/log"
 	"path/filepath"
 	"time"
 
-	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/v2/filesystem/locations/directories"
 
 	"github.com/76creates/stickers"
 	"github.com/charmbracelet/bubbles/help"
@@ -16,10 +16,10 @@ import (
 	"github.com/common-nighthawk/go-figure"
 	"github.com/spf13/viper"
 
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/filesystem"
-	"github.com/buonotti/apisense/filesystem/locations/files"
-	"github.com/buonotti/apisense/validation/pipeline"
+	"github.com/buonotti/apisense/v2/errors"
+	"github.com/buonotti/apisense/v2/filesystem"
+	"github.com/buonotti/apisense/v2/filesystem/locations/files"
+	"github.com/buonotti/apisense/v2/validation/pipeline"
 )
 
 var (

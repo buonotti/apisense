@@ -4,7 +4,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/v2/errors"
 )
 
 // Stop stops the daemon. If there is no daemon running it return an *errors.DaemonNotRunningError.

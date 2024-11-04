@@ -3,9 +3,9 @@ package cmd
 import (
 	"strconv"
 
-	"github.com/buonotti/apisense/api"
-	"github.com/buonotti/apisense/api/db"
-	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/v2/api"
+	"github.com/buonotti/apisense/v2/api/db"
+	"github.com/buonotti/apisense/v2/log"
 	clog "github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

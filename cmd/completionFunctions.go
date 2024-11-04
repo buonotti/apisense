@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/buonotti/apisense/api/db"
-	"github.com/buonotti/apisense/conversion"
-	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation/definitions"
-	"github.com/buonotti/apisense/validation/pipeline"
+	"github.com/buonotti/apisense/v2/api/db"
+	"github.com/buonotti/apisense/v2/conversion"
+	"github.com/buonotti/apisense/v2/util"
+	"github.com/buonotti/apisense/v2/validation/definitions"
+	"github.com/buonotti/apisense/v2/validation/pipeline"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

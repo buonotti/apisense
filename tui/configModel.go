@@ -1,7 +1,7 @@
 package tui
 
 import (
-	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/v2/log"
 	"strconv"
 
 	"github.com/charmbracelet/bubbles/key"

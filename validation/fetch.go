@@ -6,9 +6,9 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/log"
-	"github.com/buonotti/apisense/validation/definitions"
+	"github.com/buonotti/apisense/v2/errors"
+	"github.com/buonotti/apisense/v2/log"
+	"github.com/buonotti/apisense/v2/validation/definitions"
 	"github.com/go-resty/resty/v2"
 	"github.com/goccy/go-json"
 )

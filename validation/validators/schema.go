@@ -1,7 +1,7 @@
 package validators
 
 import (
-	"github.com/buonotti/apisense/errors"
+	"github.com/buonotti/apisense/v2/errors"
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 

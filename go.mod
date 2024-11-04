@@ -1,4 +1,4 @@
-module github.com/buonotti/apisense
+module github.com/buonotti/apisense/v2
 
 go 1.23.0
 

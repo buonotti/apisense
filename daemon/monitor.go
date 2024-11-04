@@ -4,8 +4,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/filesystem/locations/files"
+	"github.com/buonotti/apisense/v2/errors"
+	"github.com/buonotti/apisense/v2/filesystem/locations/files"
 	lf "github.com/nightlyone/lockfile"
 )
 

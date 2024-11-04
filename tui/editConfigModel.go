@@ -2,7 +2,7 @@ package tui
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/v2/log"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"

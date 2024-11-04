@@ -3,9 +3,9 @@ package cmd
 import (
 	"os"
 
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/filesystem/locations/directories"
-	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/v2/errors"
+	"github.com/buonotti/apisense/v2/filesystem/locations/directories"
+	"github.com/buonotti/apisense/v2/log"
 	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
 )

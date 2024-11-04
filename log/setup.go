@@ -3,7 +3,7 @@ package log
 import (
 	"os"
 
-	"github.com/buonotti/apisense/util"
+	"github.com/buonotti/apisense/v2/util"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/viper"
 )

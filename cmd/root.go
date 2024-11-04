@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"github.com/auribuo/stylishcobra"
-	"github.com/buonotti/apisense/config"
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/v2/config"
+	"github.com/buonotti/apisense/v2/errors"
+	"github.com/buonotti/apisense/v2/log"
 	"github.com/charmbracelet/lipgloss"
 	clog "github.com/charmbracelet/log"
 	"github.com/muesli/termenv"

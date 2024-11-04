@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/buonotti/apisense/theme"
+	"github.com/buonotti/apisense/v2/theme"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/termenv"
 )

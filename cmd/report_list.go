@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/buonotti/apisense/log"
-	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation/pipeline"
+	"github.com/buonotti/apisense/v2/log"
+	"github.com/buonotti/apisense/v2/util"
+	"github.com/buonotti/apisense/v2/validation/pipeline"
 	"github.com/spf13/cobra"
 )
 

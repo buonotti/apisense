@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/v2/filesystem/locations/directories"
 	"github.com/spf13/cobra"
 )
 

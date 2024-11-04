@@ -3,11 +3,11 @@ package daemon
 import (
 	"os"
 
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/filesystem/locations/files"
-	"github.com/buonotti/apisense/log"
-	"github.com/buonotti/apisense/validation/pipeline"
-	"github.com/buonotti/apisense/validation/validators"
+	"github.com/buonotti/apisense/v2/errors"
+	"github.com/buonotti/apisense/v2/filesystem/locations/files"
+	"github.com/buonotti/apisense/v2/log"
+	"github.com/buonotti/apisense/v2/validation/pipeline"
+	"github.com/buonotti/apisense/v2/validation/validators"
 	lf "github.com/nightlyone/lockfile"
 )
 

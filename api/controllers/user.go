@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/buonotti/apisense/api/db"
+	"github.com/buonotti/apisense/v2/api/db"
 	"github.com/gofiber/fiber/v2"
 )
 

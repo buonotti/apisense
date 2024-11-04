@@ -3,7 +3,7 @@ package db
 import (
 	"database/sql"
 
-	"github.com/buonotti/apisense/filesystem/locations/files"
+	"github.com/buonotti/apisense/v2/filesystem/locations/files"
 	_ "github.com/glebarez/go-sqlite"
 )
 

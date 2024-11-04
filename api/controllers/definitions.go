@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/filesystem/locations"
-	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation/definitions"
+	"github.com/buonotti/apisense/v2/errors"
+	"github.com/buonotti/apisense/v2/filesystem/locations"
+	"github.com/buonotti/apisense/v2/util"
+	"github.com/buonotti/apisense/v2/validation/definitions"
 	"github.com/goccy/go-yaml"
 	"github.com/gofiber/fiber/v2"
 )

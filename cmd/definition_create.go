@@ -6,9 +6,9 @@ import (
 
 	_ "embed"
 
-	"github.com/buonotti/apisense/examples"
-	"github.com/buonotti/apisense/filesystem/locations"
-	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/v2/examples"
+	"github.com/buonotti/apisense/v2/filesystem/locations"
+	"github.com/buonotti/apisense/v2/log"
 	"github.com/spf13/cobra"
 )
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/buonotti/apisense/cmd"
+	"github.com/buonotti/apisense/v2/cmd"
 )
 
 //	@title			Apisense API
@@ -14,12 +14,12 @@ import (
 //	@license.name	MIT
 //	@license.url	https://opensource.org/licenses/MIT
 
-//	@host						localhost:8080
-//	@BasePath					/api
+// @host						localhost:8080
+// @BasePath					/api
 //
-//	@securityDefinitions.bearer	ApiKeyAuth
-//	@in							header
-//	@name						api_key
+// @securityDefinitions.bearer	ApiKeyAuth
+// @in							header
+// @name						api_key
 func main() {
 	cmd.Execute()
 }

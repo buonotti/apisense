@@ -1,8 +1,8 @@
 package validators
 
 import (
-	"github.com/buonotti/apisense/validation"
-	"github.com/buonotti/apisense/validation/definitions"
+	"github.com/buonotti/apisense/v2/validation"
+	"github.com/buonotti/apisense/v2/validation/definitions"
 )
 
 func NewValidationItem(response validation.EndpointResponse, definition definitions.Endpoint) ValidationItem {

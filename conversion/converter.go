@@ -1,8 +1,8 @@
 package conversion
 
 import (
-	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation/pipeline"
+	"github.com/buonotti/apisense/v2/util"
+	"github.com/buonotti/apisense/v2/validation/pipeline"
 )
 
 // Converter represents a type capable of converting a list of reports to a certain format and then to an []byte

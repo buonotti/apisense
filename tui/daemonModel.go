@@ -5,7 +5,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/buonotti/apisense/daemon"
+	"github.com/buonotti/apisense/v2/daemon"
 	tea "github.com/charmbracelet/bubbletea"
 )
 

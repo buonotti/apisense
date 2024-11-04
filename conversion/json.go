@@ -1,7 +1,7 @@
 package conversion
 
 import (
-	"github.com/buonotti/apisense/validation/pipeline"
+	"github.com/buonotti/apisense/v2/validation/pipeline"
 	"github.com/goccy/go-json"
 )
 

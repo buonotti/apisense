@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/buonotti/apisense/daemon"
-	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/v2/daemon"
+	"github.com/buonotti/apisense/v2/log"
 	"github.com/goccy/go-json"
 	"github.com/spf13/cobra"
 )

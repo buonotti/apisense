@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/buonotti/apisense/api/validation"
+	"github.com/buonotti/apisense/v2/api/validation"
 	"github.com/gofiber/fiber/v2"
 )
 

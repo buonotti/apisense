@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/imports"
-	"github.com/buonotti/apisense/imports/swagger"
-	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/v2/errors"
+	"github.com/buonotti/apisense/v2/imports"
+	"github.com/buonotti/apisense/v2/imports/swagger"
+	"github.com/buonotti/apisense/v2/log"
 	"github.com/goccy/go-yaml"
 	"github.com/spf13/cobra"
 )

@@ -3,7 +3,7 @@ package locations
 import (
 	"path/filepath"
 
-	"github.com/buonotti/apisense/filesystem/locations/directories"
+	"github.com/buonotti/apisense/v2/filesystem/locations/directories"
 )
 
 // Returns the full path of a definition given its filename without extension

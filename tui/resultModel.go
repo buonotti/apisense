@@ -2,7 +2,7 @@ package tui
 
 import (
 	"fmt"
-	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/v2/log"
 	"net/url"
 	"sort"
 	"strconv"
@@ -13,9 +13,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/buonotti/apisense/errors"
-	"github.com/buonotti/apisense/util"
-	"github.com/buonotti/apisense/validation/pipeline"
+	"github.com/buonotti/apisense/v2/errors"
+	"github.com/buonotti/apisense/v2/util"
+	"github.com/buonotti/apisense/v2/validation/pipeline"
 )
 
 var (

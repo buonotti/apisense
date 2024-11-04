@@ -3,8 +3,8 @@ package cmd
 import (
 	"os"
 
-	"github.com/buonotti/apisense/filesystem/locations"
-	"github.com/buonotti/apisense/log"
+	"github.com/buonotti/apisense/v2/filesystem/locations"
+	"github.com/buonotti/apisense/v2/log"
 	"github.com/spf13/cobra"
 )
 
