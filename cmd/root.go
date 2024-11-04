@@ -17,7 +17,7 @@ var rootCmd = &cobra.Command{
 	Long: `This cli is used to start and interface with the apisense daemon. The daemon is used to monitor data from a REST web service.
 There are multiple subcommands that can be used to interact with the daemon. For more information about a specific subcommand use the --help flag.`,
 	Args:    cobra.NoArgs,
-	Version: "2.0.0",
+	Version: "2.0.1",
 	PersistentPreRun: func(cmd *cobra.Command, _ []string) {
 		cobra.CheckErr(config.Setup())
 		cobra.CheckErr(log.Setup())
