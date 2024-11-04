@@ -102,8 +102,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/definitions.Endpoint"
                         }
@@ -336,21 +336,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/ws": {
-            "get": {
-                "description": "Connect to this endpoint with the ws:// protocol to instantiate a websocket connection to get updates for new reports",
-                "tags": [
-                    "reports"
-                ],
-                "summary": "Open a websocket connection to receive notifications",
-                "operationId": "ws",
-                "responses": {
-                    "101": {
-                        "description": "Switching Protocols"
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -358,6 +343,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
+                    "description": "Holds the information about what happened",
                     "type": "string"
                 }
             }
@@ -397,10 +383,6 @@ const docTemplate = `{
                 "baseUrl": {
                     "description": "BaseUrl is the base path of the endpoint",
                     "type": "string"
-                },
-                "enabled": {
-                    "description": "IsEnabled is a boolean that indicates if the endpoint is enabled (not contained in the definition)",
-                    "type": "boolean"
                 },
                 "excludedValidators": {
                     "description": "ExcludedValidators is a list of validators that should not be used for this endpoint",
@@ -453,10 +435,12 @@ const docTemplate = `{
                     }
                 },
                 "responseSchema": {
-                    "description": "ResponseSchema describes how the response should look like",
+                    "description": "ResponseSchema describes how the response should look like"
+                },
+                "test_case_names": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/definitions.SchemaEntry"
+                        "type": "string"
                     }
                 },
                 "variables": {
@@ -465,6 +449,10 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/definitions.Variable"
                     }
+                },
+                "version": {
+                    "description": "Version is the version of the definition",
+                    "type": "integer"
                 }
             }
         },
@@ -502,42 +490,6 @@ const docTemplate = `{
                 },
                 "value": {
                     "description": "Value is the value of the query parameter",
-                    "type": "string"
-                }
-            }
-        },
-        "definitions.SchemaEntry": {
-            "type": "object",
-            "required": [
-                "fields",
-                "name",
-                "required",
-                "type"
-            ],
-            "properties": {
-                "fields": {
-                    "description": "Fields describe the children of this field if the field is an object or array",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/definitions.SchemaEntry"
-                    }
-                },
-                "max": {
-                    "description": "Maximum is the maximum allowed value of the field"
-                },
-                "min": {
-                    "description": "Minimum is the minimum allowed value of the field"
-                },
-                "name": {
-                    "description": "Name is the name of the field",
-                    "type": "string"
-                },
-                "required": {
-                    "description": "Required is true if the field is required (not null or not empty in case of an array)",
-                    "type": "boolean"
-                },
-                "type": {
-                    "description": "Type is the type of the field",
                     "type": "string"
                 }
             }
@@ -590,6 +542,10 @@ const docTemplate = `{
         "pipeline.TestCaseResult": {
             "type": "object",
             "properties": {
+                "name": {
+                    "description": "Name is the name of the test case result",
+                    "type": "string"
+                },
                 "url": {
                     "description": "Url is the url of the api call (with query parameters)",
                     "type": "string"
@@ -660,7 +616,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "1.0.0",
 	Host:             "localhost:8080",
 	BasePath:         "/api",
 	Schemes:          []string{},

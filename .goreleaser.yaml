@@ -29,7 +29,6 @@ archives:
 
 changelog:
   use: github
-  sort: empty
   format: "{{.SHA}}: {{.Message}} (@{{.AuthorUsername}})"
   groups:
     - title: Features

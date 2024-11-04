@@ -3,6 +3,7 @@ definitions:
   controllers.ErrorResponse:
     properties:
       message:
+        description: Holds the information about what happened
         type: string
     type: object
   controllers.LoginRequest:
@@ -25,10 +26,6 @@ definitions:
       baseUrl:
         description: BaseUrl is the base path of the endpoint
         type: string
-      enabled:
-        description: IsEnabled is a boolean that indicates if the endpoint is enabled
-          (not contained in the definition)
-        type: boolean
       excludedValidators:
         description: ExcludedValidators is a list of validators that should not be
           used for this endpoint
@@ -68,8 +65,9 @@ definitions:
         type: array
       responseSchema:
         description: ResponseSchema describes how the response should look like
+      test_case_names:
         items:
-          $ref: '#/definitions/definitions.SchemaEntry'
+          type: string
         type: array
       variables:
         description: Variables are all the variables that should be interpolated in
@@ -77,6 +75,9 @@ definitions:
         items:
           $ref: '#/definitions/definitions.Variable'
         type: array
+      version:
+        description: Version is the version of the definition
+        type: integer
     required:
     - baseUrl
     - format
@@ -110,34 +111,6 @@ definitions:
     required:
     - name
     - value
-    type: object
-  definitions.SchemaEntry:
-    properties:
-      fields:
-        description: Fields describe the children of this field if the field is an
-          object or array
-        items:
-          $ref: '#/definitions/definitions.SchemaEntry'
-        type: array
-      max:
-        description: Maximum is the maximum allowed value of the field
-      min:
-        description: Minimum is the minimum allowed value of the field
-      name:
-        description: Name is the name of the field
-        type: string
-      required:
-        description: Required is true if the field is required (not null or not empty
-          in case of an array)
-        type: boolean
-      type:
-        description: Type is the type of the field
-        type: string
-    required:
-    - fields
-    - name
-    - required
-    - type
     type: object
   definitions.Variable:
     properties:
@@ -176,6 +149,9 @@ definitions:
     type: object
   pipeline.TestCaseResult:
     properties:
+      name:
+        description: Name is the name of the test case result
+        type: string
       url:
         description: Url is the url of the api call (with query parameters)
         type: string
@@ -233,7 +209,7 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
   title: Apisense API
-  version: "1.0"
+  version: 1.0.0
 paths:
   /definitions:
     get:
@@ -283,8 +259,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/definitions.Endpoint'
         "400":
@@ -439,17 +415,6 @@ paths:
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
       summary: Get one report
-      tags:
-      - reports
-  /ws:
-    get:
-      description: Connect to this endpoint with the ws:// protocol to instantiate
-        a websocket connection to get updates for new reports
-      operationId: ws
-      responses:
-        "101":
-          description: Switching Protocols
-      summary: Open a websocket connection to receive notifications
       tags:
       - reports
 swagger: "2.0"
