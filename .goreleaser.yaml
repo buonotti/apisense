@@ -2,6 +2,8 @@ version: 2
 
 before:
   hooks:
+    - git describe --tags --abbrev=0 > cmd/version.txt
+    - git commit -am "Bump version for release"
     - swag init 
     - swag fmt 
     - go mod tidy

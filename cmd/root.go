@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	_ "embed"
 	"github.com/auribuo/stylishcobra"
 	"github.com/buonotti/apisense/v2/config"
 	"github.com/buonotti/apisense/v2/errors"
@@ -11,13 +12,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
+//go:embed version.txt
+var version string
+
 var rootCmd = &cobra.Command{
 	Use:   "apisense",
 	Short: "apisense is a tool to monitor data from a REST web service",
 	Long: `This cli is used to start and interface with the apisense daemon. The daemon is used to monitor data from a REST web service.
 There are multiple subcommands that can be used to interact with the daemon. For more information about a specific subcommand use the --help flag.`,
 	Args:    cobra.NoArgs,
-	Version: "2.0.1",
+	Version: version,
 	PersistentPreRun: func(cmd *cobra.Command, _ []string) {
 		cobra.CheckErr(config.Setup())
 		cobra.CheckErr(log.Setup())
