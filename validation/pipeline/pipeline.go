@@ -202,10 +202,7 @@ func (p *Pipeline) validateTestCase(response validation.EndpointResponse, defini
 			continue
 		}
 
-		err := validator.Validate(validators.ValidationItem{
-			Response:   response,
-			Definition: definition,
-		})
+		err := validator.Validate(validators.NewValidationItem(response, definition))
 		if err != nil {
 			validatorResult.Message = err.Error()
 			validatorResult.Status = validators.ValidatorStatusFail

@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/filesystem/locations/directories"
@@ -33,8 +34,12 @@ func Setup() error {
 			return errors.CannotCreateFileError.Wrap(err, "cannot create config file")
 		}
 
-		defer file.Close()
+		file.Close()
 	}
+
+	viper.SetEnvPrefix("apisense")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.AutomaticEnv()
 
 	viper.AddConfigPath(filepath.FromSlash(directories.ConfigDirectory()))
 	viper.SetConfigName(FileName)
@@ -44,11 +49,23 @@ func Setup() error {
 	}
 
 	if util.Exists(secretsFile) {
-		viper.SetConfigName(SecretsName)
-		_ = viper.MergeInConfig()
+		SecretsViper.SetEnvPrefix("apisense_secret")
+		SecretsViper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+		SecretsViper.AutomaticEnv()
+
+		SecretsViper.AddConfigPath(filepath.FromSlash(directories.ConfigDirectory()))
+		SecretsViper.SetConfigName(SecretsName)
+		err = SecretsViper.ReadInConfig()
+		if err != nil {
+			return errors.CannotReadInConfigError.Wrap(err, "cannot read secrets config file")
+		}
+
+		SecretsViper.WatchConfig()
 	}
 
 	viper.WatchConfig()
 
 	return nil
 }
+
+var SecretsViper = viper.New()

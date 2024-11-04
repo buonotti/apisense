@@ -40,3 +40,8 @@ func SshLogger() *log.Logger {
 func TuiLogger() *log.Logger {
 	return log.Default().WithPrefix("Tui")
 }
+
+// PkgLogger returns a logger with the prefix "Pkg"
+func PkgLogger() *log.Logger {
+	return log.Default().WithPrefix("Pkg")
+}

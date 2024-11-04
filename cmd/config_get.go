@@ -19,6 +19,7 @@ var configGetCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, _ []string) {
 		key := cmd.Flag("key").Value.String()
+		fmt.Printf("Config file: %s\n", viper.ConfigFileUsed())
 		if key == "" {
 			allKeys := viper.AllKeys()
 			sort.Strings(allKeys)

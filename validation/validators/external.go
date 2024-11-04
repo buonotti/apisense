@@ -14,11 +14,11 @@ import (
 
 // ValidatorDefinition is the definition of an external validator
 type ValidatorDefinition struct {
-	Name          string   // Name is the name of the validator
-	Path          string   // Path is the path to the executable
-	Args          []string // Args are the arguments to pass to the executable
-	ReadFromStdin bool     // ReadFromStdin controls whether the validator expects the item to validate on stdin
-	Fatal         bool     // Fatal controls whether the validator is fatal or not that is if it fails the pipeline should stop
+	Name  string   // Name is the name of the validator
+	Path  string   // Path is the path to the executable
+	Args  []string // Args are the arguments to pass to the executable
+	Fatal bool     // Fatal controls whether the validator is fatal or not that is if it fails the pipeline should stop
+	Slim  bool     // Slim controls how much data the validator gets. Setting this to true reduces the context the validator gets
 }
 
 // parse parses the external validators in the config file and returns a slice containing all validators to later use in the pipeline
@@ -115,7 +115,20 @@ func (v externalValidator) Name() string {
 // process then returning an error according to the status code of the external
 // program
 func (v externalValidator) Validate(item ValidationItem) error {
-	jsonString, err := json.Marshal(item)
+	var err error
+	var jsonString []byte
+	if v.Definition.Slim {
+		jsonString, err = json.Marshal(SlimValidationItem{
+			response: item.Response(),
+		})
+	} else {
+		jsonString, err = json.Marshal(ExtendedValidationItem{
+			response:   item.Response(),
+			definition: item.Definition(),
+		})
+	}
+
+	jsonString, err = json.Marshal(item)
 	outString := &strings.Builder{}
 	if err != nil {
 		return errors.CannotSerializeItemError.Wrap(err, "cannot serialize item: %s", err)
@@ -138,7 +151,7 @@ func (v externalValidator) Validate(item ValidationItem) error {
 		var exitErr *exec.ExitError
 		if errs.As(err, &exitErr) {
 			if exitErr.ExitCode() == 1 {
-				return errors.ValidationError.New("validation failed for endpoint %s: %s", item.Definition.Name, validatorErr.String())
+				return errors.ValidationError.New("validation failed: %s", validatorErr.String())
 			} else {
 				return errors.ValidationError.New("validation failed: unexpected exit code from external validator: %d", exitErr.ExitCode())
 			}
@@ -149,4 +162,8 @@ func (v externalValidator) Validate(item ValidationItem) error {
 
 func (v externalValidator) IsFatal() bool {
 	return v.Definition.Fatal
+}
+
+func (v externalValidator) IsSlim() bool {
+	return v.Definition.Slim
 }

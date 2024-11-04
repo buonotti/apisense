@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
-	"github.com/buonotti/apisense/validation/validators/repo"
+	"github.com/buonotti/apisense/validation/validators/pkg"
 	"github.com/spf13/cobra"
 )
 
@@ -17,13 +17,11 @@ var templatesCreateCmd = &cobra.Command{
 		if err != nil {
 			log.DefaultLogger().Fatal(errors.CannotGetFlagValueError.WrapWithNoMessage(err))
 		}
-		force, err := cmd.Flags().GetBool("force")
-		if err != nil {
-			log.DefaultLogger().Fatal(errors.CannotGetFlagValueError.WrapWithNoMessage(err))
-		}
+		force, _ := cmd.Flags().GetBool("force")
+		noCache, _ := cmd.Flags().GetBool("no-cache")
 
 		dest := args[0]
-		err = repo.Create(lang, dest, force)
+		err = pkg.Create(lang, dest, force, noCache)
 		if err != nil {
 			log.DefaultLogger().Fatal(err)
 		}
@@ -37,6 +35,7 @@ func init() {
 		log.DefaultLogger().Fatal(errors.CannotMarkFlagRequiredError.WrapWithNoMessage(err))
 	}
 	templatesCreateCmd.Flags().BoolP("force", "f", false, "Force the creation. Overrides already existing validators. Use with caution")
+	templatesCreateCmd.Flags().Bool("no-cache", false, "Disable the local caching of templates. Saves disk space but slows down creation")
 
 	templatesCmd.AddCommand(templatesCreateCmd)
 }

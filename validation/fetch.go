@@ -22,10 +22,9 @@ func rest() *resty.Client {
 }
 
 type EndpointResponse struct {
-	StatusCode          int                 // StatusCode is the status code of the response
-	RawData             any                 // RawData is the raw data of the response
-	Url                 string              // Url is the full url of the request
-	UsedQueryParameters map[string][]string // UsedQueryParameters are the query parameters that were used in the request
+	StatusCode int    // StatusCode is the status code of the response
+	RawData    any    // RawData is the raw data of the response
+	Url        string // Url is the full url of the request
 }
 
 func applyPayload(payload any, varMap definitions.VariableMap) ([]byte, error) {

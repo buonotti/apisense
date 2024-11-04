@@ -2,6 +2,8 @@ version: 2
 
 before:
   hooks:
+    - swag init 
+    - swag fmt 
     - go mod tidy
 
 builds:
@@ -26,9 +28,21 @@ archives:
         format: zip
 
 changelog:
-  sort: asc
+  use: github
+  sort: empty
+  format: "{{.SHA}}: {{.Message}} (@{{.AuthorUsername}})"
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: "Bug fixes"
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Others
+      order: 999
   filters:
     exclude:
       - "^docs:"
       - "^test:"
       - "^examples:"
+      - "^chore:"

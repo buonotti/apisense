@@ -1,11 +1,13 @@
 package cmd
 
 import (
+	"github.com/auribuo/stylishcobra"
 	"github.com/buonotti/apisense/config"
 	"github.com/buonotti/apisense/errors"
 	"github.com/buonotti/apisense/log"
+	"github.com/charmbracelet/lipgloss"
 	clog "github.com/charmbracelet/log"
-	cc "github.com/ivanpirog/coloredcobra"
+	"github.com/muesli/termenv"
 	"github.com/spf13/cobra"
 )
 
@@ -24,6 +26,7 @@ There are multiple subcommands that can be used to interact with the daemon. For
 			parsed, err := clog.ParseLevel(ll)
 			if err == nil {
 				clog.SetLevel(parsed)
+				clog.SetReportCaller(clog.GetLevel() == clog.DebugLevel)
 			} else {
 				log.DefaultLogger().Warn("Log level invalid. Falling back to config", "reason", err.Error())
 			}
@@ -49,14 +52,26 @@ func Execute() {
 }
 
 func init() {
-	cc.Init(&cc.Config{
-		RootCmd:       rootCmd,
-		Headings:      cc.HiCyan + cc.Bold + cc.Underline,
-		Commands:      cc.HiYellow + cc.Bold,
-		Example:       cc.Italic,
-		ExecName:      cc.Bold,
-		Flags:         cc.Bold,
-		FlagsDataType: cc.Italic + cc.HiBlue,
-	})
+	underline := lipgloss.NewStyle().Underline(true)
+	bold := lipgloss.NewStyle().Bold(true)
+	italic := lipgloss.NewStyle().Italic(true)
+	ubold := underline.Inherit(bold)
+
+	stylishcobra.Setup(rootCmd).
+		DisableExtraNewlines().
+		StyleHeadings(ubold.Foreground(lipgloss.ANSIColor(termenv.ANSIBlue))).
+		StyleCommands(bold.Foreground(lipgloss.ANSIColor(termenv.ANSICyan))).
+		StyleCmdShortDescr(lipgloss.NewStyle().Foreground(lipgloss.ANSIColor(termenv.ANSIBrightYellow))).
+		StyleAliases(italic).
+		StyleExecName(bold.Foreground(lipgloss.ANSIColor(termenv.ANSICyan))).
+		StyleExample(italic).
+		StyleFlags(lipgloss.NewStyle().Foreground(lipgloss.ANSIColor(termenv.ANSICyan))).
+		StyleFlagsDescr(italic.Foreground(lipgloss.ANSIColor(termenv.ANSIBrightYellow))).
+		StyleFlagsDataType(italic.Foreground(lipgloss.AdaptiveColor{
+			Light: "#444444",
+			Dark:  "#777777",
+		})).
+		Init()
+
 	rootCmd.SetVersionTemplate("{{.Version}}\n")
 }

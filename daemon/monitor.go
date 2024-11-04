@@ -35,7 +35,12 @@ func Pid() (int, error) {
 		return 0, errors.CannotReadFileError.Wrap(err, "cannot read pid file")
 	}
 
-	pid, err := strconv.Atoi(string(pidString))
+	pidStr := string(pidString)
+	if pidStr == "" {
+		return -1, nil
+	}
+
+	pid, err := strconv.Atoi(pidStr)
 	if err != nil {
 		return 0, errors.CannotReadFileError.Wrap(err, "cannot convert pid file to int")
 	}

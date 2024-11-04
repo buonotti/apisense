@@ -6,6 +6,7 @@ import (
 	"github.com/buonotti/apisense/api"
 	"github.com/buonotti/apisense/api/db"
 	"github.com/buonotti/apisense/log"
+	clog "github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -20,6 +21,15 @@ The port and interface can be changed with the --port and --host flags. The flag
 		cmd.Root().PersistentPreRun(cmd, args)
 		if viper.GetBool("api.auth") {
 			cobra.CheckErr(db.Setup())
+		}
+		if ll, err := cmd.Root().PersistentFlags().GetString("log-level"); err == nil && ll != "" {
+			parsed, err := clog.ParseLevel(ll)
+			if err == nil {
+				clog.SetLevel(parsed)
+				clog.SetReportCaller(clog.GetLevel() == clog.DebugLevel)
+			} else {
+				log.DefaultLogger().Warn("Log level invalid. Falling back to config", "reason", err.Error())
+			}
 		}
 	},
 	Run: func(cmd *cobra.Command, _ []string) {

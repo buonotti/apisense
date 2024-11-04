@@ -21,7 +21,7 @@ func (v schemaValidator) Name() string {
 // Validate validates the given items schema and return nil on success or an error on failure
 func (v schemaValidator) Validate(item ValidationItem) error {
 	compiler := jsonschema.NewCompiler()
-	err := compiler.AddResource("schema.json", item.Definition.ResponseSchema)
+	err := compiler.AddResource("schema.json", item.Definition().ResponseSchema)
 	if err != nil {
 		return errors.ValidationError.Wrap(err, "add resource to schema failed")
 	}
@@ -29,7 +29,7 @@ func (v schemaValidator) Validate(item ValidationItem) error {
 	if err != nil {
 		return errors.ValidationError.Wrap(err, "validation of schema failed")
 	}
-	err = schema.Validate(item.Response.RawData)
+	err = schema.Validate(item.Response().RawData)
 	if err != nil {
 		return errors.ValidationError.Wrap(err, "response schema is invalid")
 	}
@@ -39,4 +39,8 @@ func (v schemaValidator) Validate(item ValidationItem) error {
 
 func (v schemaValidator) IsFatal() bool {
 	return true
+}
+
+func (_ schemaValidator) IsSlim() bool {
+	return false
 }
